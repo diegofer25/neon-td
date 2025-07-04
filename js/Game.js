@@ -375,8 +375,7 @@ export class Game {
             // Play power-up sound
             if (window.playSFX) window.playSFX('powerup');
             
-            // Update shop display with new coin amount
-            this.showShop();
+            // The shop refresh is handled in the Shop class
         }
     }
     

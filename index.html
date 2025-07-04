@@ -61,9 +61,21 @@
 
         <!-- Power-Up Modal -->
         <div id="powerUpModal" class="overlay">
-            <h2>Power-Up Shop</h2>
-            <div id="powerUpCards">
-                <!-- Cards will be dynamically generated -->
+            <div class="shop-container">
+                <h2>Power-Up Shop</h2>
+                <div class="shop-tabs">
+                    <button class="tab-button active" data-tab="offense">⚔️ OFFENSE</button>
+                    <button class="tab-button" data-tab="defense">🛡️ DEFENSE</button>
+                    <button class="tab-button" data-tab="utility">⚡ UTILITY</button>
+                </div>
+                <div class="shop-content">
+                    <div id="powerUpCards" class="shop-cards-container">
+                        <!-- Cards will be dynamically generated -->
+                    </div>
+                </div>
+                <div class="shop-footer">
+                    <button class="shop-close-btn">Continue to Next Wave</button>
+                </div>
             </div>
         </div>
 

@@ -19,6 +19,11 @@ export class Shop {
             "Rapid Fire": 55,
             "Full Heal": 25
         };
+        
+        // Track current tab and shop state
+        this.currentTab = 'offense';
+        this.currentPlayer = null;
+        this.currentOnPurchase = null;
     }
 
     // Get price for a power-up, with stacking multiplier
@@ -71,78 +76,151 @@ export class Shop {
     // Show shop interface
     showShop(player, coins, onPurchase, onContinue) {
         const modal = document.getElementById('powerUpModal');
-        const cardsContainer = document.getElementById('powerUpCards');
         
-        // Update modal title
+        // Store current state
+        this.currentPlayer = player;
+        this.currentOnPurchase = onPurchase;
+        
+        // Update modal title to show coins
         modal.querySelector('h2').textContent = `Power-Up Shop (Coins: ${coins})`;
+        
+        // Set up tab functionality
+        this.setupTabs(player, coins, onPurchase);
+        
+        // Set up close button
+        this.setupCloseButton(onContinue);
+        
+    // Show the current tab
+        this.showTab(this.currentTab, player, coins, onPurchase);
+        
+        // Ensure the correct tab button is marked as active
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        const activeButton = document.querySelector(`[data-tab="${this.currentTab}"]`);
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+        
+        modal.classList.add('show');
+    }
+    
+    // Refresh the current shop display
+    refreshShop() {
+        if (this.currentPlayer && this.currentOnPurchase) {
+            const modal = document.getElementById('powerUpModal');
+            modal.querySelector('h2').textContent = `Power-Up Shop (Coins: ${this.currentPlayer.coins})`;
+            this.showTab(this.currentTab, this.currentPlayer, this.currentPlayer.coins, this.currentOnPurchase);
+        }
+    }
+
+    // Setup tab button functionality
+    setupTabs(player, coins, onPurchase) {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Update current tab
+                const tabName = button.getAttribute('data-tab');
+                this.currentTab = tabName;
+                
+                // Show the corresponding tab content
+                this.showTab(tabName, player, coins, onPurchase);
+            });
+        });
+    }
+
+    // Setup close button
+    setupCloseButton(onContinue) {
+        const closeButton = document.querySelector('.shop-close-btn');
+        
+        // Remove any existing event listeners
+        const newCloseButton = closeButton.cloneNode(true);
+        closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+        
+        newCloseButton.addEventListener('click', () => {
+            onContinue ? onContinue() : this.closeShop();
+        });
+    }
+
+    // Show cards for a specific tab
+    showTab(tabName, player, coins, onPurchase) {
+        const cardsContainer = document.getElementById('powerUpCards');
         
         // Clear existing cards
         cardsContainer.innerHTML = '';
-
-        // Create shop categories
-        const categories = ['OFFENSE', 'DEFENSE', 'UTILITY'];
         
-        categories.forEach(category => {
-            const categoryPowerUps = this.getPowerUpsByCategory(category, player);
+        // Map tab names to categories
+        const categoryMap = {
+            'offense': 'OFFENSE',
+            'defense': 'DEFENSE', 
+            'utility': 'UTILITY'
+        };
+        
+        const category = categoryMap[tabName];
+        if (!category) return;
+        
+        const categoryPowerUps = this.getPowerUpsByCategory(category, player);
+        
+        // Add power-ups for this category
+        categoryPowerUps.forEach(powerUp => {
+            const currentStacks = this.getCurrentStacks(powerUp.name, player);
+            const price = this.getPowerUpPrice(powerUp.name, currentStacks);
+            const canAfford = this.canAfford(powerUp.name, currentStacks, coins);
+            const isMaxed = this.isPowerUpMaxed(powerUp.name, player);
+
+            const card = document.createElement('div');
+            card.className = `card shop-card ${!canAfford ? 'unaffordable' : ''} ${isMaxed ? 'maxed' : ''}`;
             
-            if (categoryPowerUps.length > 0) {
-                // Add category header
-                const categoryHeader = document.createElement('div');
-                categoryHeader.className = 'shop-category-header';
-                categoryHeader.textContent = category;
-                cardsContainer.appendChild(categoryHeader);
+            let stackInfo = '';
+            if (powerUp.stackable && currentStacks > 0) {
+                stackInfo = ` (Lv.${currentStacks})`;
+            }
 
-                // Add power-ups for this category
-                categoryPowerUps.forEach(powerUp => {
-                    const currentStacks = this.getCurrentStacks(powerUp.name, player);
-                    const price = this.getPowerUpPrice(powerUp.name, currentStacks);
-                    const canAfford = this.canAfford(powerUp.name, currentStacks, coins);
-                    const isMaxed = this.isPowerUpMaxed(powerUp.name, player);
+            let statusText = '';
+            if (isMaxed) {
+                statusText = '<div class="status-text maxed">MAXED</div>';
+            } else if (!canAfford) {
+                statusText = '<div class="status-text unaffordable">Can\'t Afford</div>';
+            }
 
-                    const card = document.createElement('div');
-                    card.className = `card shop-card ${!canAfford ? 'unaffordable' : ''} ${isMaxed ? 'maxed' : ''}`;
-                    
-                    let stackInfo = '';
-                    if (powerUp.stackable && currentStacks > 0) {
-                        stackInfo = ` (Lv.${currentStacks})`;
-                    }
-
-                    let statusText = '';
-                    if (isMaxed) {
-                        statusText = '<div class="status-text maxed">MAXED</div>';
-                    } else if (!canAfford) {
-                        statusText = '<div class="status-text unaffordable">Can\'t Afford</div>';
-                    }
-
-                    card.innerHTML = `
-                        <div class="card-icon">${powerUp.icon}</div>
-                        <div class="card-title">${powerUp.name}${stackInfo}</div>
-                        <div class="card-description">${powerUp.description}</div>
-                        <div class="card-price">${price} coins</div>
-                        ${statusText}
-                    `;
-                    
-                    if (canAfford && !isMaxed) {
-                        card.addEventListener('click', () => {
-                            onPurchase(powerUp, price);
-                        });
-                    }
-                    
-                    cardsContainer.appendChild(card);
+            card.innerHTML = `
+                <div class="card-icon">${powerUp.icon}</div>
+                <div class="card-title">${powerUp.name}${stackInfo}</div>
+                <div class="card-description">${powerUp.description}</div>
+                <div class="card-price">${price} coins</div>
+                ${statusText}
+            `;
+            
+            if (canAfford && !isMaxed) {
+                card.addEventListener('click', () => {
+                    onPurchase(powerUp, price);
+                    // Refresh the shop after purchase
+                    setTimeout(() => {
+                        this.refreshShop();
+                    }, 50); // Small delay to ensure purchase is processed
                 });
             }
+            
+            cardsContainer.appendChild(card);
         });
-
-        // Add close shop button
-        const closeButton = document.createElement('button');
-        closeButton.className = 'shop-close-btn';
-        closeButton.textContent = 'Continue to Next Wave';
-        closeButton.addEventListener('click', () => {
-            onContinue ? onContinue() : this.closeShop();
-        });
-        cardsContainer.appendChild(closeButton);
-
-        modal.classList.add('show');
+        
+        // If no power-ups available, show a message
+        if (categoryPowerUps.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'empty-tab-message';
+            emptyMessage.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #888; font-size: 14px;">
+                    <p>No power-ups available in this category</p>
+                    <p>All upgrades are maxed out!</p>
+                </div>
+            `;
+            cardsContainer.appendChild(emptyMessage);
+        }
     }
 
     // Get power-ups by category, filtering out maxed non-stackable ones
