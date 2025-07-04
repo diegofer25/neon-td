@@ -111,6 +111,9 @@ export class EntityManager {
     _calculateCoinReward() {
         const baseReward = 1;
         const waveBonus = this.game.wave * 0.2;
-        return Math.ceil((baseReward + waveBonus) / 2); // Reduced by half for balance
+        const baseAmount = Math.ceil((baseReward + waveBonus) / 2); // Reduced by half for balance
+        
+        // Apply coin magnet multiplier
+        return Math.ceil(baseAmount * this.game.player.coinMagnetMultiplier);
     }
 }

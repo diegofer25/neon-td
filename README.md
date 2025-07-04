@@ -90,6 +90,9 @@ npx live-server --port=8080
 - **Piercing Shots**: Bullets pierce through enemies
 - **Explosive Shots**: Bullets explode on impact
 - **Speed Boost**: +30% projectile speed (stackable)
+- **Double Damage**: +100% bullet damage (stackable)
+- **Rapid Fire**: +50% attack speed (stackable)
+- **Bigger Explosions**: +50% explosion radius and damage (stackable)
 
 #### 🛡️ Defense
 - **Max Health**: +20% health and full heal (stackable)
@@ -101,6 +104,14 @@ npx live-server --port=8080
 #### ⚡ Utility
 - **Life Steal**: Heal 10% of enemy max health on kill
 - **Slow Field**: Enemies move slower near you (stackable)
+- **Coin Magnet**: +50% coin rewards from enemy kills (stackable)
+- **Lucky Shots**: 10% chance for bullets to deal double damage (stackable chance)
+- **Vampiric Aura**: All nearby enemies take damage per second (stackable)
+- **Time Dilation**: Briefly slow down time when health drops below 25%
+- **Phantom Dash**: Become briefly invulnerable when taking damage
+- **Multishot**: +1 additional projectile fired (stackable)
+- **Chain Lightning**: Bullets can electrify nearby enemies (stackable chance/damage)
+- **Ricochet**: Bullets bounce off screen edges and gain damage (stackable multiplier)
 
 ## 🏗️ Architecture
 

@@ -325,6 +325,127 @@ PowerUp.ALL_POWERUPS = [
             player.powerUpStacks["Rapid Fire"]++;
         },
         1 // Rare
+    ),
+
+    new PowerUp(
+        "Coin Magnet",
+        "+50% coin rewards from enemy kills",
+        "🧲",
+        (player) => {
+            if (!player.coinMagnetMultiplier) {
+                player.coinMagnetMultiplier = 1;
+            }
+            player.coinMagnetMultiplier += 0.5;
+            player.powerUpStacks["Coin Magnet"]++;
+        },
+        2 // Uncommon
+    ),
+
+    new PowerUp(
+        "Lucky Shots",
+        "10% chance for bullets to deal double damage (stacks increase chance)",
+        "🍀",
+        (player) => {
+            if (!player.luckyShots) {
+                player.luckyShots = { chance: 0, active: true };
+            }
+            player.luckyShots.chance += 0.1; // 10% chance per stack
+            player.powerUpStacks["Lucky Shots"]++;
+        },
+        2 // Uncommon
+    ),
+
+    new PowerUp(
+        "Vampiric Aura",
+        "All nearby enemies take 2 damage per second",
+        "🩸",
+        (player) => {
+            if (!player.vampiricAura) {
+                player.vampiricAura = { damage: 0, radius: 120, active: true };
+            }
+            player.vampiricAura.damage += 2;
+            player.powerUpStacks["Vampiric Aura"]++;
+        },
+        1 // Rare
+    ),
+
+    new PowerUp(
+        "Time Dilation",
+        "Briefly slow down time when health drops below 25%",
+        "⏰",
+        (player) => {
+            player.hasTimeDilation = true;
+        },
+        1, // Rare
+        false // Non-stackable
+    ),
+
+    new PowerUp(
+        "Phantom Dash",
+        "Become briefly invulnerable when taking damage (8 second cooldown)",
+        "👻",
+        (player) => {
+            if (!player.phantomDash) {
+                player.phantomDash = { 
+                    active: true, 
+                    cooldown: 0, 
+                    maxCooldown: 8000, 
+                    invulnTime: 1000 
+                };
+            }
+        },
+        1, // Rare
+        false // Non-stackable
+    ),
+
+    new PowerUp(
+        "Multishot",
+        "+1 additional projectile fired (separate from triple shot)",
+        "🎆",
+        (player) => {
+            if (!player.multishotCount) {
+                player.multishotCount = 0;
+            }
+            player.multishotCount += 1;
+            player.powerUpStacks["Multishot"]++;
+        },
+        2 // Uncommon
+    ),
+
+    new PowerUp(
+        "Chain Lightning",
+        "Enemies damaged by bullets have 30% chance to electrify nearby enemies",
+        "⚡",
+        (player) => {
+            if (!player.chainLightning) {
+                player.chainLightning = { 
+                    active: true, 
+                    chance: 0.3, 
+                    range: 80, 
+                    damage: 15 
+                };
+            } else {
+                player.chainLightning.chance = Math.min(0.8, player.chainLightning.chance + 0.2);
+                player.chainLightning.damage += 10;
+            }
+            player.powerUpStacks["Chain Lightning"]++;
+        },
+        1 // Rare
+    ),
+
+    new PowerUp(
+        "Ricochet",
+        "Bullets bounce off screen edges and gain +25% damage per bounce",
+        "🏀",
+        (player) => {
+            if (!player.ricochet) {
+                player.ricochet = { active: true, damageMultiplier: 1.25 };
+            } else {
+                player.ricochet.damageMultiplier += 0.15; // Additional 15% per stack
+            }
+            player.powerUpStacks["Ricochet"]++;
+        },
+        2 // Uncommon
     )
 ];
 
@@ -352,7 +473,9 @@ PowerUp.CATEGORIES = {
         "Full Heal"
     ],
     UTILITY: [
-        "Life Steal", "Slow Field"
+        "Life Steal", "Slow Field", "Coin Magnet", "Lucky Shots", 
+        "Vampiric Aura", "Time Dilation", "Phantom Dash", "Multishot",
+        "Chain Lightning", "Ricochet"
     ]
 };
 
@@ -371,5 +494,5 @@ PowerUp.getByCategory = function(category) {
     const categoryNames = PowerUp.CATEGORIES[category] || [];
     return PowerUp.ALL_POWERUPS.filter(powerUp => 
         categoryNames.includes(powerUp.name)
-    );
+   );
 };

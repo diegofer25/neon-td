@@ -51,7 +51,8 @@ export class Player {
     static POWER_UP_STACK_NAMES = [
         "Damage Boost", "Fire Rate", "Speed Boost", "Turn Speed", "Double Damage", 
         "Rapid Fire", "Max Health", "Shield", "Regeneration", 
-        "Shield Regen", "Bigger Explosions"
+        "Shield Regen", "Bigger Explosions", "Coin Magnet", "Lucky Shots",
+        "Vampiric Aura", "Multishot", "Chain Lightning", "Ricochet"
     ];
 
     /**
@@ -158,6 +159,8 @@ export class Player {
         this.explosionRadius = 50;
         /** @type {number} Explosion damage for explosive shots */
         this.explosionDamage = 20;
+        /** @type {number} Coin reward multiplier (1.0 = normal rewards) */
+        this.coinMagnetMultiplier = 1.0;
         
         // Slow field configuration
         /** @type {number} Radius of slow field effect */
@@ -219,6 +222,9 @@ export class Player {
         this.slowFieldRadius = Player.DEFAULTS.SLOW_FIELD_BASE_RADIUS;
         this.slowFieldStrength = 0;
         this.maxSlowFieldStacks = Player.DEFAULTS.MAX_SLOW_FIELD_STACKS;
+        
+        // Reset coin multiplier
+        this.coinMagnetMultiplier = 1.0;
         
         // Reset coins
         this.coins = 0;

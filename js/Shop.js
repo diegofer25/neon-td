@@ -115,6 +115,9 @@ export class Shop {
                 return 0;
             case "Slow Field":
                 return player.slowFieldStrength;
+            case "Coin Magnet":
+                // Calculate stacks based on multiplier (base 1.0, +0.5 per stack)
+                return Math.round((player.coinMagnetMultiplier - 1) / 0.5);
             default:
                 return 0;
         }
@@ -284,7 +287,7 @@ export class Shop {
                 "Full Heal"
             ],
             'UTILITY': [
-                "Life Steal", "Slow Field"
+                "Life Steal", "Slow Field", "Coin Magnet"
             ]
         };
 
