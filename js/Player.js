@@ -405,7 +405,9 @@ export class Player {
     _applyProjectileModifications(projectile) {
         if (this.hasPiercing) {
             projectile.piercing = true;
-            projectile.piercingCount = 2; // Can hit 2 additional enemies
+            projectile.piercingCount = GameConfig.PLAYER.PIERCING_COUNT;
+            projectile.originalDamage = projectile.damage; // Store original damage for reduction calculation
+            projectile.enemiesHit = 0; // Track how many enemies this projectile has hit
         }
         
         if (this.explosiveShots) {

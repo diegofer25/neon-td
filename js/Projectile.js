@@ -44,6 +44,8 @@ export class Projectile {
         // Special behavior properties
         this.piercing = false;          // Can pass through multiple enemies
         this.piercingCount = 0;         // Number of enemies this projectile can pierce
+        this.originalDamage = damage;   // Store original damage for piercing calculations
+        this.enemiesHit = 0;           // Track number of enemies hit for damage reduction
         this.explosive = false;         // Explodes on impact
         this.explosionRadius = 50;      // Explosion effect radius
         this.explosionDamage = 20;      // Damage dealt by explosion

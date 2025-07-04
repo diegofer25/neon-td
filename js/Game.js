@@ -514,8 +514,11 @@ export class Game {
         this.projectiles.forEach((projectile, pIndex) => {
             this.enemies.forEach((enemy, eIndex) => {
                 if (MathUtils.circleCollision(projectile, enemy)) {
+                    // Calculate current damage (reduced for piercing shots)
+                    const currentDamage = projectile.getCurrentDamage ? projectile.getCurrentDamage() : projectile.damage;
+                    
                     // Damage enemy
-                    enemy.takeDamage(projectile.damage);
+                    enemy.takeDamage(currentDamage);
                     
                     // Create hit effect
                     this.createHitEffect(enemy.x, enemy.y);
@@ -524,7 +527,7 @@ export class Game {
                     if (window.createFloatingText) {
                         const rect = this.canvas.getBoundingClientRect();
                         window.createFloatingText(
-                            `-${projectile.damage}`,
+                            `-${currentDamage}`,
                             enemy.x * (rect.width / this.canvas.width) + rect.left,
                             enemy.y * (rect.height / this.canvas.height) + rect.top,
                             'damage'
@@ -536,20 +539,23 @@ export class Game {
                         projectile.explode(this);
                     }
                     
-                    // Debug piercing shots
+                    // Handle piercing projectiles
                     if (projectile.piercing) {
-                        console.log(`Piercing shot hit! Remaining pierces: ${projectile.piercingCount - 1}`);
-                    }
-                    
-                    // Remove projectile unless it has piercing
-                    if (!projectile.piercing) {
-                        this.projectiles.splice(pIndex, 1);
-                    } else {
-                        projectile.piercingCount--;
+                        // Mark that projectile hit an enemy (reduces damage for next hit)
+                        if (projectile.onEnemyHit) {
+                            projectile.onEnemyHit();
+                        }
+                        
+                        console.log(`Piercing shot hit! Damage dealt: ${currentDamage}, Remaining pierces: ${projectile.piercingCount}`);
+                        
+                        // Remove projectile only if no pierces left
                         if (projectile.piercingCount <= 0) {
                             console.log('Piercing shot exhausted, removing projectile');
                             this.projectiles.splice(pIndex, 1);
                         }
+                    } else {
+                        // Non-piercing projectiles are removed immediately
+                        this.projectiles.splice(pIndex, 1);
                     }
                 }
             });

@@ -142,7 +142,7 @@ PowerUp.ALL_POWERUPS = [
     // === UNCOMMON POWER-UPS (Weight: 2) ===
     new PowerUp(
         "Piercing Shots",
-        "Bullets pierce through enemies",
+        "Bullets pierce through enemies (-25% damage per enemy hit)",
         "🎯",
         (player) => {
             player.hasPiercing = true;

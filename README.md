@@ -41,6 +41,7 @@ A browser-based 2D tower-defense shooter with an infinite wave survival format a
 - **Earn Coins**: Gain coins for each enemy killed and bonus coins for wave completion
 - **Shop Between Waves**: Use coins to purchase power-ups in the organized shop interface
 - **Stack Power-Ups**: Many upgrades can be purchased multiple times for compounding effects
+- **Piercing Mechanics**: Piercing shots pass through enemies but deal reduced damage with each hit
 - **Reach High Waves**: Survive as long as possible with exponentially increasing difficulty
 
 ### Controls

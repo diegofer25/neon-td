@@ -107,7 +107,10 @@ export const GameConfig = {
         // Player-specific ability constants
         
         /** @type {number} Number of enemies piercing shots can hit */
-        PIERCING_COUNT: 2,
+        PIERCING_COUNT: 3,
+        
+        /** @type {number} Damage reduction per enemy pierced (0.25 = 25% reduction) */
+        PIERCING_DAMAGE_REDUCTION: 0.25,
         
         /** @type {number} Angle spread for triple shot in radians */
         TRIPLE_SHOT_SPREAD: 0.3,
