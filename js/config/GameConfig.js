@@ -1,41 +1,83 @@
 /**
  * @fileoverview Centralized game configuration
+ * Contains all game constants and derived calculations
  */
 
+/**
+ * Validates that a value is within specified bounds
+ * @param {number} value - Value to validate
+ * @param {number} min - Minimum allowed value
+ * @param {number} max - Maximum allowed value
+ * @param {string} name - Name for error messages
+ * @throws {Error} If value is out of bounds
+ */
+function validateRange(value, min, max, name) {
+    if (value < min || value > max) {
+        throw new Error(`${name} must be between ${min} and ${max}, got ${value}`);
+    }
+}
+
+/**
+ * Main game configuration object
+ * All game constants should be defined here for easy balancing
+ */
 export const GameConfig = {
-    // Canvas and rendering
+    // Rendering and display settings
     CANVAS: {
         TARGET_ASPECT_RATIO: 4/3,
         MIN_WIDTH: 320,
         MAX_WIDTH: 800,
-        MAX_HEIGHT: 600
+        MAX_HEIGHT: 600,
+        
+        // Validate canvas dimensions
+        validateDimensions(width, height) {
+            validateRange(width, this.MIN_WIDTH, this.MAX_WIDTH, 'Canvas width');
+            validateRange(height, this.MIN_WIDTH * 0.75, this.MAX_HEIGHT, 'Canvas height');
+        }
     },
 
-    // Player configuration
+    // Player character settings
     PLAYER: {
         BASE_HP: 100,
         BASE_DAMAGE: 10,
-        BASE_FIRE_RATE: 300,
+        BASE_FIRE_RATE: 300, // milliseconds
         RADIUS: 20,
-        BASE_PROJECTILE_SPEED: 400
+        BASE_PROJECTILE_SPEED: 400,
+        
+        // Player ability constants
+        PIERCING_COUNT: 2,
+        TRIPLE_SHOT_SPREAD: 0.3, // radians
+        LIFE_STEAL_PERCENTAGE: 0.1
     },
 
-    // Enemy configuration  
+    // Enemy configuration
     ENEMY: {
         BASE_HEALTH: 50,
         BASE_SPEED: 50,
         BASE_DAMAGE: 10,
         RADIUS: 15,
-        SPAWN_MARGIN: 50
+        SPAWN_MARGIN: 50,
+        
+        // Enemy variant multipliers
+        VARIANTS: {
+            FAST: { health: 0.5, speed: 2.0, damage: 1.5 },
+            TANK: { health: 3.0, speed: 0.5, damage: 2.5 }
+        }
     },
 
-    // Wave scaling
+    // Wave progression and difficulty scaling
     WAVE: {
         BASE_ENEMY_COUNT: 4,
         ENEMY_COUNT_SCALING: 2,
-        HEALTH_SCALING: 1.15,
-        SPEED_SCALING: 1.1,
-        DAMAGE_SCALING: 1.15,
+        
+        // Exponential scaling factors per wave
+        SCALING_FACTORS: {
+            HEALTH: 1.15,
+            SPEED: 1.1, 
+            DAMAGE: 1.15
+        },
+        
+        // Spawn timing
         BASE_SPAWN_INTERVAL: 800,
         MIN_SPAWN_INTERVAL: 300,
         SPAWN_INTERVAL_REDUCTION: 20
@@ -106,23 +148,90 @@ export const GameConfig = {
         WAVE_COMPLETION_WAVE_BONUS: 2,
         PERFORMANCE_BONUS_DIVISOR: 5,
         SHOP_STACK_PRICE_MULTIPLIER: 0.5
+    },
+
+    // Game balance constants
+    BALANCE: {
+        MAX_WAVE_SCALING: 5.0, // Cap scaling to prevent infinite growth
+        COIN_INFLATION_FACTOR: 1.05, // Slight price increases per wave
+        PERFORMANCE_BONUS_THRESHOLD: 0.8 // Minimum enemies killed ratio for bonus
     }
 };
 
-// Derived configurations
+// Enhanced derived calculations with validation
 GameConfig.DERIVED = {
-    getEnemyCountForWave: (wave) => 
-        Math.floor(GameConfig.WAVE.BASE_ENEMY_COUNT + wave * GameConfig.WAVE.ENEMY_COUNT_SCALING),
+    /**
+     * Calculate enemy count for a given wave
+     * @param {number} wave - Wave number (1-based)
+     * @returns {number} Number of enemies to spawn
+     */
+    getEnemyCountForWave(wave) {
+        if (wave < 1) throw new Error('Wave number must be >= 1');
+        
+        return Math.floor(
+            GameConfig.WAVE.BASE_ENEMY_COUNT + 
+            wave * GameConfig.WAVE.ENEMY_COUNT_SCALING
+        );
+    },
     
-    getSpawnIntervalForWave: (wave) => 
-        Math.max(
-            GameConfig.WAVE.MIN_SPAWN_INTERVAL, 
-            GameConfig.WAVE.BASE_SPAWN_INTERVAL - (wave * GameConfig.WAVE.SPAWN_INTERVAL_REDUCTION)
-        ),
+    /**
+     * Calculate spawn interval for a given wave
+     * @param {number} wave - Wave number (1-based)
+     * @returns {number} Spawn interval in milliseconds
+     */
+    getSpawnIntervalForWave(wave) {
+        if (wave < 1) throw new Error('Wave number must be >= 1');
+        
+        const reduction = wave * GameConfig.WAVE.SPAWN_INTERVAL_REDUCTION;
+        return Math.max(
+            GameConfig.WAVE.MIN_SPAWN_INTERVAL,
+            GameConfig.WAVE.BASE_SPAWN_INTERVAL - reduction
+        );
+    },
     
-    getScalingForWave: (wave) => ({
-        health: Math.pow(GameConfig.WAVE.HEALTH_SCALING, wave - 1),
-        speed: Math.pow(GameConfig.WAVE.SPEED_SCALING, wave - 1),
-        damage: Math.pow(GameConfig.WAVE.DAMAGE_SCALING, wave - 1)
-    })
+    /**
+     * Calculate scaling multipliers for a given wave
+     * @param {number} wave - Wave number (1-based)
+     * @returns {{health: number, speed: number, damage: number}} Scaling factors
+     */
+    getScalingForWave(wave) {
+        if (wave < 1) throw new Error('Wave number must be >= 1');
+        
+        const { SCALING_FACTORS } = GameConfig.WAVE;
+        const waveIndex = wave - 1; // Convert to 0-based for calculations
+        
+        return {
+            health: Math.min(
+                Math.pow(SCALING_FACTORS.HEALTH, waveIndex),
+                GameConfig.BALANCE.MAX_WAVE_SCALING
+            ),
+            speed: Math.min(
+                Math.pow(SCALING_FACTORS.SPEED, waveIndex),
+                GameConfig.BALANCE.MAX_WAVE_SCALING
+            ),
+            damage: Math.min(
+                Math.pow(SCALING_FACTORS.DAMAGE, waveIndex),
+                GameConfig.BALANCE.MAX_WAVE_SCALING
+            )
+        };
+    },
+    
+    /**
+     * Calculate adjusted power-up price based on current wave
+     * @param {string} powerUpName - Name of the power-up
+     * @param {number} wave - Current wave number
+     * @param {number} stacks - Current stacks of this power-up
+     * @returns {number} Adjusted price
+     */
+    getAdjustedPowerUpPrice(powerUpName, wave, stacks = 0) {
+        const basePrice = GameConfig.POWERUP_PRICES[powerUpName] || 20;
+        const waveInflation = Math.pow(GameConfig.BALANCE.COIN_INFLATION_FACTOR, wave - 1);
+        const stackMultiplier = 1 + (stacks * GameConfig.ECONOMY.SHOP_STACK_PRICE_MULTIPLIER);
+        
+        return Math.max(1, Math.floor(basePrice * waveInflation * stackMultiplier));
+    }
 };
+
+// Configuration validation on module load
+Object.freeze(GameConfig);
+Object.freeze(GameConfig.DERIVED);

@@ -8,69 +8,149 @@ import { ObjectPool } from './utils/ObjectPool.js';
 import { MathUtils } from './utils/MathUtils.js';
 import { PerformanceManager } from './managers/PerformanceManager.js';
 
+/**
+ * Main game class
+ * Manages game state, entities, and game loop
+ */
 export class Game {
+    // Game state constants
+    static STATES = {
+        MENU: 'menu',
+        PLAYING: 'playing', 
+        PAUSED: 'paused',
+        POWERUP: 'powerup',
+        GAMEOVER: 'gameover'
+    };
+
+    static TIMING = {
+        WAVE_COMPLETION_DELAY: 1000,
+        NEXT_WAVE_DELAY: 1000
+    };
+
+    /**
+     * Creates a new game instance
+     * @param {HTMLCanvasElement} canvas - Game canvas
+     * @param {CanvasRenderingContext2D} ctx - Canvas context
+     */
     constructor(canvas, ctx) {
+        if (!canvas || !ctx) {
+            throw new Error('Canvas and context are required');
+        }
+        
         this.canvas = canvas;
         this.ctx = ctx;
-        this.gameState = 'menu'; // menu, playing, paused, powerup, gameover
+        this.gameState = Game.STATES.MENU;
         
-        // Game entities
+        this._initializeEntities();
+        this._initializeManagers();
+        this._initializeGameState();
+        this._initializeShop();
+        
+        this.init();
+    }
+    
+    /**
+     * Initialize game entities
+     * @private
+     */
+    _initializeEntities() {
         this.player = null;
         this.enemies = [];
         this.projectiles = [];
         this.particles = [];
-        
-        // Performance management
+    }
+    
+    /**
+     * Initialize managers and pools
+     * @private
+     */
+    _initializeManagers() {
         this.performanceManager = new PerformanceManager();
-        
-        // Object pools for performance
+        this._initializeObjectPools();
+        this._initializeScreenShake();
+    }
+    
+    /**
+     * Initialize object pools for performance
+     * @private
+     */
+    _initializeObjectPools() {
         this.particlePool = new ObjectPool(
             () => new Particle(0, 0, 0, 0, 0),
-            (particle, x, y, vx, vy, life, color) => {
-                particle.x = x;
-                particle.y = y;
-                particle.vx = vx;
-                particle.vy = vy;
-                particle.life = life;
-                particle.maxLife = life;
-                particle.color = color || '#fff';
-                particle.glowColor = color || '#fff';
-                particle._destroy = false;
-            },
+            this._resetParticle.bind(this),
             50, 200
         );
-        
-        // Game state
-        this.wave = 0;
-        this.score = 0;
-        this.enemiesSpawned = 0;
-        this.enemiesKilled = 0;
-        
-        // Wave management
-        this.waveStartTime = 0;
-        this.waveComplete = false;
-        this.powerUpOptions = [];
-        this.waveCompletionTimer = 0;
-        this.waveCompletionDelay = 1000; // 1 second delay
-        
-        // Enemy spawning
-        this.enemiesToSpawn = 0;
-        this.enemySpawnTimer = 0;
-        this.enemySpawnInterval = GameConfig.WAVE.BASE_SPAWN_INTERVAL;
-        this.waveScaling = { health: 1, speed: 1, damage: 1 };
-        
-        // Screen shake
+    }
+    
+    /**
+     * Reset particle for object pool reuse
+     * @private
+     * @param {Particle} particle - Particle to reset
+     * @param {number} x - X position
+     * @param {number} y - Y position
+     * @param {number} vx - X velocity
+     * @param {number} vy - Y velocity
+     * @param {number} life - Particle lifetime
+     * @param {string} color - Particle color
+     */
+    _resetParticle(particle, x, y, vx, vy, life, color) {
+        particle.x = x;
+        particle.y = y;
+        particle.vx = vx;
+        particle.vy = vy;
+        particle.life = life;
+        particle.maxLife = life;
+        particle.color = color || '#fff';
+        particle.glowColor = color || '#fff';
+        particle._destroy = false;
+    }
+    
+    /**
+     * Initialize screen shake system
+     * @private
+     */
+    _initializeScreenShake() {
         this.screenShake = {
             intensity: 0,
             duration: 0,
             offsetX: 0,
             offsetY: 0
         };
-        
-        // Shop system
+    }
+    
+    /**
+     * Initialize game state variables
+     * @private
+     */
+    _initializeGameState() {
+        this.wave = 0;
+        this.score = 0;
+        this.enemiesSpawned = 0;
+        this.enemiesKilled = 0;
+        this.waveStartTime = 0;
+        this.waveComplete = false;
+        this.powerUpOptions = [];
+        this.waveCompletionTimer = 0;
+        this._initializeEnemySpawning();
+    }
+    
+    /**
+     * Initialize enemy spawning system
+     * @private
+     */
+    _initializeEnemySpawning() {
+        this.enemiesToSpawn = 0;
+        this.enemySpawnTimer = 0;
+        this.enemySpawnInterval = GameConfig.WAVE.BASE_SPAWN_INTERVAL;
+        this.waveScaling = { health: 1, speed: 1, damage: 1 };
+    }
+    
+    /**
+     * Initialize shop system
+     * @private
+     */
+    _initializeShop() {
         this.shop = new Shop();
-        
-        this.init();
     }
     
     init() {
@@ -253,12 +333,7 @@ export class Game {
         this.checkCollisions();
         
         // Check wave completion (all enemies spawned and defeated)
-        if (this.enemies.length === 0 && this.enemiesToSpawn === 0 && !this.waveComplete) {
-            this.waveCompletionTimer += delta;
-            if (this.waveCompletionTimer >= this.waveCompletionDelay) {
-                this.completeWave();
-            }
-        }
+        this._handleWaveCompletion(delta);
         
         // Check game over
         if (this.player.hp <= 0) {
@@ -376,10 +451,7 @@ export class Game {
         this.gameState = 'powerup';
         
         // Calculate coin reward using configuration
-        const baseCoins = GameConfig.ECONOMY.WAVE_COMPLETION_BASE_COINS;
-        const waveBonus = this.wave * GameConfig.ECONOMY.WAVE_COMPLETION_WAVE_BONUS;
-        const performanceBonus = Math.floor(this.enemiesKilled / GameConfig.ECONOMY.PERFORMANCE_BONUS_DIVISOR);
-        const totalCoins = baseCoins + waveBonus + performanceBonus;
+        const totalCoins = this._calculateWaveReward();
         
         // Give coins to player
         this.player.addCoins(totalCoins);
@@ -420,7 +492,7 @@ export class Game {
         // Small delay before starting next wave
         setTimeout(() => {
             this.startWave();
-        }, 1000);
+        }, Game.TIMING.NEXT_WAVE_DELAY);
     }
     
     addScreenShake(intensity, duration) {

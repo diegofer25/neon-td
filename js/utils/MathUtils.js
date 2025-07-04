@@ -1,8 +1,29 @@
 /**
- * @fileoverview Mathematical utility functions
+ * @fileoverview Mathematical utility functions for game calculations
  */
 
 export class MathUtils {
+    // Mathematical constants
+    static TAU = Math.PI * 2;
+    static HALF_PI = Math.PI * 0.5;
+    static EPSILON = 1e-10;
+
+    // Vector and geometric calculations
+    
+    /**
+     * Calculate squared distance (faster than distance for comparisons)
+     * @param {number} x1 - First point x coordinate
+     * @param {number} y1 - First point y coordinate  
+     * @param {number} x2 - Second point x coordinate
+     * @param {number} y2 - Second point y coordinate
+     * @returns {number} Squared distance
+     */
+    static distanceSquared(x1, y1, x2, y2) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        return dx * dx + dy * dy;
+    }
+    
     /**
      * Calculate distance between two points
      * @param {number} x1 
@@ -30,26 +51,29 @@ export class MathUtils {
     }
     
     /**
-     * Clamp a value between min and max
-     * @param {number} value 
-     * @param {number} min 
-     * @param {number} max 
-     * @returns {number} Clamped value
+     * Normalize a vector
+     * @param {number} x 
+     * @param {number} y 
+     * @returns {{x: number, y: number}} Normalized vector
      */
-    static clamp(value, min, max) {
-        return Math.min(Math.max(value, min), max);
+    static normalize(x, y) {
+        const length = Math.sqrt(x * x + y * y);
+        if (length === 0) return { x: 0, y: 0 };
+        return { x: x / length, y: y / length };
     }
     
     /**
-     * Linear interpolation
-     * @param {number} a 
-     * @param {number} b 
-     * @param {number} t 
-     * @returns {number} Interpolated value
+     * Normalize angle to range [0, 2π]
+     * @param {number} angle - Angle in radians
+     * @returns {number} Normalized angle
      */
-    static lerp(a, b, t) {
-        return a + (b - a) * t;
+    static normalizeAngle(angle) {
+        while (angle < 0) angle += this.TAU;
+        while (angle >= this.TAU) angle -= this.TAU;
+        return angle;
     }
+    
+    // Collision detection methods
     
     /**
      * Check if two circles are colliding
@@ -61,6 +85,21 @@ export class MathUtils {
         const distance = this.distance(obj1.x, obj1.y, obj2.x, obj2.y);
         return distance < (obj1.radius + obj2.radius);
     }
+    
+    /**
+     * Check if two axis-aligned rectangles are colliding
+     * @param {Object} rect1 - Rectangle with x, y, width, height
+     * @param {Object} rect2 - Rectangle with x, y, width, height  
+     * @returns {boolean} True if rectangles overlap
+     */
+    static rectCollision(rect1, rect2) {
+        return rect1.x < rect2.x + rect2.width &&
+               rect1.x + rect1.width > rect2.x &&
+               rect1.y < rect2.y + rect2.height &&
+               rect1.y + rect1.height > rect2.y;
+    }
+    
+    // Random number generation
     
     /**
      * Generate random number between min and max
@@ -83,30 +122,49 @@ export class MathUtils {
     }
     
     /**
-     * Check if a point is within canvas bounds
-     * @param {number} x 
-     * @param {number} y 
-     * @param {number} canvasWidth 
-     * @param {number} canvasHeight 
-     * @param {number} margin 
-     * @returns {boolean} True if within bounds
+     * Choose random element from array
+     * @param {Array} array - Array to choose from
+     * @returns {any} Random element or undefined if array is empty
      */
-    static isInBounds(x, y, canvasWidth, canvasHeight, margin = 0) {
-        return x >= -margin && 
-               x <= canvasWidth + margin && 
-               y >= -margin && 
-               y <= canvasHeight + margin;
+    static randomChoice(array) {
+        if (!Array.isArray(array) || array.length === 0) {
+            return undefined;
+        }
+        return array[this.randomInt(0, array.length - 1)];
+    }
+    
+    // Utility methods
+    
+    /**
+     * Clamp a value between min and max
+     * @param {number} value 
+     * @param {number} min 
+     * @param {number} max 
+     * @returns {number} Clamped value
+     */
+    static clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
     }
     
     /**
-     * Normalize a vector
-     * @param {number} x 
-     * @param {number} y 
-     * @returns {{x: number, y: number}} Normalized vector
+     * Linear interpolation
+     * @param {number} a 
+     * @param {number} b 
+     * @param {number} t 
+     * @returns {number} Interpolated value
      */
-    static normalize(x, y) {
-        const length = Math.sqrt(x * x + y * y);
-        if (length === 0) return { x: 0, y: 0 };
-        return { x: x / length, y: y / length };
+    static lerp(a, b, t) {
+        return a + (b - a) * t;
+    }
+    
+    /**
+     * Check if value is approximately equal (within epsilon)
+     * @param {number} a - First value
+     * @param {number} b - Second value
+     * @param {number} [epsilon=EPSILON] - Tolerance
+     * @returns {boolean} True if values are approximately equal
+     */
+    static approximately(a, b, epsilon = this.EPSILON) {
+        return Math.abs(a - b) < epsilon;
     }
 }
