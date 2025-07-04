@@ -80,20 +80,29 @@ export class WaveManager {
         const x = centerX + Math.cos(angle) * spawnRadius;
         const y = centerY + Math.sin(angle) * spawnRadius;
         
-        // Determine enemy type based on percentages
-        // base: 60%, speed: 20%, tank: 20%
+        // Determine enemy type based on wave progression and percentages
         const random = Math.random();
         let enemy;
         
-        if (random < 0.7) {
-            // Base enemy (70%)
+        if (this.currentWave < 5) {
+            // Waves 1-4: Only basic enemies
             enemy = Enemy.createBasicEnemy(x, y, 1);
-        } else if (random < 0.9) {
-            // Fast enemy (20%)
-            enemy = Enemy.createFastEnemy(x, y, 1);
+        } else if (this.currentWave < 10) {
+            // Waves 5-9: Basic (80%) and Fast (20%) enemies
+            if (random < 0.6) {
+                enemy = Enemy.createBasicEnemy(x, y, 1);
+            } else {
+                enemy = Enemy.createFastEnemy(x, y, 1);
+            }
         } else {
-            // Tank enemy (10%)
-            enemy = Enemy.createTankEnemy(x, y, 1);
+            // Wave 10+: Basic (70%), Fast (20%), Tank (10%) enemies
+            if (random < 0.7) {
+                enemy = Enemy.createBasicEnemy(x, y, 1);
+            } else if (random < 0.9) {
+                enemy = Enemy.createFastEnemy(x, y, 1);
+            } else {
+                enemy = Enemy.createTankEnemy(x, y, 1);
+            }
         }
         
         // Apply wave scaling to the created enemy
