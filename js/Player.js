@@ -1,5 +1,5 @@
 import { Projectile } from './Projectile.js';
-import { Particle } from './Particle.js';
+import { GameConfig } from './config/GameConfig.js';
 
 /**
  * Player character class for the neon tower defense game
