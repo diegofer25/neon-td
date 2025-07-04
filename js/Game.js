@@ -136,6 +136,7 @@ export class Game {
         particle.color = color || '#fff';
         particle.glowColor = color || '#fff';
         particle._destroy = false;
+        particle._fromPool = true; // Mark as coming from pool
     }
     
     /**
@@ -478,7 +479,10 @@ export class Game {
         // Remove excess particles if over limit
         while (this.particles.length > particleLimit) {
             const particle = this.particles.shift();
-            this.particlePool.release(particle);
+            // Only release to pool if it came from the pool (has _fromPool flag)
+            if (particle._fromPool) {
+                this.particlePool.release(particle);
+            }
         }
         
         // Update remaining particles
@@ -487,7 +491,10 @@ export class Game {
             
             if (particle.isDead()) {
                 this.particles.splice(index, 1);
-                this.particlePool.release(particle);
+                // Only release to pool if it came from the pool (has _fromPool flag)
+                if (particle._fromPool) {
+                    this.particlePool.release(particle);
+                }
             }
         });
     }
@@ -737,13 +744,13 @@ export class Game {
      * @param {number} y - Hit location Y coordinate
      */
     createHitEffect(x, y) {
-        // Create small hit particles
+        // Use object pool for hit particles instead of creating new ones
         for (let i = 0; i < 3; i++) {
             const angle = Math.random() * Math.PI * 2;
             const speed = 20 + Math.random() * 30;
             const life = 200 + Math.random() * 200;
             
-            const particle = new Particle(
+            const particle = this.particlePool.get(
                 x, y,
                 Math.cos(angle) * speed,
                 Math.sin(angle) * speed,

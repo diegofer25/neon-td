@@ -428,13 +428,14 @@ export class Player {
         const flashX = this.x + Math.cos(this.angle) * flashDistance;
         const flashY = this.y + Math.sin(this.angle) * flashDistance;
         
-        // Create small white particles with random spread
+        // Create small white particles with random spread using game's particle pool
         for (let i = 0; i < Player.DEFAULTS.MUZZLE_FLASH_PARTICLES; i++) {
             const angle = this.angle + (Math.random() - 0.5) * 0.5; // ±0.25 radian spread
             const speed = 30 + Math.random() * 20; // 30-50 pixel/second speed
             const life = 100 + Math.random() * 100; // 100-200ms lifetime
             
-            const particle = new Particle(
+            // Use game's particle pool instead of creating new Particle
+            const particle = game.particlePool.get(
                 flashX, flashY,
                 Math.cos(angle) * speed,
                 Math.sin(angle) * speed,
