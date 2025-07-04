@@ -294,8 +294,6 @@ export class Shop {
             ],
             'UTILITY': [
                 "Life Steal", "Slow Field", "Coin Magnet", "Lucky Shots",
-                "Vampiric Aura", "Time Dilation", "Phantom Dash", "Multishot",
-                "Chain Lightning", "Ricochet"
             ]
         };
 

@@ -37,7 +37,7 @@ export class PowerUp {
 		"Bigger Explosions",
 		"Coin Magnet",
 		"Lucky Shots",
-		"Vampiric Aura",
+		"Immolation Aura",
 		"Multishot",
 		"Chain Lightning",
 		"Ricochet",
@@ -297,17 +297,23 @@ export class PowerUp {
 		),
 
 		new PowerUp(
-			"Vampiric Aura",
-			"All nearby enemies take 2 damage per second",
-			"🩸",
+			"Immolation Aura",
+			"All nearby enemies take 1% of their max health as burn damage per second",
+			"🔥",
 			(player) => {
 				if (!player.vampiricAura) {
-					player.vampiricAura = { damage: 0, radius: 120, active: true };
+					player.vampiricAura = {
+						active: true,
+						damagePercent: 0.01, // 1% burn damage per second
+						range: 300, // Aura radius
+					};
+				} else {
+					player.vampiricAura.damagePercent += 0.01; // Increase burn damage by 1% per stack
+					player.vampiricAura.range += 50; // Increase aura radius by 10
 				}
-				player.vampiricAura.damage += 2;
-				player.powerUpStacks["Vampiric Aura"]++;
+				player.powerUpStacks["Immolation Aura"]++;
 			},
-			1 // Rare
+			1
 		),
 
 		new PowerUp(
@@ -431,7 +437,7 @@ export class PowerUp {
 			"Slow Field",
 			"Coin Magnet",
 			"Lucky Shots",
-			"Vampiric Aura",
+			"Immolation Aura",
 			"Time Dilation",
 			"Phantom Dash",
 			"Multishot",

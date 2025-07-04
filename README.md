@@ -107,7 +107,7 @@ npx live-server --port=8080
 - **Slow Field**: Enemies move slower near you (stackable)
 - **Coin Magnet**: +50% coin rewards from enemy kills (stackable)
 - **Lucky Shots**: 10% chance for bullets to deal double damage (stackable chance up to 50%)
-- **Vampiric Aura**: All nearby enemies take damage per second (stackable)
+- **Immolation Aura**: All nearby enemies take damage per second (stackable)
 - **Time Dilation**: Briefly slow down time when health drops below 25%
 - **Phantom Dash**: Become briefly invulnerable when taking damage
 - **Multishot**: +1 additional projectile fired (stackable)

@@ -94,7 +94,7 @@ export const GameConfig = {
         /** @type {number} Base damage per projectile before modifiers */
         BASE_DAMAGE: 10,
         /** @type {number} Base fire rate in milliseconds between shots */
-        BASE_FIRE_RATE: 100,
+        BASE_FIRE_RATE: 1000,
         /** @type {number} Player collision radius in pixels */
         RADIUS: 20,
         /** @type {number} Base projectile speed in pixels per second */
@@ -241,7 +241,7 @@ export const GameConfig = {
         "Bigger Explosions": 35,
         "Coin Magnet": 20,
         "Lucky Shots": 30,
-        "Vampiric Aura": 55,
+        "Immolation Aura": 55,
         "Time Dilation": 70,
         "Phantom Dash": 60,
         "Multishot": 45,
@@ -284,7 +284,7 @@ export const GameConfig = {
         // New utility power-up limits
         "Coin Magnet": 8,      // Up to 5x coin rewards (1 + 8*0.5)
         "Lucky Shots": 5,      // Up to 50% crit chance
-        "Vampiric Aura": 10,   // Up to 20 damage per second
+        "Immolation Aura": 10,   // Up to 20 damage per second
         "Multishot": 4,        // Up to 4 additional projectiles
         "Chain Lightning": 6,  // Up to 80% chance, 75 damage
         "Ricochet": 8          // Up to 2.45x damage multiplier per bounce
