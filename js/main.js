@@ -184,7 +184,7 @@ function setupInputHandlers() {
 
     canvas.addEventListener('touchstart', (e) => {
         e.preventDefault();
-    });
+    }, { passive: false });
 
     // Keyboard input handling
     document.addEventListener('keydown', (e) => {
