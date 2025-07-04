@@ -348,6 +348,7 @@ export class Player {
     /**
      * Find the optimal target enemy using priority-based selection algorithm
      * Prioritizes enemies based on distance and health remaining
+     * Only targets enemies within the visible game area
      * 
      * @param {Array<Object>} enemies - Array of enemy objects to evaluate
      * @param {number} enemies[].x - Enemy x position
@@ -368,11 +369,26 @@ export class Player {
             return null;
         }
         
+        // Get canvas dimensions for boundary checking
+        const canvas = document.getElementById('gameCanvas');
+        if (!canvas) return null;
+        
+        const targetingMargin = 10; // Don't target enemies too close to edge
+        const minX = targetingMargin;
+        const minY = targetingMargin;
+        const maxX = canvas.width - targetingMargin;
+        const maxY = canvas.height - targetingMargin;
+        
         let bestTarget = null;
         let bestPriority = Infinity;
         
         for (const enemy of enemies) {
             if (enemy.dying) continue; // Skip enemies already dying
+            
+            // Skip enemies outside the visible targeting area
+            if (enemy.x < minX || enemy.x > maxX || enemy.y < minY || enemy.y > maxY) {
+                continue;
+            }
             
             const distance = this._calculateDistanceTo(enemy);
             // Lower health enemies get higher priority (lower score)
