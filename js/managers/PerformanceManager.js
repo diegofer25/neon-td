@@ -7,7 +7,6 @@
  * 
  * @module PerformanceManager
  * @version 1.0.0
- * @author Game Development Team
  */
 
 /**

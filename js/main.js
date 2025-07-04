@@ -2,7 +2,6 @@
  * @fileoverview Main game entry point and application controller
  * Handles game initialization, input management, audio system, UI updates, and game loop
  * 
- * @author Diego Lamarao
  * @version 1.0.0
  */
 

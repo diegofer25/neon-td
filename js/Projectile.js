@@ -1,7 +1,6 @@
 /**
  * @fileoverview Projectile system for the neon tower defense game.
  * Handles different types of projectiles including standard, piercing, and explosive bullets.
- * @author Neon TD Team
  * @version 1.0.0
  */
 

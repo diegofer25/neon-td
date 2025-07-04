@@ -6,7 +6,6 @@
  * of various player upgrades including offense, defense, and utility enhancements.
  * 
  * @fileoverview Core power-up system with weighted selection and stack management
- * @author Game Development Team
  * @version 1.0.0
  */
 

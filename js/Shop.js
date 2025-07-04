@@ -12,7 +12,6 @@ import { PowerUp } from './PowerUp.js';
  * - Integration with player progression and power-up stacking
  * 
  * @class Shop
- * @author Game Development Team
  * @version 1.0.0
  */
 export class Shop {
