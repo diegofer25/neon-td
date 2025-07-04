@@ -421,8 +421,8 @@ export class Game {
                     this.player.onEnemyKill(enemy);
                 }
                 
-                // Calculate and award coin reward (scales with wave progression)
-                const coinReward = Math.ceil(1 + (this.wave * 0.2)); // More coins in later waves
+                // Calculate and award coin reward (reduced by half for better balance)
+                const coinReward = Math.ceil((1 + (this.wave * 0.2)) / 2); // Reduced by half
                 this.player.addCoins(coinReward);
                 
                 // Remove enemy from active list

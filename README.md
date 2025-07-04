@@ -12,7 +12,7 @@ A browser-based 2D tower-defense shooter with an infinite wave survival format a
 - **Mobile-First Controls**: Touch controls with optimized UI for mobile devices
 - **Performance Optimization**: Built-in performance monitoring with automatic quality adjustments
 - **Visual Effects**: Screen shake, particle explosions, floating damage text, muzzle flash effects
-- **Economic System**: Coin-based economy with wave completion bonuses and inflation balancing
+- **Balanced Economic System**: Carefully tuned coin-based economy with wave completion bonuses and controlled inflation
 
 ## 🚀 Quick Start
 

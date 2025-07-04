@@ -317,11 +317,11 @@ export const GameConfig = {
      * Designed to provide steady progression while maintaining challenge.
      */
     ECONOMY: {
-        /** @type {number} Base coins awarded per enemy kill */
-        BASE_COIN_REWARD: 1,
+        /** @type {number} Base coins awarded per enemy kill (reduced for better balance) */
+        BASE_COIN_REWARD: 0.5,
         
-        /** @type {number} Additional coins per wave level (multiplier) */
-        WAVE_COIN_MULTIPLIER: 0.2,
+        /** @type {number} Additional coins per wave level (multiplier, reduced by half) */
+        WAVE_COIN_MULTIPLIER: 0.1,
         
         /** @type {number} Base coins for completing a wave */
         WAVE_COMPLETION_BASE_COINS: 10,
