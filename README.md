@@ -6,6 +6,7 @@ A browser-based 2D tower-defense shooter with an infinite wave survival format a
 
 - **Infinite Wave Survival**: Face increasingly difficult waves of enemies with exponential scaling
 - **Advanced Power-Up System**: Choose from 16+ upgrades in a shop-style interface with tabs (Offense/Defense/Utility)
+- **Smart Power-Up Requirements**: Some advanced power-ups require prerequisites (e.g., Bigger Explosions requires Explosive Shots)
 - **Stack-Based Progression**: Most power-ups can be stacked multiple times with balanced pricing
 - **Neon Synthwave Aesthetics**: Retro-futuristic visuals with glowing effects and neon color palette
 - **Responsive Design**: Fully responsive gameplay that adapts to any screen size while maintaining 4:3 aspect ratio

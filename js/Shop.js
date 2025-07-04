@@ -264,6 +264,78 @@ export class Shop {
     }
 
     /**
+     * Filters power-ups by category and availability.
+     * Excludes maxed out power-ups from the shop display.
+     * 
+     * @private
+     * @param {string} category - Category to filter by ('OFFENSE'|'DEFENSE'|'UTILITY')
+     * @param {Player} player - Player object to check power-up states
+     * @returns {PowerUp[]} Array of available power-ups for the category
+     */
+    getPowerUpsByCategory(category, player) {
+        // Define power-up categories for shop organization
+        const categoryNames = {
+            'OFFENSE': [
+                "Damage Boost", "Fire Rate", "Piercing Shots", "Triple Shot", 
+                "Speed Boost", "Explosive Shots", "Bigger Explosions", 
+                "Double Damage", "Rapid Fire"
+            ],
+            'DEFENSE': [
+                "Max Health", "Shield", "Regeneration", "Shield Regen", 
+                "Full Heal"
+            ],
+            'UTILITY': [
+                "Life Steal", "Slow Field"
+            ]
+        };
+
+        const powerUpNames = categoryNames[category] || [];
+        return PowerUp.ALL_POWERUPS.filter(powerUp => {
+            if (!powerUpNames.includes(powerUp.name)) return false;
+            
+            // Check if power-up requirements are met
+            if (!this.areRequirementsMet(powerUp.name, player)) return false;
+            
+            // Hide maxed power-ups from shop
+            return !this.isPowerUpMaxed(powerUp.name, player);
+        });
+    }
+
+    /**
+     * Check if all requirements for a power-up are met.
+     * 
+     * @private
+     * @param {string} powerUpName - Name of power-up to check requirements for
+     * @param {Player} player - Player object to check current state
+     * @returns {boolean} True if all requirements are met
+     */
+    areRequirementsMet(powerUpName, player) {
+        switch(powerUpName) {
+            case "Bigger Explosions":
+                // Requires Explosive Shots to be useful
+                return player.explosiveShots;
+            default:
+                return true; // No requirements for other power-ups
+        }
+    }
+
+    /**
+     * Get requirement description for a power-up.
+     * 
+     * @private
+     * @param {string} powerUpName - Name of power-up to get requirements for
+     * @returns {string} Human-readable requirement description, or empty string if no requirements
+     */
+    getRequirementDescription(powerUpName) {
+        switch(powerUpName) {
+            case "Bigger Explosions":
+                return "Requires: Explosive Shots";
+            default:
+                return "";
+        }
+    }
+
+    /**
      * Creates a power-up card element with proper styling and interactions.
      * 
      * @private
@@ -293,10 +365,18 @@ export class Shop {
             statusText = '<div class="status-text unaffordable">Can\'t Afford</div>';
         }
 
+        // Add requirement information if applicable
+        const requirementDesc = this.getRequirementDescription(powerUp.name);
+        let requirementText = '';
+        if (requirementDesc) {
+            requirementText = `<div class="requirement-text">${requirementDesc}</div>`;
+        }
+
         card.innerHTML = `
             <div class="card-icon">${powerUp.icon}</div>
             <div class="card-title">${powerUp.name}${stackInfo}</div>
             <div class="card-description">${powerUp.description}</div>
+            ${requirementText}
             <div class="card-price">${price} coins</div>
             ${statusText}
         `;
@@ -345,75 +425,6 @@ export class Shop {
         if (activeButton) {
             activeButton.classList.add('active');
         }
-    }
-
-    /**
-     * Filters power-ups by category and availability.
-     * Excludes maxed out power-ups from the shop display.
-     * 
-     * @private
-     * @param {string} category - Category to filter by ('OFFENSE'|'DEFENSE'|'UTILITY')
-     * @param {Player} player - Player object to check power-up states
-     * @returns {PowerUp[]} Array of available power-ups for the category
-     */
-    getPowerUpsByCategory(category, player) {
-        // Define power-up categories for shop organization
-        const categoryNames = {
-            'OFFENSE': [
-                "Damage Boost", "Fire Rate", "Piercing Shots", "Triple Shot", 
-                "Speed Boost", "Explosive Shots", "Bigger Explosions", 
-                "Double Damage", "Rapid Fire"
-            ],
-            'DEFENSE': [
-                "Max Health", "Shield", "Regeneration", "Shield Regen", 
-                "Full Heal"
-            ],
-            'UTILITY': [
-                "Life Steal", "Slow Field"
-            ]
-        };
-
-        const powerUpNames = categoryNames[category] || [];
-        return PowerUp.ALL_POWERUPS.filter(powerUp => {
-            if (!powerUpNames.includes(powerUp.name)) return false;
-            
-            // Hide maxed power-ups from shop
-            return !this.isPowerUpMaxed(powerUp.name, player);
-        });
-    }
-
-    /**
-     * Determines if a power-up has reached its maximum level or stack limit.
-     * Handles both stackable and non-stackable power-ups.
-     * 
-     * @private
-     * @param {string} powerUpName - Name of power-up to check
-     * @param {Player} player - Player object to check current state
-     * @returns {boolean} True if power-up is at maximum level
-     */
-    isPowerUpMaxed(powerUpName, player) {
-        const nonStackablePowerUps = player.getNonStackablePowerUps();
-        
-        // Non-stackable power-ups can only be purchased once
-        if (nonStackablePowerUps.includes(powerUpName)) {
-            return true;
-        }
-
-        // Check stack limits for stackable power-ups
-        const currentStacks = this.getCurrentStacks(powerUpName, player);
-        const maxStacks = this.stackLimits[powerUpName];
-        
-        if (maxStacks !== undefined) {
-            return currentStacks >= maxStacks;
-        }
-        
-        // Special case handling for complex power-ups
-        if (powerUpName === "Slow Field") {
-            return player.isSlowFieldMaxed();
-        }
-        
-        // No limit for other stackable power-ups
-        return false;
     }
 
     /**

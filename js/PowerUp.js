@@ -273,7 +273,7 @@ PowerUp.ALL_POWERUPS = [
     
     new PowerUp(
         "Bigger Explosions",
-        "+50% explosion radius and damage",
+        "+50% explosion radius and damage (enhances Explosive Shots)",
         "☄️",
         (player) => {
             player.explosionRadius *= 1.5;

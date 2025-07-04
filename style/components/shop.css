@@ -134,3 +134,16 @@
     0 0 40px rgba(0, 255, 255, 0.5);
   background: linear-gradient(45deg, #00ffff, #00cc99);
 }
+
+/* Requirement Text for Power-up Cards */
+.requirement-text {
+    font-size: 10px;
+    color: #ff0;
+    text-align: center;
+    margin: 4px 0;
+    padding: 2px 4px;
+    background: rgba(255, 255, 0, 0.1);
+    border: 1px solid rgba(255, 255, 0, 0.3);
+    border-radius: 3px;
+    text-shadow: 0 0 3px #ff0;
+}
