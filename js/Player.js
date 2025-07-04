@@ -14,8 +14,6 @@ import { MathUtils } from './utils/MathUtils.js';
  * - Economy system (coin collection and spending)
  * 
  * @class Player
- * @version 1.0.0
- * @since 1.0.0
  */
 export class Player {
     /**
@@ -136,6 +134,10 @@ export class Player {
         this.slowFieldStrength = 0;
         /** @type {number} Maximum allowed slow field stacks */
         this.maxSlowFieldStacks = GameConfig.PLAYER.MAX_SLOW_FIELD_STACKS;
+        
+        // Immolation Aura configuration
+        /** @type {Object|null} Immolation Aura configuration object */
+        this.immolationAura = null;
     }
     
     /**
@@ -250,6 +252,11 @@ export class Player {
         // Apply area-of-effect slow field to nearby enemies
         if (this.hasSlowField && this.slowFieldStrength > 0) {
             this.applySlowField(game.enemies);
+        }
+        
+        // Apply Immolation Aura damage to nearby enemies
+        if (this.immolationAura && this.immolationAura.active) {
+            this.applyImmolationAura(game.enemies, delta);
         }
     }
     
@@ -747,7 +754,7 @@ export class Player {
 
     /**
      * Render the player and all associated visual effects
-     * Draws player body, gun barrel, shield, slow field, and rotation indicators
+     * Draws player body, gun barrel, shield, slow field, immolation aura, and rotation indicators
      * 
      * @param {CanvasRenderingContext2D} ctx - Canvas 2D rendering context
      * 
@@ -855,6 +862,41 @@ export class Player {
             
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.slowFieldRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        // Draw Immolation Aura if active
+        if (this.immolationAura && this.immolationAura.active) {
+            ctx.save();
+            
+            // Create pulsing fire effect
+            const pulseIntensity = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+            const stackCount = this.powerUpStacks["Immolation Aura"] || 1;
+            
+            // Gradient from center to edge for fire effect
+            const gradient = ctx.createRadialGradient(
+                this.x, this.y, 0,
+                this.x, this.y, this.immolationAura.range
+            );
+            gradient.addColorStop(0, `rgba(255, 69, 0, ${0.3 * pulseIntensity})`);
+            gradient.addColorStop(0.5, `rgba(255, 140, 0, ${0.2 * pulseIntensity})`);
+            gradient.addColorStop(1, `rgba(255, 69, 0, 0)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.immolationAura.range, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw outer ring with fire colors
+            ctx.strokeStyle = `rgba(255, 69, 0, ${pulseIntensity * 0.8})`;
+            ctx.lineWidth = 2 + stackCount; // Thicker with more stacks
+            ctx.shadowColor = '#ff4500';
+            ctx.shadowBlur = 10 + stackCount * 2;
+            
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.immolationAura.range, 0, Math.PI * 2);
             ctx.stroke();
             
             ctx.restore();

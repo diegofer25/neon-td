@@ -2,7 +2,6 @@
  * @fileoverview Main game entry point and application controller
  * Handles game initialization, input management, audio system, UI updates, and game loop
  * 
- * @version 1.0.0
  */
 
 import { Game } from './Game.js';

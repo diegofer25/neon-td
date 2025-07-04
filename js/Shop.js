@@ -12,7 +12,6 @@ import { PowerUp } from './PowerUp.js';
  * - Integration with player progression and power-up stacking
  * 
  * @class Shop
- * @version 1.0.0
  */
 export class Shop {
     /**
@@ -121,6 +120,9 @@ export class Shop {
             case "Lucky Shots":
                 // Calculate stacks based on chance (10% per stack)
                 return player.luckyShots ? Math.round(player.luckyShots.chance / 0.1) : 0;
+            case "Immolation Aura":
+                // Calculate stacks based on damage percent (1% per stack)
+                return player.immolationAura ? Math.round(player.immolationAura.damagePercent / 0.01) : 0;
             default:
                 return 0;
         }
@@ -294,6 +296,7 @@ export class Shop {
             ],
             'UTILITY': [
                 "Life Steal", "Slow Field", "Coin Magnet", "Lucky Shots",
+                "Immolation Aura"
             ]
         };
 

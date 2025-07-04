@@ -6,7 +6,6 @@
  * automatically enables/disables visual optimizations based on performance thresholds.
  * 
  * @module PerformanceManager
- * @version 1.0.0
  */
 
 /**
