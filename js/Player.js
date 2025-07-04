@@ -30,6 +30,11 @@ export class Player {
         this.shieldHp = 0;
         this.maxShieldHp = 0;
         
+        // Slow field properties (stackable)
+        this.slowFieldRadius = 80; // Base radius
+        this.slowFieldStrength = 0; // 0 = no slow, higher values = more slow
+        this.maxSlowFieldStacks = 6; // Maximum number of slow field stacks
+        
         // Regeneration
         this.hpRegen = 0; // HP per second
         this.shieldRegen = 0; // Shield per second
@@ -60,6 +65,11 @@ export class Player {
         this.hpRegen = 0;
         this.shieldRegen = 0;
         this.explosiveShots = false;
+        
+        // Reset slow field properties
+        this.slowFieldRadius = 80;
+        this.slowFieldStrength = 0;
+        this.maxSlowFieldStacks = 6;
     }
     
     update(delta, input, game) {
@@ -90,7 +100,8 @@ export class Player {
         }
         
         // Slow field effect
-        if (this.hasSlowField) {
+        // Apply slow field to enemies
+        if (this.hasSlowField && this.slowFieldStrength > 0) {
             this.applySlowField(game.enemies);
         }
     }
@@ -235,15 +246,18 @@ export class Player {
     }
     
     applySlowField(enemies) {
-        const slowRadius = 100;
-        const slowFactor = 0.7; // 30% slow
+        if (this.slowFieldStrength <= 0) return; // No slow field effect
+        
+        // Calculate effective slow factor (0.5 = 50% slow, 0.3 = 70% slow)
+        // Each stack = 15% more slow, capped at 90% slow (6 stacks max)
+        const slowFactor = Math.max(0.1, 1 - (this.slowFieldStrength * 0.15)); 
         
         enemies.forEach(enemy => {
             const dx = enemy.x - this.x;
             const dy = enemy.y - this.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            if (distance <= slowRadius) {
+            if (distance <= this.slowFieldRadius) {
                 enemy.slowFactor = slowFactor;
             } else {
                 enemy.slowFactor = 1;
@@ -266,12 +280,19 @@ export class Player {
         if (this.hasPiercing) owned.push("Piercing Shots");
         if (this.hasTripleShot) owned.push("Triple Shot");
         if (this.hasLifeSteal) owned.push("Life Steal");
-        if (this.hasSlowField) owned.push("Slow Field");
         if (this.explosiveShots) owned.push("Explosive Shots");
+        
+        // Add slow field if it's at maximum stacks
+        if (this.isSlowFieldMaxed()) owned.push("Slow Field");
         
         return owned;
     }
     
+    // Check if slow field is at maximum stacks
+    isSlowFieldMaxed() {
+        return this.slowFieldStrength >= this.maxSlowFieldStacks;
+    }
+
     draw(ctx) {
         // Save context for transformations
         ctx.save();
@@ -327,16 +348,16 @@ export class Player {
         }
         
         // Draw slow field if active
-        if (this.hasSlowField) {
+        if (this.hasSlowField && this.slowFieldStrength > 0) {
             ctx.save();
             ctx.strokeStyle = '#8f00ff';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = Math.max(2, this.slowFieldStrength); // Thicker line with more stacks
             ctx.shadowColor = '#8f00ff';
-            ctx.shadowBlur = 5;
-            ctx.globalAlpha = 0.3;
+            ctx.shadowBlur = 5 + this.slowFieldStrength; // More glow with more stacks
+            ctx.globalAlpha = 0.2 + (this.slowFieldStrength * 0.05); // More visible with more stacks
             
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 100, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, this.slowFieldRadius, 0, Math.PI * 2);
             ctx.stroke();
             
             ctx.restore();

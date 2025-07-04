@@ -118,13 +118,16 @@ PowerUp.ALL_POWERUPS = [
     
     new PowerUp(
         "Slow Field",
-        "Enemies move 30% slower near you",
+        "Enemies move slower near you (+15% slow, +20 radius) [Max 6 stacks]",
         "❄️",
         (player) => {
-            player.hasSlowField = true;
+            if (player.slowFieldStrength < player.maxSlowFieldStacks) {
+                player.hasSlowField = true;
+                player.slowFieldStrength += 1; // Each stack increases strength
+                player.slowFieldRadius += 20; // Each stack increases radius by 20
+            }
         },
-        2, // Uncommon
-        false // Non-stackable
+        2 // Uncommon
     ),
     
     new PowerUp(
