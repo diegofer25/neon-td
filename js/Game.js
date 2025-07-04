@@ -9,8 +9,19 @@ import { MathUtils } from './utils/MathUtils.js';
 import { PerformanceManager } from './managers/PerformanceManager.js';
 
 /**
- * Main game class
- * Manages game state, entities, and game loop
+ * Main game class responsible for managing the entire game state and lifecycle.
+ * 
+ * This class orchestrates all game entities, handles the game loop, manages waves,
+ * collision detection, and rendering. It serves as the central controller for
+ * the tower defense game.
+ * 
+ * @example
+ * ```javascript
+ * const canvas = document.getElementById('gameCanvas');
+ * const ctx = canvas.getContext('2d');
+ * const game = new Game(canvas, ctx);
+ * game.start();
+ * ```
  */
 export class Game {
     // Game state constants
@@ -28,9 +39,15 @@ export class Game {
     };
 
     /**
-     * Creates a new game instance
-     * @param {HTMLCanvasElement} canvas - Game canvas
-     * @param {CanvasRenderingContext2D} ctx - Canvas context
+     * Creates a new game instance and initializes all subsystems.
+     * 
+     * Sets up the game canvas, entities, managers, and initial state.
+     * All initialization is done through private methods to maintain
+     * separation of concerns.
+     * 
+     * @param {HTMLCanvasElement} canvas - The HTML5 canvas element for rendering
+     * @param {CanvasRenderingContext2D} ctx - The 2D rendering context
+     * @throws {Error} When canvas or context is null/undefined
      */
     constructor(canvas, ctx) {
         if (!canvas || !ctx) {
@@ -50,7 +67,11 @@ export class Game {
     }
     
     /**
-     * Initialize game entities
+     * Initialize all game entity arrays.
+     * 
+     * Sets up empty arrays for players, enemies, projectiles, and particles.
+     * Called during constructor to ensure clean initial state.
+     * 
      * @private
      */
     _initializeEntities() {
@@ -61,7 +82,11 @@ export class Game {
     }
     
     /**
-     * Initialize managers and pools
+     * Initialize performance managers and object pools.
+     * 
+     * Sets up the performance monitoring system and creates object pools
+     * for efficient memory management of frequently created/destroyed objects.
+     * 
      * @private
      */
     _initializeManagers() {
@@ -71,7 +96,11 @@ export class Game {
     }
     
     /**
-     * Initialize object pools for performance
+     * Initialize object pools for high-frequency objects.
+     * 
+     * Creates object pools to reduce garbage collection pressure by reusing
+     * particle objects instead of constantly creating/destroying them.
+     * 
      * @private
      */
     _initializeObjectPools() {
@@ -83,15 +112,19 @@ export class Game {
     }
     
     /**
-     * Reset particle for object pool reuse
+     * Reset particle properties for object pool reuse.
+     * 
+     * This method is called by the object pool when recycling particles.
+     * It ensures particles are properly reset to their initial state.
+     * 
      * @private
-     * @param {Particle} particle - Particle to reset
-     * @param {number} x - X position
-     * @param {number} y - Y position
-     * @param {number} vx - X velocity
-     * @param {number} vy - Y velocity
-     * @param {number} life - Particle lifetime
-     * @param {string} color - Particle color
+     * @param {Particle} particle - The particle instance to reset
+     * @param {number} x - New X position
+     * @param {number} y - New Y position  
+     * @param {number} vx - New X velocity
+     * @param {number} vy - New Y velocity
+     * @param {number} life - New lifetime in milliseconds
+     * @param {string} [color='#fff'] - New particle color (CSS color string)
      */
     _resetParticle(particle, x, y, vx, vy, life, color) {
         particle.x = x;
@@ -106,7 +139,11 @@ export class Game {
     }
     
     /**
-     * Initialize screen shake system
+     * Initialize the screen shake visual effect system.
+     * 
+     * Sets up the screen shake properties used for impact feedback.
+     * Screen shake provides visual feedback for player damage and explosions.
+     * 
      * @private
      */
     _initializeScreenShake() {
@@ -119,7 +156,11 @@ export class Game {
     }
     
     /**
-     * Initialize game state variables
+     * Initialize core game state variables.
+     * 
+     * Resets all game progression variables including wave number, score,
+     * enemy counters, and timing variables. Called at game start and restart.
+     * 
      * @private
      */
     _initializeGameState() {
@@ -135,7 +176,11 @@ export class Game {
     }
     
     /**
-     * Initialize enemy spawning system
+     * Initialize the enemy spawning system.
+     * 
+     * Sets up variables for controlling incremental enemy spawning throughout
+     * each wave, including spawn timing and wave scaling multipliers.
+     * 
      * @private
      */
     _initializeEnemySpawning() {
@@ -146,13 +191,23 @@ export class Game {
     }
     
     /**
-     * Initialize shop system
+     * Initialize the shop system for power-ups.
+     * 
+     * Creates the shop instance that handles power-up purchasing
+     * between waves.
+     * 
      * @private
      */
     _initializeShop() {
         this.shop = new Shop();
     }
     
+    /**
+     * Initialize the game world and create the player.
+     * 
+     * Creates the player entity at the center of the canvas.
+     * This method is called after construction and on restart.
+     */
     init() {
         // Create player at center of canvas
         const centerX = this.canvas.width / 2;
@@ -160,6 +215,12 @@ export class Game {
         this.player = new Player(centerX, centerY);
     }
     
+    /**
+     * Start a new game session.
+     * 
+     * Resets all game state to initial values and begins the first wave.
+     * This method transitions the game from menu state to playing state.
+     */
     start() {
         this.gameState = 'playing';
         this.wave = 1;
@@ -175,19 +236,43 @@ export class Game {
         this.startWave();
     }
     
+    /**
+     * Restart the current game session.
+     * 
+     * Performs a full reset and starts a new game. This is typically
+     * called after a game over or when the player chooses to restart.
+     */
     restart() {
         this.init();
         this.start();
     }
     
+    /**
+     * Pause the game and preserve current state.
+     * 
+     * Transitions to paused state, stopping all game updates while
+     * maintaining current progress.
+     */
     pause() {
         this.gameState = 'paused';
     }
     
+    /**
+     * Resume the game from paused state.
+     * 
+     * Returns the game to playing state, continuing from where it was paused.
+     */
     resume() {
         this.gameState = 'playing';
     }
     
+    /**
+     * Update canvas-dependent positions when canvas size changes.
+     * 
+     * Adjusts player position to maintain center positioning and repositions
+     * enemies to maintain relative positions. Cleans up off-screen entities
+     * that are no longer relevant due to the size change.
+     */
     updateCanvasSize() {
         // Update player position to maintain center position
         const centerX = this.canvas.width / 2;
@@ -220,6 +305,13 @@ export class Game {
         });
     }
     
+    /**
+     * Initialize a new wave of enemies.
+     * 
+     * Calculates wave parameters based on current wave number including
+     * enemy count, scaling factors, and spawn timing. Sets up incremental
+     * spawning to avoid performance spikes.
+     */
     startWave() {
         this.waveComplete = false;
         this.enemiesSpawned = 0;
@@ -244,6 +336,13 @@ export class Game {
         }
     }
     
+    /**
+     * Spawn a single enemy at the screen perimeter.
+     * 
+     * Creates a new enemy at a random position around the screen edge,
+     * outside the visible area. Enemy properties are scaled based on
+     * current wave progression.
+     */
     spawnEnemy() {
         // Spawn enemy at random position around screen perimeter
         const centerX = this.canvas.width / 2;
@@ -264,16 +363,34 @@ export class Game {
         this.enemies.push(enemy);
     }
     
+    /**
+     * Main game update loop - processes all game logic for one frame.
+     * 
+     * This method handles all game state updates including:
+     * - Performance monitoring
+     * - Screen shake effects  
+     * - Incremental enemy spawning
+     * - Entity updates (player, enemies, projectiles, particles)
+     * - Collision detection
+     * - Wave progression
+     * - Game over conditions
+     * 
+     * @param {number} delta - Time elapsed since last frame in milliseconds
+     * @param {Object} input - Current input state from InputHandler
+     * @param {boolean} input.mouseDown - Whether mouse is pressed
+     * @param {number} input.mouseX - Current mouse X position
+     * @param {number} input.mouseY - Current mouse Y position
+     */
     update(delta, input) {
         if (this.gameState !== 'playing') return;
         
-        // Update performance metrics
+        // Update performance metrics for adaptive quality
         this.performanceManager.update(delta);
         
-        // Update screen shake
+        // Update screen shake visual effects
         this.updateScreenShake(delta);
         
-        // Handle incremental enemy spawning
+        // Handle incremental enemy spawning to prevent frame rate spikes
         if (this.enemiesToSpawn > 0) {
             this.enemySpawnTimer += delta;
             if (this.enemySpawnTimer >= this.enemySpawnInterval) {
@@ -282,36 +399,38 @@ export class Game {
                 this.enemiesSpawned++;
                 this.enemySpawnTimer = 0;
                 
-                // Add slight randomness to spawn timing (±200ms)
+                // Add slight randomness to spawn timing (±200ms) to feel more organic
                 this.enemySpawnTimer = -200 + Math.random() * 400;
             }
         }
         
-        // Update player
+        // Update player with current input state
         this.player.update(delta, input, this);
         
-        // Update enemies
+        // Update all enemies and handle death/rewards
         this.enemies.forEach((enemy, index) => {
             enemy.update(delta, this.player);
             
-            // Remove dead enemies
+            // Process enemy death and rewards
             if (enemy.health <= 0) {
+                // Create visual explosion effect
                 this.createExplosion(enemy.x, enemy.y, 10);
                 
-                // Life steal effect
+                // Apply life steal if player has this upgrade
                 if (this.player.hasLifeSteal) {
                     this.player.onEnemyKill(enemy);
                 }
                 
-                // Give coins for killing enemy
+                // Calculate and award coin reward (scales with wave progression)
                 const coinReward = Math.ceil(1 + (this.wave * 0.2)); // More coins in later waves
                 this.player.addCoins(coinReward);
                 
+                // Remove enemy from active list
                 this.enemies.splice(index, 1);
                 this.enemiesKilled++;
                 this.score += 10;
                 
-                // Play explosion sound
+                // Play audio feedback
                 if (window.playSFX) window.playSFX('explode');
             }
         });
@@ -341,6 +460,15 @@ export class Game {
         }
     }
     
+    /**
+     * Update particle systems with performance optimizations.
+     * 
+     * Manages particle lifecycle and enforces performance limits by
+     * reducing particle counts when frame rate drops. Uses object
+     * pooling to minimize garbage collection.
+     * 
+     * @param {number} delta - Time elapsed since last frame in milliseconds
+     */
     updateParticles(delta) {
         // Use performance-aware particle updates
         const particleLimit = this.performanceManager.reduceParticleCount ? 
@@ -364,6 +492,15 @@ export class Game {
         });
     }
     
+    /**
+     * Detect and resolve collisions between all game entities.
+     * 
+     * Handles three types of collisions:
+     * 1. Projectiles vs Enemies - Damage enemies, handle piercing/explosive shots
+     * 2. Enemies vs Player - Damage player, apply screen shake and visual effects
+     * 
+     * Uses optimized circle collision detection from MathUtils.
+     */
     checkCollisions() {
         // Use MathUtils for collision detection
         // Projectiles vs Enemies
@@ -446,6 +583,13 @@ export class Game {
         });
     }
     
+    /**
+     * Handle wave completion logic and transition to shop.
+     * 
+     * Called when all enemies in the current wave have been defeated.
+     * Calculates rewards, transitions to power-up selection state,
+     * and displays the shop interface.
+     */
     completeWave() {
         this.waveComplete = true;
         this.gameState = 'powerup';
@@ -460,6 +604,12 @@ export class Game {
         this.showShop();
     }
     
+    /**
+     * Display the shop interface for power-up purchases.
+     * 
+     * Shows available power-ups based on player's current state and
+     * coin balance. Provides callbacks for purchase and continuation.
+     */
     showShop() {
         this.shop.showShop(
             this.player, 
@@ -469,6 +619,15 @@ export class Game {
         );
     }
     
+    /**
+     * Process a power-up purchase from the shop.
+     * 
+     * Validates the purchase, deducts coins, applies the power-up effect,
+     * and provides audio feedback. The shop handles UI refresh automatically.
+     * 
+     * @param {PowerUp} powerUp - The power-up being purchased
+     * @param {number} price - The cost in coins
+     */
     purchasePowerUp(powerUp, price) {
         if (this.player.spendCoins(price)) {
             // Apply power-up to player
@@ -481,6 +640,12 @@ export class Game {
         }
     }
     
+    /**
+     * Continue to the next wave after shopping phase.
+     * 
+     * Closes the shop interface, increments wave counter, and starts
+     * the next wave after a brief delay for transition.
+     */
     continueToNextWave() {
         // Hide shop
         this.shop.closeShop();
@@ -495,11 +660,28 @@ export class Game {
         }, Game.TIMING.NEXT_WAVE_DELAY);
     }
     
+    /**
+     * Add screen shake effect for visual impact feedback.
+     * 
+     * Screen shake provides immediate visual feedback for significant
+     * events like player damage or large explosions.
+     * 
+     * @param {number} intensity - Shake intensity in pixels
+     * @param {number} duration - Shake duration in milliseconds
+     */
     addScreenShake(intensity, duration) {
         this.screenShake.intensity = intensity;
         this.screenShake.duration = duration;
     }
     
+    /**
+     * Update screen shake offset values each frame.
+     * 
+     * Calculates random offsets based on current intensity and
+     * decreases intensity over time until shake expires.
+     * 
+     * @param {number} delta - Time elapsed since last frame in milliseconds
+     */
     updateScreenShake(delta) {
         if (this.screenShake.duration > 0) {
             this.screenShake.duration -= delta;
@@ -513,6 +695,16 @@ export class Game {
         }
     }
     
+    /**
+     * Create explosion particle effect at specified location.
+     * 
+     * Generates a burst of particles radiating outward from the explosion
+     * point. Particle count is reduced automatically when performance is poor.
+     * 
+     * @param {number} x - Explosion center X coordinate
+     * @param {number} y - Explosion center Y coordinate  
+     * @param {number} [particleCount=8] - Number of particles to create
+     */
     createExplosion(x, y, particleCount = 8) {
         // Use object pool for particles
         const actualCount = this.performanceManager.reduceParticleCount ? 
@@ -535,6 +727,15 @@ export class Game {
         }
     }
     
+    /**
+     * Create small hit effect particles when enemies take damage.
+     * 
+     * Provides visual feedback for successful hits with small,
+     * short-lived particles that indicate impact location.
+     * 
+     * @param {number} x - Hit location X coordinate
+     * @param {number} y - Hit location Y coordinate
+     */
     createHitEffect(x, y) {
         // Create small hit particles
         for (let i = 0; i < 3; i++) {
@@ -554,6 +755,16 @@ export class Game {
         }
     }
     
+    /**
+     * Render all game elements to the canvas.
+     * 
+     * Handles the complete rendering pipeline including:
+     * - Canvas clearing
+     * - Screen shake transformation
+     * - Background grid
+     * - All game entities (particles, enemies, projectiles, player)
+     * - UI elements like spawn warnings
+     */
     render() {
         const ctx = this.ctx;
         
@@ -581,6 +792,13 @@ export class Game {
         ctx.restore();
     }
     
+    /**
+     * Draw the background neon grid effect.
+     * 
+     * Renders a glowing grid pattern that provides visual depth
+     * and enhances the neon aesthetic. Skipped when performance
+     * optimization is needed.
+     */
     drawBackground() {
         // Skip background grid if performance is poor
         if (this.performanceManager.needsOptimization()) return;
@@ -608,6 +826,14 @@ export class Game {
         }
     }
     
+    /**
+     * Draw visual warning when enemies are about to spawn.
+     * 
+     * Displays a pulsing border around the screen and shows the
+     * number of incoming enemies to give players advance warning.
+     * 
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     */
     drawSpawnWarning(ctx) {
         // Draw pulsing border to indicate incoming enemies
         const pulseIntensity = 0.5 + 0.5 * Math.sin(Date.now() / 200);
@@ -637,5 +863,46 @@ export class Game {
         // Reset text properties
         ctx.textAlign = 'left';
         ctx.shadowBlur = 0;
+    }
+
+    /**
+     * Handle wave completion timing and transitions.
+     * 
+     * Manages the delay between wave completion and shop display,
+     * checking if all enemies have been spawned and defeated.
+     * 
+     * @private
+     * @param {number} delta - Time elapsed since last frame in milliseconds
+     */
+    _handleWaveCompletion(delta) {
+        // Check if wave is complete (all enemies spawned and defeated)
+        if (this.enemiesToSpawn === 0 && this.enemies.length === 0 && !this.waveComplete) {
+            this.waveCompletionTimer += delta;
+            
+            // Add delay before showing shop to allow final effects to finish
+            if (this.waveCompletionTimer >= Game.TIMING.WAVE_COMPLETION_DELAY) {
+                this.completeWave();
+            }
+        }
+    }
+
+    /**
+     * Calculate coin rewards for completing a wave.
+     * 
+     * Determines the total coin reward based on wave number,
+     * completion time, and other performance factors.
+     * 
+     * @private
+     * @returns {number} Total coins awarded for wave completion
+     */
+    _calculateWaveReward() {
+        const baseReward = GameConfig.WAVE.BASE_COIN_REWARD || 5;
+        const waveBonus = Math.floor(this.wave * 1.5);
+        
+        // Time bonus for quick completion (first 30 seconds)
+        const completionTime = Date.now() - this.waveStartTime;
+        const timeBonus = completionTime < 30000 ? 3 : 0;
+        
+        return baseReward + waveBonus + timeBonus;
     }
 }

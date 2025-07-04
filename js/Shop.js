@@ -1,57 +1,119 @@
 import { GameConfig } from './config/GameConfig.js';
 import { PowerUp } from './PowerUp.js';
 
+/**
+ * Shop class manages the in-game power-up purchasing system.
+ * 
+ * Handles:
+ * - Power-up pricing with stack-based multipliers
+ * - Tab-based UI organization (offense/defense/utility)
+ * - Purchase validation and affordability checks
+ * - Dynamic shop state management and refresh
+ * - Integration with player progression and power-up stacking
+ * 
+ * @class Shop
+ * @author Game Development Team
+ * @version 1.0.0
+ */
 export class Shop {
+    /**
+     * Creates a new Shop instance with centralized configuration.
+     * Initializes pricing, stack limits, and UI state tracking.
+     */
     constructor() {
-        // Use centralized configuration
+        /** @type {Object} Power-up base prices from game configuration */
         this.powerUpPrices = GameConfig.POWERUP_PRICES;
+        
+        /** @type {Object} Maximum stack limits for stackable power-ups */
         this.stackLimits = GameConfig.STACK_LIMITS;
         
-        // Track current tab and shop state
+        /** @type {string} Currently active shop tab ('offense'|'defense'|'utility') */
         this.currentTab = 'offense';
+        
+        /** @type {Player|null} Reference to current player for state management */
         this.currentPlayer = null;
+        
+        /** @type {Function|null} Callback function executed on power-up purchase */
         this.currentOnPurchase = null;
     }
 
-    // Get price for a power-up, with stacking multiplier
+    /**
+     * Calculates the current price for a power-up based on existing stacks.
+     * Implements exponential pricing to balance game economy.
+     * 
+     * @param {string} powerUpName - Name of the power-up to price
+     * @param {number} [currentStacks=0] - Number of existing stacks player has
+     * @returns {number} Calculated price in coins (minimum 1)
+     * 
+     * @example
+     * // Base price for first purchase
+     * shop.getPowerUpPrice("Damage Boost", 0); // Returns base price
+     * 
+     * // Increased price for stacked purchase
+     * shop.getPowerUpPrice("Damage Boost", 3); // Returns higher price
+     */
     getPowerUpPrice(powerUpName, currentStacks = 0) {
         const basePrice = this.powerUpPrices[powerUpName] || 20;
         
         // Ensure stacks is not negative (safety check)
         const validStacks = Math.max(0, currentStacks);
         
-        // Increase price for each stack (stackable power-ups get more expensive)
+        // Apply exponential price scaling based on current stacks
+        // Each stack increases cost by the configured multiplier percentage
         const stackMultiplier = 1 + (validStacks * GameConfig.ECONOMY.SHOP_STACK_PRICE_MULTIPLIER);
         
         return Math.max(1, Math.floor(basePrice * stackMultiplier)); // Minimum price of 1 coin
     }
 
-    // Check if player can afford a power-up
+    /**
+     * Determines if a player can afford a specific power-up purchase.
+     * 
+     * @param {string} powerUpName - Name of the power-up to check
+     * @param {number} currentStacks - Player's current stack count for this power-up
+     * @param {number} playerCoins - Player's available coins
+     * @returns {boolean} True if player can afford the purchase
+     */
     canAfford(powerUpName, currentStacks, playerCoins) {
         return playerCoins >= this.getPowerUpPrice(powerUpName, currentStacks);
     }
 
-    // Get current stacks for stackable power-ups
+    /**
+     * Retrieves the current stack count for a stackable power-up.
+     * Uses modern stack tracking when available, falls back to legacy calculation.
+     * 
+     * @param {string} powerUpName - Name of the power-up to check
+     * @param {Player} player - Player object to check stacks for
+     * @returns {number} Current number of stacks (0 if none)
+     * 
+     * @todo Migrate all power-ups to use the new stack tracking system
+     */
     getCurrentStacks(powerUpName, player) {
-        // Check if player has a stack tracker for this power-up
+        // Prefer modern stack tracking system when available
         if (player.powerUpStacks && player.powerUpStacks[powerUpName] !== undefined) {
             return player.powerUpStacks[powerUpName];
         }
         
-        // Fallback to legacy calculation for non-tracked power-ups
+        // Legacy calculation methods for backward compatibility
+        // These approximations should be replaced with proper stack tracking
         switch(powerUpName) {
             case "Max Health":
-                return Math.round((player.maxHp - 100) / 20); // Approximation
+                // Approximate stacks based on current max HP (20 HP per stack)
+                return Math.round((player.maxHp - 100) / 20);
             case "Shield":
+                // Calculate shield stacks based on max shield HP
                 return player.hasShield ? Math.floor((player.maxShieldHp - 50) / 25) + 1 : 0;
             case "Regeneration":
+                // 5 HP regen per stack
                 return player.hpRegen / 5;
             case "Shield Regen":
+                // 10 shield regen per stack
                 return player.shieldRegen / 10;
             case "Bigger Explosions":
+                // Logarithmic calculation for explosion radius stacks
                 return Math.round(Math.log(player.explosionRadius / 50) / Math.log(1.5));
             case "Full Heal":
-                return 0; // Always available at base price
+                // Always available at base price (consumable)
+                return 0;
             case "Slow Field":
                 return player.slowFieldStrength;
             default:
@@ -59,72 +121,94 @@ export class Shop {
         }
     }
 
-    // Show shop interface
+    /**
+     * Displays the shop modal interface with current player state.
+     * Initializes tabs, updates coin display, and sets up event handlers.
+     * 
+     * @param {Player} player - Current player object
+     * @param {number} coins - Player's available coins
+     * @param {Function} onPurchase - Callback executed when power-up is purchased
+     * @param {Function} onContinue - Callback executed when shop is closed
+     */
     showShop(player, coins, onPurchase, onContinue) {
         const modal = document.getElementById('powerUpModal');
         
-        // Store current state
+        // Store current state for refresh operations
         this.currentPlayer = player;
         this.currentOnPurchase = onPurchase;
         
-        // Update modal title to show coins
+        // Update modal title to show current coin count
         modal.querySelector('h2').textContent = `Power-Up Shop (Coins: ${coins})`;
         
-        // Set up tab functionality
+        // Initialize tab system and event handlers
         this.setupTabs(player, coins, onPurchase);
-        
-        // Set up close button
         this.setupCloseButton(onContinue);
         
-    // Show the current tab
+        // Display the current tab content
         this.showTab(this.currentTab, player, coins, onPurchase);
         
-        // Ensure the correct tab button is marked as active
-        const tabButtons = document.querySelectorAll('.tab-button');
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        const activeButton = document.querySelector(`[data-tab="${this.currentTab}"]`);
-        if (activeButton) {
-            activeButton.classList.add('active');
-        }
+        // Ensure correct tab button is visually active
+        this.updateActiveTabButton();
         
+        // Show the modal
         modal.classList.add('show');
     }
     
-    // Refresh the current shop display
+    /**
+     * Refreshes the shop display with current player state.
+     * Used after purchases to update prices, availability, and coin count.
+     * 
+     * @private
+     */
     refreshShop() {
         if (this.currentPlayer && this.currentOnPurchase) {
             const modal = document.getElementById('powerUpModal');
+            // Update coin display
             modal.querySelector('h2').textContent = `Power-Up Shop (Coins: ${this.currentPlayer.coins})`;
+            // Refresh current tab content
             this.showTab(this.currentTab, this.currentPlayer, this.currentPlayer.coins, this.currentOnPurchase);
         }
     }
 
-    // Setup tab button functionality
+    /**
+     * Initializes tab button event handlers for shop navigation.
+     * Handles tab switching and visual state updates.
+     * 
+     * @private
+     * @param {Player} player - Current player object
+     * @param {number} coins - Player's available coins
+     * @param {Function} onPurchase - Purchase callback function
+     */
     setupTabs(player, coins, onPurchase) {
         const tabButtons = document.querySelectorAll('.tab-button');
         
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
-                // Remove active class from all buttons
+                // Update visual state
                 tabButtons.forEach(btn => btn.classList.remove('active'));
-                // Add active class to clicked button
                 button.classList.add('active');
                 
-                // Update current tab
+                // Switch to selected tab
                 const tabName = button.getAttribute('data-tab');
                 this.currentTab = tabName;
                 
-                // Show the corresponding tab content
+                // Load tab content
                 this.showTab(tabName, player, coins, onPurchase);
             });
         });
     }
 
-    // Setup close button
+    /**
+     * Initializes the shop close button with proper event handling.
+     * Prevents event listener duplication by cloning the button.
+     * 
+     * @private
+     * @param {Function} onContinue - Callback executed when shop is closed
+     */
     setupCloseButton(onContinue) {
         const closeButton = document.querySelector('.shop-close-btn');
         
-        // Remove any existing event listeners
+        // Remove any existing event listeners by cloning the element
         const newCloseButton = closeButton.cloneNode(true);
         closeButton.parentNode.replaceChild(newCloseButton, closeButton);
         
@@ -133,14 +217,23 @@ export class Shop {
         });
     }
 
-    // Show cards for a specific tab
+    /**
+     * Displays power-up cards for the specified tab category.
+     * Handles filtering, pricing, and purchase interaction setup.
+     * 
+     * @private
+     * @param {string} tabName - Tab identifier ('offense'|'defense'|'utility')
+     * @param {Player} player - Current player object
+     * @param {number} coins - Player's available coins
+     * @param {Function} onPurchase - Purchase callback function
+     */
     showTab(tabName, player, coins, onPurchase) {
         const cardsContainer = document.getElementById('powerUpCards');
         
-        // Clear existing cards
+        // Clear existing content
         cardsContainer.innerHTML = '';
         
-        // Map tab names to categories
+        // Map UI tab names to internal categories
         const categoryMap = {
             'offense': 'OFFENSE',
             'defense': 'DEFENSE', 
@@ -150,67 +243,121 @@ export class Shop {
         const category = categoryMap[tabName];
         if (!category) return;
         
+        // Get available power-ups for this category
         const categoryPowerUps = this.getPowerUpsByCategory(category, player);
         
-        // Add power-ups for this category
+        // Create cards for each available power-up
         categoryPowerUps.forEach(powerUp => {
             const currentStacks = this.getCurrentStacks(powerUp.name, player);
             const price = this.getPowerUpPrice(powerUp.name, currentStacks);
             const canAfford = this.canAfford(powerUp.name, currentStacks, coins);
             const isMaxed = this.isPowerUpMaxed(powerUp.name, player);
 
-            const card = document.createElement('div');
-            card.className = `card shop-card ${!canAfford ? 'unaffordable' : ''} ${isMaxed ? 'maxed' : ''}`;
-            
-            let stackInfo = '';
-            if (powerUp.stackable && currentStacks > 0) {
-                stackInfo = ` (Lv.${currentStacks})`;
-            }
-
-            let statusText = '';
-            if (isMaxed) {
-                statusText = '<div class="status-text maxed">MAXED</div>';
-            } else if (!canAfford) {
-                statusText = '<div class="status-text unaffordable">Can\'t Afford</div>';
-            }
-
-            card.innerHTML = `
-                <div class="card-icon">${powerUp.icon}</div>
-                <div class="card-title">${powerUp.name}${stackInfo}</div>
-                <div class="card-description">${powerUp.description}</div>
-                <div class="card-price">${price} coins</div>
-                ${statusText}
-            `;
-            
-            if (canAfford && !isMaxed) {
-                card.addEventListener('click', () => {
-                    onPurchase(powerUp, price);
-                    // Refresh the shop after purchase
-                    setTimeout(() => {
-                        this.refreshShop();
-                    }, 50); // Small delay to ensure purchase is processed
-                });
-            }
-            
+            const card = this.createPowerUpCard(powerUp, currentStacks, price, canAfford, isMaxed, onPurchase);
             cardsContainer.appendChild(card);
         });
         
-        // If no power-ups available, show a message
+        // Show empty state if no power-ups are available
         if (categoryPowerUps.length === 0) {
-            const emptyMessage = document.createElement('div');
-            emptyMessage.className = 'empty-tab-message';
-            emptyMessage.innerHTML = `
-                <div style="text-align: center; padding: 40px; color: #888; font-size: 14px;">
-                    <p>No power-ups available in this category</p>
-                    <p>All upgrades are maxed out!</p>
-                </div>
-            `;
-            cardsContainer.appendChild(emptyMessage);
+            this.showEmptyTabMessage(cardsContainer);
         }
     }
 
-    // Get power-ups by category, filtering out maxed non-stackable ones
+    /**
+     * Creates a power-up card element with proper styling and interactions.
+     * 
+     * @private
+     * @param {PowerUp} powerUp - Power-up object to create card for
+     * @param {number} currentStacks - Player's current stacks for this power-up
+     * @param {number} price - Calculated price for this purchase
+     * @param {boolean} canAfford - Whether player can afford this purchase
+     * @param {boolean} isMaxed - Whether this power-up is at maximum level
+     * @param {Function} onPurchase - Purchase callback function
+     * @returns {HTMLElement} Configured card element
+     */
+    createPowerUpCard(powerUp, currentStacks, price, canAfford, isMaxed, onPurchase) {
+        const card = document.createElement('div');
+        card.className = `card shop-card ${!canAfford ? 'unaffordable' : ''} ${isMaxed ? 'maxed' : ''}`;
+        
+        // Add stack level indicator for stackable power-ups
+        let stackInfo = '';
+        if (powerUp.stackable && currentStacks > 0) {
+            stackInfo = ` (Lv.${currentStacks})`;
+        }
+
+        // Add status indicators for purchase state
+        let statusText = '';
+        if (isMaxed) {
+            statusText = '<div class="status-text maxed">MAXED</div>';
+        } else if (!canAfford) {
+            statusText = '<div class="status-text unaffordable">Can\'t Afford</div>';
+        }
+
+        card.innerHTML = `
+            <div class="card-icon">${powerUp.icon}</div>
+            <div class="card-title">${powerUp.name}${stackInfo}</div>
+            <div class="card-description">${powerUp.description}</div>
+            <div class="card-price">${price} coins</div>
+            ${statusText}
+        `;
+        
+        // Add click handler for purchasable items
+        if (canAfford && !isMaxed) {
+            card.addEventListener('click', () => {
+                onPurchase(powerUp, price);
+                // Refresh shop after purchase to update state
+                setTimeout(() => {
+                    this.refreshShop();
+                }, 50); // Small delay ensures purchase processing completes
+            });
+        }
+        
+        return card;
+    }
+
+    /**
+     * Displays an empty state message when no power-ups are available in a tab.
+     * 
+     * @private
+     * @param {HTMLElement} container - Container to add empty message to
+     */
+    showEmptyTabMessage(container) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-tab-message';
+        emptyMessage.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #888; font-size: 14px;">
+                <p>No power-ups available in this category</p>
+                <p>All upgrades are maxed out!</p>
+            </div>
+        `;
+        container.appendChild(emptyMessage);
+    }
+
+    /**
+     * Updates the visual state of tab buttons to show the active tab.
+     * 
+     * @private
+     */
+    updateActiveTabButton() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        const activeButton = document.querySelector(`[data-tab="${this.currentTab}"]`);
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+
+    /**
+     * Filters power-ups by category and availability.
+     * Excludes maxed out power-ups from the shop display.
+     * 
+     * @private
+     * @param {string} category - Category to filter by ('OFFENSE'|'DEFENSE'|'UTILITY')
+     * @param {Player} player - Player object to check power-up states
+     * @returns {PowerUp[]} Array of available power-ups for the category
+     */
     getPowerUpsByCategory(category, player) {
+        // Define power-up categories for shop organization
         const categoryNames = {
             'OFFENSE': [
                 "Damage Boost", "Fire Rate", "Piercing Shots", "Triple Shot", 
@@ -230,21 +377,29 @@ export class Shop {
         return PowerUp.ALL_POWERUPS.filter(powerUp => {
             if (!powerUpNames.includes(powerUp.name)) return false;
             
-            // Filter out maxed power-ups
+            // Hide maxed power-ups from shop
             return !this.isPowerUpMaxed(powerUp.name, player);
         });
     }
 
-    // Check if a power-up is at maximum level
+    /**
+     * Determines if a power-up has reached its maximum level or stack limit.
+     * Handles both stackable and non-stackable power-ups.
+     * 
+     * @private
+     * @param {string} powerUpName - Name of power-up to check
+     * @param {Player} player - Player object to check current state
+     * @returns {boolean} True if power-up is at maximum level
+     */
     isPowerUpMaxed(powerUpName, player) {
         const nonStackablePowerUps = player.getNonStackablePowerUps();
         
-        // Non-stackable power-ups are maxed if player already has them
+        // Non-stackable power-ups can only be purchased once
         if (nonStackablePowerUps.includes(powerUpName)) {
             return true;
         }
 
-        // Check specific stackable power-up limits using stack tracker
+        // Check stack limits for stackable power-ups
         const currentStacks = this.getCurrentStacks(powerUpName, player);
         const maxStacks = this.stackLimits[powerUpName];
         
@@ -252,14 +407,20 @@ export class Shop {
             return currentStacks >= maxStacks;
         }
         
-        // Special cases
+        // Special case handling for complex power-ups
         if (powerUpName === "Slow Field") {
             return player.isSlowFieldMaxed();
         }
         
-        return false; // No limit for other stackable power-ups
+        // No limit for other stackable power-ups
+        return false;
     }
 
+    /**
+     * Closes the shop modal and cleans up the interface.
+     * 
+     * @public
+     */
     closeShop() {
         document.getElementById('powerUpModal').classList.remove('show');
     }

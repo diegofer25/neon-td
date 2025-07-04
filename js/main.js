@@ -1,11 +1,33 @@
+/**
+ * @fileoverview Main game entry point and application controller
+ * Handles game initialization, input management, audio system, UI updates, and game loop
+ * 
+ * @author Diego Lamarao
+ * @version 1.0.0
+ */
+
 import { Game } from './Game.js';
 
-// Global game instance
+//=============================================================================
+// GLOBAL STATE AND CONFIGURATION
+//=============================================================================
+
+/** @type {Game|null} Global game instance */
 let game = null;
+
+/** @type {number} Previous frame timestamp for delta calculation */
 let lastTime = 0;
+
+/** @type {number|null} Animation frame ID for game loop control */
 let animationId = null;
 
-// Audio elements
+/**
+ * Audio system configuration and state
+ * @type {Object}
+ * @property {HTMLAudioElement|null} bgm - Background music element
+ * @property {Object} sfx - Sound effect audio elements
+ * @property {boolean} enabled - Global audio enable/disable flag
+ */
 const audio = {
     bgm: null,
     sfx: {
@@ -18,7 +40,15 @@ const audio = {
     enabled: true
 };
 
-// Input handling
+/**
+ * Input handling state and configuration
+ * @type {Object}
+ * @property {number} mouseX - Current mouse X coordinate
+ * @property {number} mouseY - Current mouse Y coordinate
+ * @property {boolean} mouseDown - Mouse button state
+ * @property {Object} keys - Keyboard key states (keyCode -> boolean)
+ * @property {HTMLCanvasElement|null} canvas - Reference to game canvas
+ */
 const input = {
     mouseX: 0,
     mouseY: 0,
@@ -27,42 +57,53 @@ const input = {
     canvas: null
 };
 
-// Initialize the game
+//=============================================================================
+// INITIALIZATION AND SETUP
+//=============================================================================
+
+/**
+ * Initialize the game application
+ * Sets up canvas, game instance, input handlers, audio, and UI
+ */
 function init() {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     input.canvas = canvas;
 
-    // Set up responsive canvas
+    // Set up responsive canvas with proper scaling
     setupCanvas();
     
-    // Initialize game
+    // Initialize core game instance
     game = new Game(canvas, ctx);
     
-    // Set up input handlers
+    // Configure all input event listeners
     setupInputHandlers();
     
-    // Set up resize handler
+    // Handle dynamic window resizing
     window.addEventListener('resize', handleResize);
     
-    // Load audio
+    // Initialize audio system
     loadAudio();
     
-    // Check for saved mute preference
+    // Restore user audio preferences from localStorage
     if (localStorage.getItem('mute') === 'true') {
         toggleMute();
     }
 
-    // Show start screen
+    // Display initial start screen
     document.getElementById('startScreen').classList.add('show');
 }
 
-// Set up canvas dimensions and scaling
+/**
+ * Set up canvas dimensions and scaling for responsive design
+ * Maintains 4:3 aspect ratio while adapting to container size
+ * Handles high DPI displays with proper scaling
+ */
 function setupCanvas() {
     const canvas = input.canvas;
     const container = document.getElementById('gameContainer');
     
-    // Calculate optimal canvas size maintaining aspect ratio
+    // Target aspect ratio for consistent gameplay experience
     const targetAspectRatio = 4/3; // 800/600 = 4/3
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
@@ -70,6 +111,7 @@ function setupCanvas() {
     
     let canvasWidth, canvasHeight;
     
+    // Calculate optimal canvas size based on container aspect ratio
     if (containerAspectRatio > targetAspectRatio) {
         // Container is wider, fit to height
         canvasHeight = Math.min(containerHeight * 0.9, 600);
@@ -80,7 +122,7 @@ function setupCanvas() {
         canvasHeight = canvasWidth / targetAspectRatio;
     }
     
-    // Ensure minimum size for playability
+    // Ensure minimum playable size on small screens
     const minWidth = 320;
     const minHeight = minWidth / targetAspectRatio;
     
@@ -89,17 +131,17 @@ function setupCanvas() {
         canvasHeight = minHeight;
     }
     
-    // Set canvas size
+    // Apply calculated dimensions
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     canvas.style.width = canvasWidth + 'px';
     canvas.style.height = canvasHeight + 'px';
     
-    // Set up canvas for high DPI displays
+    // Handle high DPI displays for crisp rendering
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext('2d');
     
-    // Scale canvas for high DPI
+    // Scale canvas backing store for high DPI
     canvas.width = canvasWidth * dpr;
     canvas.height = canvasHeight * dpr;
     ctx.scale(dpr, dpr);
@@ -107,25 +149,35 @@ function setupCanvas() {
     canvas.style.height = canvasHeight + 'px';
 }
 
-// Handle window resize
+/**
+ * Handle window resize events with debouncing
+ * Prevents excessive recalculations during resize operations
+ */
 let resizeTimeout;
 function handleResize() {
-    // Debounce resize events to avoid excessive recalculations
+    // Debounce resize events to improve performance
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
         if (game) {
             setupCanvas();
-            // Update game dimensions
+            // Notify game of canvas size changes
             game.updateCanvasSize();
         }
     }, 100);
 }
 
-// Set up input event handlers
+//=============================================================================
+// INPUT SYSTEM
+//=============================================================================
+
+/**
+ * Set up all input event handlers for mouse, touch, and keyboard
+ * Configures event listeners for game interaction and UI controls
+ */
 function setupInputHandlers() {
     const canvas = input.canvas;
 
-    // Keep basic mouse/touch events for UI interaction (but not for aiming)
+    // Basic mouse events for UI interaction (not for aiming)
     canvas.addEventListener('mousedown', (e) => {
         e.preventDefault();
     });
@@ -134,16 +186,16 @@ function setupInputHandlers() {
         e.preventDefault();
     });
 
-    // Keyboard events (mainly for pause)
+    // Keyboard input handling
     document.addEventListener('keydown', (e) => {
         input.keys[e.code] = true;
         
-        // Handle pause
+        // Game pause toggle
         if (e.code === 'KeyP' && game && game.gameState === 'playing') {
             togglePause();
         }
         
-        // Prevent spacebar from scrolling
+        // Prevent spacebar page scrolling
         if (e.code === 'Space') {
             e.preventDefault();
         }
@@ -153,35 +205,46 @@ function setupInputHandlers() {
         input.keys[e.code] = false;
     });
 
-    // Mute button
+    // Audio mute toggle button
     document.getElementById('muteBtn').addEventListener('click', toggleMute);
 
-    // Prevent context menu on canvas
+    // Disable right-click context menu on canvas
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 }
 
-// Load audio files
+//=============================================================================
+// AUDIO SYSTEM
+//=============================================================================
+
+/**
+ * Initialize audio system and load sound files
+ * Sets up background music and sound effect audio elements
+ */
 function loadAudio() {
-    // Create audio elements (placeholder for now - you'll need actual audio files)
+    // Background music setup
     audio.bgm = new Audio();
     audio.bgm.loop = true;
     audio.bgm.volume = 0.3;
     
-    // Create SFX audio elements
+    // Initialize sound effect audio elements
     Object.keys(audio.sfx).forEach(key => {
         audio.sfx[key] = new Audio();
         audio.sfx[key].volume = 0.5;
     });
     
-    // For demo purposes, we'll skip actual audio files
-    // In a real implementation, you'd load actual audio files here
+    // Note: In production, load actual audio files here
+    // For demo purposes, audio files are skipped
 }
 
-// Play sound effect
+/**
+ * Play a sound effect by name
+ * @param {string} soundName - Name of the sound effect to play
+ */
 function playSFX(soundName) {
     if (!audio.enabled || !audio.sfx[soundName]) return;
     
     try {
+        // Clone audio node to allow overlapping sounds
         const sound = audio.sfx[soundName].cloneNode();
         sound.play().catch(e => console.log('Audio play failed:', e));
     } catch (e) {
@@ -189,42 +252,10 @@ function playSFX(soundName) {
     }
 }
 
-// Start the game
-function startGame() {
-    document.getElementById('startScreen').classList.remove('show');
-    
-    // Start background music
-    if (audio.enabled && audio.bgm) {
-        audio.bgm.play().catch(e => console.log('BGM play failed:', e));
-    }
-    
-    // Reset and start game
-    game.start();
-    
-    // Start game loop
-    gameLoop();
-}
-
-// Restart the game
-function restartGame() {
-    document.getElementById('gameOver').classList.remove('show');
-    game.restart();
-    gameLoop();
-}
-
-// Toggle pause
-function togglePause() {
-    if (game.gameState === 'playing') {
-        game.pause();
-        document.getElementById('pauseScreen').classList.add('show');
-    } else if (game.gameState === 'paused') {
-        game.resume();
-        document.getElementById('pauseScreen').classList.remove('show');
-        gameLoop();
-    }
-}
-
-// Toggle mute
+/**
+ * Toggle audio mute state and update UI
+ * Saves preference to localStorage for persistence
+ */
 function toggleMute() {
     audio.enabled = !audio.enabled;
     const muteBtn = document.getElementById('muteBtn');
@@ -237,26 +268,82 @@ function toggleMute() {
         if (audio.bgm) audio.bgm.volume = 0;
     }
     
+    // Persist mute preference
     localStorage.setItem('mute', !audio.enabled);
 }
 
-// Main game loop
+//=============================================================================
+// GAME STATE MANAGEMENT
+//=============================================================================
+
+/**
+ * Start a new game session
+ * Hides start screen, starts audio, and begins game loop
+ */
+function startGame() {
+    document.getElementById('startScreen').classList.remove('show');
+    
+    // Start background music if audio is enabled
+    if (audio.enabled && audio.bgm) {
+        audio.bgm.play().catch(e => console.log('BGM play failed:', e));
+    }
+    
+    // Initialize game state and start main loop
+    game.start();
+    gameLoop();
+}
+
+/**
+ * Restart the game after game over
+ * Hides game over screen and restarts game loop
+ */
+function restartGame() {
+    document.getElementById('gameOver').classList.remove('show');
+    game.restart();
+    gameLoop();
+}
+
+/**
+ * Toggle game pause state
+ * Manages pause screen visibility and game loop execution
+ */
+function togglePause() {
+    if (game.gameState === 'playing') {
+        game.pause();
+        document.getElementById('pauseScreen').classList.add('show');
+    } else if (game.gameState === 'paused') {
+        game.resume();
+        document.getElementById('pauseScreen').classList.remove('show');
+        gameLoop();
+    }
+}
+
+//=============================================================================
+// GAME LOOP AND RENDERING
+//=============================================================================
+
+/**
+ * Main game loop - handles update and render cycles
+ * @param {number} timestamp - Current frame timestamp from requestAnimationFrame
+ */
 function gameLoop(timestamp = 0) {
+    // Skip update if game is paused
     if (game.gameState === 'paused') return;
     
+    // Calculate frame delta time for smooth animation
     const delta = timestamp - lastTime;
     lastTime = timestamp;
     
-    // Update game
+    // Update game logic
     game.update(delta, input);
     
-    // Render game
+    // Render current frame
     game.render();
     
-    // Update HUD
+    // Update user interface elements
     updateHUD();
     
-    // Continue loop if game is running
+    // Continue loop based on game state
     if (game.gameState === 'playing' || game.gameState === 'powerup') {
         animationId = requestAnimationFrame(gameLoop);
     } else if (game.gameState === 'gameover') {
@@ -264,55 +351,70 @@ function gameLoop(timestamp = 0) {
     }
 }
 
-// Update HUD elements
+//=============================================================================
+// USER INTERFACE UPDATES
+//=============================================================================
+
+/**
+ * Update all HUD (Heads-Up Display) elements
+ * Refreshes health, coins, wave progress, and player stats
+ */
 function updateHUD() {
-    // Update health bar
+    // Update health bar visualization
     const healthPercentage = Math.max(0, (game.player.hp / game.player.maxHp) * 100);
     document.getElementById('healthFill').style.width = healthPercentage + '%';
     document.getElementById('healthText').textContent = `${Math.max(0, Math.floor(game.player.hp))}/${game.player.maxHp}`;
     
-    // Update coin display
+    // Update currency display
     document.getElementById('coinAmount').textContent = game.player.coins;
     
-    // Update wave counter with progress
+    // Update wave progress with enemy count
     const totalEnemies = game.enemiesSpawned + game.enemiesToSpawn;
     const remainingEnemies = game.enemies.length + game.enemiesToSpawn;
     document.getElementById('wave').textContent = `Wave: ${game.wave} (${remainingEnemies}/${totalEnemies})`;
     
-    // Update stats display
+    // Refresh player statistics display
     updateStatsDisplay();
 }
 
-// Update player stats display
+/**
+ * Update player statistics display with current values
+ * Shows attack damage, defense (HP + shield), and attack speed
+ */
 function updateStatsDisplay() {
-    // Calculate current attack damage
+    // Calculate current attack damage with modifiers
     const baseDamage = 10;
     const currentAttack = Math.floor(baseDamage * game.player.damageMod);
     updateStatValue('attackValue', currentAttack);
     
-    // Calculate current defense (total HP including shield)
+    // Calculate total defense including shield
     const currentDefense = game.player.maxHp + (game.player.hasShield ? game.player.maxShieldHp : 0);
     updateStatValue('defenseValue', currentDefense);
     
-    // Calculate current attack speed multiplier
+    // Display attack speed multiplier
     const currentSpeed = game.player.fireRateMod.toFixed(1);
     updateStatValue('speedValue', `${currentSpeed}x`);
 }
 
-// Update individual stat value with highlight effect on change
+/**
+ * Update individual stat value with highlight animation on change
+ * @param {string} elementId - DOM element ID to update
+ * @param {string|number} newValue - New value to display
+ */
 function updateStatValue(elementId, newValue) {
     const element = document.getElementById(elementId);
     const oldValue = element.textContent;
     
+    // Only animate if value actually changed
     if (oldValue !== newValue.toString()) {
         element.textContent = newValue;
         
-        // Add highlight effect for stat increases
+        // Apply highlight effect for stat increases
         element.style.color = '#0f0';
         element.style.textShadow = '0 0 10px #0f0';
         element.style.transform = 'scale(1.1)';
         
-        // Remove highlight after animation
+        // Remove highlight after brief animation
         setTimeout(() => {
             element.style.color = '#fff';
             element.style.textShadow = '0 0 3px #fff';
@@ -321,19 +423,32 @@ function updateStatValue(elementId, newValue) {
     }
 }
 
-// Show game over screen
+/**
+ * Display game over screen with final statistics
+ * Stops background music and shows final wave reached
+ */
 function showGameOver() {
     document.getElementById('finalWave').textContent = game.wave;
     document.getElementById('gameOver').classList.add('show');
     
-    // Stop background music
+    // Stop and reset background music
     if (audio.bgm) {
         audio.bgm.pause();
         audio.bgm.currentTime = 0;
     }
 }
 
-// Floating text system
+//=============================================================================
+// VISUAL EFFECTS
+//=============================================================================
+
+/**
+ * Create floating text animation effect
+ * @param {string} text - Text to display
+ * @param {number} x - X coordinate for text position
+ * @param {number} y - Y coordinate for text position
+ * @param {string} className - CSS class for styling (default: 'damage')
+ */
 function createFloatingText(text, x, y, className = 'damage') {
     const textElement = document.createElement('div');
     textElement.className = `floating-text ${className}`;
@@ -343,7 +458,7 @@ function createFloatingText(text, x, y, className = 'damage') {
     
     document.getElementById('floatingTexts').appendChild(textElement);
     
-    // Remove after animation
+    // Auto-remove after animation completes
     setTimeout(() => {
         if (textElement.parentNode) {
             textElement.parentNode.removeChild(textElement);
@@ -351,12 +466,16 @@ function createFloatingText(text, x, y, className = 'damage') {
     }, 1000);
 }
 
-// Screen flash effect
+/**
+ * Create screen flash effect for dramatic moments
+ * Adds a brief white flash overlay to the game container
+ */
 function screenFlash() {
     const flash = document.createElement('div');
     flash.className = 'screen-flash';
     document.getElementById('gameContainer').appendChild(flash);
     
+    // Remove flash element after animation
     setTimeout(() => {
         if (flash.parentNode) {
             flash.parentNode.removeChild(flash);
@@ -364,7 +483,11 @@ function screenFlash() {
     }, 200);
 }
 
-// Export functions for global access
+//=============================================================================
+// GLOBAL EXPORTS AND INITIALIZATION
+//=============================================================================
+
+// Export functions for global access from HTML and other modules
 window.startGame = startGame;
 window.restartGame = restartGame;
 window.togglePause = togglePause;
@@ -375,5 +498,5 @@ window.screenFlash = screenFlash;
 window.game = () => game;
 window.input = input;
 
-// Initialize when DOM is loaded
+// Initialize application when DOM content is fully loaded
 document.addEventListener('DOMContentLoaded', init);

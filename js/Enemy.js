@@ -1,33 +1,55 @@
+/**
+ * Represents an enemy unit in the tower defense game.
+ * Enemies move toward the player, can take damage, and have visual effects.
+ * Supports different enemy types with varying stats and behaviors.
+ */
 export class Enemy {
+    /**
+     * Creates a new Enemy instance.
+     * @param {number} x - Initial X coordinate
+     * @param {number} y - Initial Y coordinate  
+     * @param {number} speed - Movement speed in pixels per second
+     * @param {number} health - Maximum health points
+     * @param {number} damage - Damage dealt to player on contact
+     */
     constructor(x, y, speed, health, damage) {
+        // Position properties
         this.x = x;
         this.y = y;
+        
+        // Combat properties
         this.speed = speed;
         this.health = health;
         this.maxHealth = health;
         this.damage = damage;
-        this.radius = 15;
+        this.radius = 15; // Collision radius in pixels
         
         // Visual properties
-        this.color = '#0ff';
-        this.glowColor = '#0ff';
-        this.flashTimer = 0;
+        this.color = '#0ff'; // Main body color (cyan)
+        this.glowColor = '#0ff'; // Glow effect color
+        this.flashTimer = 0; // Timer for hit flash effect in milliseconds
         
         // Status effects
-        this.slowFactor = 1;
+        this.slowFactor = 1; // Movement speed multiplier (1 = normal, <1 = slowed)
         
-        // Death animation
-        this.dying = false;
-        this.deathTimer = 0;
+        // Death animation properties
+        this.dying = false; // Whether enemy is in death animation
+        this.deathTimer = 0; // Timer for death animation in milliseconds
     }
     
+    /**
+     * Updates the enemy's position, status effects, and handles player collision.
+     * @param {number} delta - Time elapsed since last update in milliseconds
+     * @param {Object} player - Player object with x, y, and radius properties
+     */
     update(delta, player) {
+        // Skip movement updates if dying
         if (this.dying) {
             this.deathTimer += delta;
             return;
         }
         
-        // Update flash timer
+        // Update flash timer for hit effect
         if (this.flashTimer > 0) {
             this.flashTimer -= delta;
         }
@@ -37,7 +59,7 @@ export class Enemy {
         const dy = player.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        // Move towards player
+        // Move towards player using normalized direction vector
         if (distance > 0) {
             const normalizedDx = dx / distance;
             const normalizedDy = dy / distance;
@@ -48,31 +70,39 @@ export class Enemy {
             this.y += normalizedDy * actualSpeed;
         }
         
-        // Reset slow factor (will be reapplied by slow field if in range)
+        // Reset slow factor each frame (reapplied by slow towers if in range)
         this.slowFactor = 1;
         
-        // Check collision with player
+        // Check collision with player (circular collision detection)
         if (distance <= this.radius + player.radius) {
-            // This collision will be handled by the Game class
-            // Mark for removal by setting health to 0
+            // Mark for removal - collision damage handled by Game class
             this.health = 0;
         }
     }
     
+    /**
+     * Applies damage to the enemy and triggers visual feedback.
+     * @param {number} amount - Amount of damage to deal
+     */
     takeDamage(amount) {
         this.health -= amount;
         
-        // Flash effect when hit
-        this.flashTimer = 100; // Flash for 100ms
+        // Trigger white flash effect when hit
+        this.flashTimer = 100; // Flash duration in milliseconds
         
+        // Start death animation if health depleted
         if (this.health <= 0) {
             this.dying = true;
             this.deathTimer = 0;
         }
     }
     
+    /**
+     * Renders the enemy with glow effects, health bar, and status indicators.
+     * @param {CanvasRenderingContext2D} ctx - 2D rendering context
+     */
     draw(ctx) {
-        // Health-based color intensity
+        // Calculate visual intensity based on current health
         const healthPercent = this.health / this.maxHealth;
         const intensity = 0.5 + (healthPercent * 0.5);
         
@@ -153,10 +183,16 @@ export class Enemy {
         ctx.restore();
     }
     
-    // Get the enemy type for variety (can be extended later)
+    /**
+     * Creates a standard enemy with balanced stats.
+     * @param {number} x - Spawn X coordinate
+     * @param {number} y - Spawn Y coordinate
+     * @param {number} waveScale - Difficulty scaling factor (default: 1)
+     * @returns {Enemy} New basic enemy instance
+     */
     static createBasicEnemy(x, y, waveScale = 1) {
         const baseHealth = 50;
-        const baseSpeed = 50;
+        const baseSpeed = 50; // pixels per second
         const baseDamage = 10;
         
         return new Enemy(
@@ -167,9 +203,16 @@ export class Enemy {
         );
     }
     
+    /**
+     * Creates a fast, low-health enemy that moves quickly.
+     * @param {number} x - Spawn X coordinate
+     * @param {number} y - Spawn Y coordinate
+     * @param {number} waveScale - Difficulty scaling factor (default: 1)
+     * @returns {Enemy} New fast enemy instance with magenta coloring
+     */
     static createFastEnemy(x, y, waveScale = 1) {
-        const baseHealth = 25;
-        const baseSpeed = 100;
+        const baseHealth = 25; // Lower health
+        const baseSpeed = 100; // Higher speed
         const baseDamage = 15;
         
         const enemy = new Enemy(
@@ -179,17 +222,25 @@ export class Enemy {
             baseDamage * waveScale
         );
         
-        enemy.color = '#f0f';
+        // Visual differentiation
+        enemy.color = '#f0f'; // Magenta
         enemy.glowColor = '#f0f';
-        enemy.radius = 12; // Smaller but faster
+        enemy.radius = 12; // Smaller collision radius
         
         return enemy;
     }
     
+    /**
+     * Creates a slow, high-health tank enemy.
+     * @param {number} x - Spawn X coordinate
+     * @param {number} y - Spawn Y coordinate
+     * @param {number} waveScale - Difficulty scaling factor (default: 1)
+     * @returns {Enemy} New tank enemy instance with yellow coloring
+     */
     static createTankEnemy(x, y, waveScale = 1) {
-        const baseHealth = 150;
-        const baseSpeed = 25;
-        const baseDamage = 25;
+        const baseHealth = 150; // Much higher health
+        const baseSpeed = 25; // Lower speed
+        const baseDamage = 25; // Higher damage
         
         const enemy = new Enemy(
             x, y,
@@ -198,9 +249,10 @@ export class Enemy {
             baseDamage * waveScale
         );
         
-        enemy.color = '#ff0';
+        // Visual differentiation
+        enemy.color = '#ff0'; // Yellow
         enemy.glowColor = '#ff0';
-        enemy.radius = 25; // Larger and tankier
+        enemy.radius = 25; // Larger collision radius
         
         return enemy;
     }

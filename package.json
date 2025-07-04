@@ -7,17 +7,22 @@
     "start": "npx live-server --port=8080 --open=/index.html",
     "dev": "npx live-server --port=8080 --open=/index.html --watch=js,style.css,index.html"
   },
-  "keywords": ["game", "javascript", "canvas", "tower-defense", "shooter", "neon", "synthwave"],
-  "author": "Your Name",
+  "keywords": [
+    "game",
+    "javascript",
+    "canvas",
+    "tower-defense",
+    "shooter",
+    "neon",
+    "synthwave"
+  ],
+  "author": "Diego Lamarão & Github Copilot",
   "license": "MIT",
-  "devDependencies": {
-    "live-server": "^1.2.2"
-  },
   "repository": {
     "type": "git",
     "url": "your-repo-url"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22.0.0"
   }
 }

@@ -1,4 +1,43 @@
+/**
+ * PowerUp System
+ * 
+ * Manages the power-up mechanics for the tower defense game.
+ * Provides weighted random selection, stacking logic, and categorization
+ * of various player upgrades including offense, defense, and utility enhancements.
+ * 
+ * @fileoverview Core power-up system with weighted selection and stack management
+ * @author Game Development Team
+ * @version 1.0.0
+ */
+
+/**
+ * Represents a power-up that can be applied to enhance player capabilities
+ * 
+ * @class PowerUp
+ * @description Encapsulates power-up data and behavior, including application logic,
+ * weighting for random selection, and stacking rules.
+ */
 export class PowerUp {
+    /**
+     * Creates a new PowerUp instance
+     * 
+     * @param {string} name - Display name of the power-up
+     * @param {string} description - Detailed description of the power-up's effects
+     * @param {string} icon - Emoji or symbol representing the power-up visually
+     * @param {Function} apply - Function that applies the power-up effect to a player
+     * @param {number} [weight=1] - Selection weight (higher = more likely to appear)
+     * @param {boolean} [stackable=true] - Whether multiple instances can be applied
+     * 
+     * @example
+     * const damageBoost = new PowerUp(
+     *   "Damage Boost",
+     *   "+50% bullet damage", 
+     *   "⚡",
+     *   (player) => { player.damageMod *= 1.5; },
+     *   3,
+     *   true
+     * );
+     */
     constructor(name, description, icon, apply, weight = 1, stackable = true) {
         this.name = name;
         this.description = description;
@@ -8,6 +47,21 @@ export class PowerUp {
         this.stackable = stackable;
     }
     
+    /**
+     * Selects random power-ups using weighted probability
+     * 
+     * @static
+     * @param {number} [count=3] - Number of power-ups to select
+     * @param {string[]} [playerPowerUps=[]] - Array of non-stackable power-up names the player owns
+     * @returns {PowerUp[]} Array of selected power-ups
+     * 
+     * @description Uses weighted random selection to choose power-ups. Non-stackable
+     * power-ups are filtered out if already owned. Selection avoids duplicates
+     * within the same selection batch.
+     * 
+     * @example
+     * const selectedPowerUps = PowerUp.getRandomPowerUps(3, ["Piercing Shots"]);
+     */
     static getRandomPowerUps(count = 3, playerPowerUps = []) {
         // Filter out non-stackable power-ups that the player already has
         const available = PowerUp.ALL_POWERUPS.filter(powerUp => {
@@ -20,11 +74,12 @@ export class PowerUp {
         
         const selected = [];
         
-        // Weighted random selection
+        // Weighted random selection using cumulative probability
         for (let i = 0; i < count && available.length > 0; i++) {
             const totalWeight = available.reduce((sum, powerUp) => sum + powerUp.weight, 0);
             let random = Math.random() * totalWeight;
             
+            // Find the selected power-up using weighted probability
             for (let j = 0; j < available.length; j++) {
                 random -= available[j].weight;
                 if (random <= 0) {
@@ -39,8 +94,18 @@ export class PowerUp {
     }
 }
 
-// Define all available power-ups
+/**
+ * Complete collection of all available power-ups in the game
+ * 
+ * @static
+ * @type {PowerUp[]}
+ * @description Organized by rarity through weight values:
+ * - Weight 3: Common power-ups (appear frequently)
+ * - Weight 2: Uncommon power-ups (moderate appearance rate)  
+ * - Weight 1: Rare power-ups (appear infrequently)
+ */
 PowerUp.ALL_POWERUPS = [
+    // === COMMON POWER-UPS (Weight: 3) ===
     new PowerUp(
         "Damage Boost",
         "+50% bullet damage",
@@ -63,6 +128,18 @@ PowerUp.ALL_POWERUPS = [
         3 // Common
     ),
     
+    new PowerUp(
+        "Speed Boost",
+        "+30% projectile speed",
+        "💨",
+        (player) => {
+            player.projectileSpeedMod *= 1.3;
+            player.powerUpStacks["Speed Boost"]++;
+        },
+        3 // Common
+    ),
+    
+    // === UNCOMMON POWER-UPS (Weight: 2) ===
     new PowerUp(
         "Piercing Shots",
         "Bullets pierce through enemies",
@@ -100,28 +177,6 @@ PowerUp.ALL_POWERUPS = [
     ),
     
     new PowerUp(
-        "Speed Boost",
-        "+30% projectile speed",
-        "💨",
-        (player) => {
-            player.projectileSpeedMod *= 1.3;
-            player.powerUpStacks["Speed Boost"]++;
-        },
-        3 // Common
-    ),
-    
-    new PowerUp(
-        "Life Steal",
-        "Heal 10% of enemy max health on kill",
-        "🧛",
-        (player) => {
-            player.hasLifeSteal = true;
-        },
-        1, // Rare
-        false // Non-stackable
-    ),
-    
-    new PowerUp(
         "Slow Field",
         "Enemies move slower near you (+15% slow, +20 radius) [Max 6 stacks]",
         "❄️",
@@ -151,6 +206,31 @@ PowerUp.ALL_POWERUPS = [
             player.powerUpStacks["Shield"]++;
         },
         2 // Uncommon
+    ),
+    
+    new PowerUp(
+        "Full Heal",
+        "Restore all health",
+        "✨",
+        (player) => {
+            player.hp = player.maxHp;
+            if (player.hasShield) {
+                player.shieldHp = player.maxShieldHp;
+            }
+        },
+        2 // Uncommon
+    ),
+    
+    // === RARE POWER-UPS (Weight: 1) ===
+    new PowerUp(
+        "Life Steal",
+        "Heal 10% of enemy max health on kill",
+        "🧛",
+        (player) => {
+            player.hasLifeSteal = true;
+        },
+        1, // Rare
+        false // Non-stackable
     ),
     
     new PowerUp(
@@ -223,23 +303,22 @@ PowerUp.ALL_POWERUPS = [
             player.powerUpStacks["Rapid Fire"]++;
         },
         1 // Rare
-    ),
-    
-    new PowerUp(
-        "Full Heal",
-        "Restore all health",
-        "✨",
-        (player) => {
-            player.hp = player.maxHp;
-            if (player.hasShield) {
-                player.shieldHp = player.maxShieldHp;
-            }
-        },
-        2 // Uncommon
     )
 ];
 
-// Organize power-ups by category for potential future use
+/**
+ * Categorization of power-ups by their primary function
+ * 
+ * @static
+ * @type {Object.<string, string[]>}
+ * @description Organizes power-ups into logical groups for filtering,
+ * UI organization, and potential future balancing features.
+ * 
+ * Categories:
+ * - OFFENSE: Damage, firing rate, and projectile enhancements
+ * - DEFENSE: Health, shields, and survivability improvements  
+ * - UTILITY: Special abilities and field effects
+ */
 PowerUp.CATEGORIES = {
     OFFENSE: [
         "Damage Boost", "Fire Rate", "Piercing Shots", "Triple Shot", 
@@ -255,7 +334,17 @@ PowerUp.CATEGORIES = {
     ]
 };
 
-// Helper function to get power-ups by category
+/**
+ * Retrieves power-ups belonging to a specific category
+ * 
+ * @static
+ * @param {string} category - Category name (OFFENSE, DEFENSE, or UTILITY)
+ * @returns {PowerUp[]} Array of power-ups in the specified category
+ * 
+ * @example
+ * const offensivePowerUps = PowerUp.getByCategory('OFFENSE');
+ * const defensivePowerUps = PowerUp.getByCategory('DEFENSE');
+ */
 PowerUp.getByCategory = function(category) {
     const categoryNames = PowerUp.CATEGORIES[category] || [];
     return PowerUp.ALL_POWERUPS.filter(powerUp => 
