@@ -135,10 +135,10 @@ export const GameConfig = {
      */
     ENEMY: {
         /** @type {number} Base health points for standard enemies */
-        BASE_HEALTH: 20,
+        BASE_HEALTH: 10,
         
         /** @type {number} Base movement speed in pixels per second */
-        BASE_SPEED: 45,
+        BASE_SPEED: 40,
         
         /** @type {number} Base damage dealt to player on contact */
         BASE_DAMAGE: 10,
