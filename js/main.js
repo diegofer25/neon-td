@@ -271,6 +271,9 @@ function updateHUD() {
     document.getElementById('healthFill').style.width = healthPercentage + '%';
     document.getElementById('healthText').textContent = `${Math.max(0, Math.floor(game.player.hp))}/${game.player.maxHp}`;
     
+    // Update coin display
+    document.getElementById('coinAmount').textContent = game.player.coins;
+    
     // Update wave counter with progress
     const totalEnemies = game.enemiesSpawned + game.enemiesToSpawn;
     const remainingEnemies = game.enemies.length + game.enemiesToSpawn;

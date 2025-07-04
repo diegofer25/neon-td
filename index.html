@@ -21,6 +21,10 @@
                 </div>
                 <span id="healthText">100/100</span>
             </div>
+            <div id="coinDisplay" class="coin-display">
+                <span class="coin-icon">🪙</span>
+                <span id="coinAmount" class="coin-amount">0</span>
+            </div>
             <div id="waveCounter" class="hud-element">
                 <span id="wave">Wave: 1</span>
             </div>
@@ -51,13 +55,13 @@
             <h1>NEON DEFENDER</h1>
             <p>Survive infinite waves of enemies</p>
             <p>Auto-targeting turret defense game</p>
-            <p>Collect power-ups between waves to upgrade!</p>
+            <p>Earn coins to buy power-ups between waves!</p>
             <button id="startBtn" onclick="startGame()">CLICK TO START</button>
         </div>
 
         <!-- Power-Up Modal -->
         <div id="powerUpModal" class="overlay">
-            <h2>Choose Your Power-Up</h2>
+            <h2>Power-Up Shop</h2>
             <div id="powerUpCards">
                 <!-- Cards will be dynamically generated -->
             </div>

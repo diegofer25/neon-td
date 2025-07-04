@@ -2,6 +2,7 @@ import { Player } from './Player.js';
 import { Enemy } from './Enemy.js';
 import { Particle } from './Particle.js';
 import { PowerUp } from './PowerUp.js';
+import { Shop } from './Shop.js';
 
 export class Game {
     constructor(canvas, ctx) {
@@ -43,6 +44,9 @@ export class Game {
             offsetX: 0,
             offsetY: 0
         };
+        
+        // Shop system
+        this.shop = new Shop();
         
         this.init();
     }
@@ -203,6 +207,10 @@ export class Game {
                     this.player.onEnemyKill(enemy);
                 }
                 
+                // Give coins for killing enemy
+                const coinReward = Math.ceil(1 + (this.wave * 0.2)); // More coins in later waves
+                this.player.addCoins(coinReward);
+                
                 this.enemies.splice(index, 1);
                 this.enemiesKilled++;
                 this.score += 10;
@@ -337,48 +345,44 @@ export class Game {
         this.waveComplete = true;
         this.gameState = 'powerup';
         
-        // Generate power-up options, excluding non-stackable ones the player already has
-        const playerNonStackablePowerUps = this.player.getNonStackablePowerUps();
-        this.powerUpOptions = PowerUp.getRandomPowerUps(3, playerNonStackablePowerUps);
-        this.showPowerUpSelection();
+        // Calculate coin reward based on wave number and performance
+        const baseCoins = 10;
+        const waveBonus = this.wave * 2;
+        const performanceBonus = Math.floor(this.enemiesKilled / 5); // Bonus for killing enemies efficiently
+        const totalCoins = baseCoins + waveBonus + performanceBonus;
+        
+        // Give coins to player
+        this.player.addCoins(totalCoins);
+        
+        // Show shop
+        this.showShop();
     }
     
-    showPowerUpSelection() {
-        const modal = document.getElementById('powerUpModal');
-        const cardsContainer = document.getElementById('powerUpCards');
-        
-        // Clear existing cards
-        cardsContainer.innerHTML = '';
-        
-        // Create cards for each power-up option
-        this.powerUpOptions.forEach((powerUp, index) => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-icon">${powerUp.icon}</div>
-                <div class="card-title">${powerUp.name}</div>
-                <div class="card-description">${powerUp.description}</div>
-            `;
-            
-            card.addEventListener('click', () => {
-                this.choosePowerUp(powerUp);
-            });
-            
-            cardsContainer.appendChild(card);
-        });
-        
-        modal.classList.add('show');
+    showShop() {
+        this.shop.showShop(
+            this.player, 
+            this.player.coins, 
+            (powerUp, price) => this.purchasePowerUp(powerUp, price),
+            () => this.continueToNextWave()
+        );
     }
     
-    choosePowerUp(powerUp) {
-        // Apply power-up to player
-        powerUp.apply(this.player);
-        
-        // Hide modal
-        document.getElementById('powerUpModal').classList.remove('show');
-        
-        // Play power-up sound
-        if (window.playSFX) window.playSFX('powerup');
+    purchasePowerUp(powerUp, price) {
+        if (this.player.spendCoins(price)) {
+            // Apply power-up to player
+            powerUp.apply(this.player);
+            
+            // Play power-up sound
+            if (window.playSFX) window.playSFX('powerup');
+            
+            // Update shop display with new coin amount
+            this.showShop();
+        }
+    }
+    
+    continueToNextWave() {
+        // Hide shop
+        this.shop.closeShop();
         
         // Continue to next wave
         this.wave++;

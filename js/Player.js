@@ -35,6 +35,9 @@ export class Player {
         this.slowFieldStrength = 0; // 0 = no slow, higher values = more slow
         this.maxSlowFieldStacks = 6; // Maximum number of slow field stacks
         
+        // Coin system
+        this.coins = 0;
+        
         // Regeneration
         this.hpRegen = 0; // HP per second
         this.shieldRegen = 0; // Shield per second
@@ -70,6 +73,9 @@ export class Player {
         this.slowFieldRadius = 80;
         this.slowFieldStrength = 0;
         this.maxSlowFieldStacks = 6;
+        
+        // Reset coins
+        this.coins = 0;
     }
     
     update(delta, input, game) {
@@ -291,6 +297,22 @@ export class Player {
     // Check if slow field is at maximum stacks
     isSlowFieldMaxed() {
         return this.slowFieldStrength >= this.maxSlowFieldStacks;
+    }
+
+    // Coin management methods
+    addCoins(amount) {
+        this.coins += amount;
+        if (window.createFloatingText) {
+            window.createFloatingText(`+${amount} coins`, this.x, this.y - 40, 'coins');
+        }
+    }
+
+    spendCoins(amount) {
+        if (this.coins >= amount) {
+            this.coins -= amount;
+            return true;
+        }
+        return false;
     }
 
     draw(ctx) {
