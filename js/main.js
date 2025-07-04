@@ -375,10 +375,10 @@ function updateHUD() {
     // Update currency display
     document.getElementById('coinAmount').textContent = game.player.coins;
     
-    // Update wave progress with enemy count
-    const totalEnemies = game.enemiesSpawned + game.enemiesToSpawn;
-    const remainingEnemies = game.enemies.length + game.enemiesToSpawn;
-    document.getElementById('wave').textContent = `Wave: ${game.wave} (${remainingEnemies}/${totalEnemies})`;
+    // Update wave progress with enemy count using wave manager data
+    const waveProgress = game.getWaveProgress();
+    const remainingEnemies = game.enemies.length + waveProgress.enemiesToSpawn;
+    document.getElementById('wave').textContent = `Wave: ${game.wave} (${remainingEnemies}/${waveProgress.totalEnemies})`;
     
     // Refresh player statistics display
     updateStatsDisplay();

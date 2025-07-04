@@ -392,4 +392,20 @@ export class Game {
 		ctx.textAlign = "left";
 		ctx.shadowBlur = 0;
 	}
+
+	/**
+	 * Get current wave's enemy spawn progress for HUD display.
+	 * @returns {{enemiesSpawned: number, enemiesToSpawn: number, totalEnemies: number}}
+	 */
+	getWaveProgress() {
+		const enemiesSpawned = this.waveManager.enemiesSpawned || 0;
+		const enemiesToSpawn = this.waveManager.enemiesToSpawn || 0;
+		const totalEnemies = enemiesSpawned + enemiesToSpawn;
+
+		return {
+			enemiesSpawned,
+			enemiesToSpawn,
+			totalEnemies,
+		};
+	}
 }
