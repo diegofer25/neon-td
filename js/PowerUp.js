@@ -86,10 +86,11 @@ PowerUp.ALL_POWERUPS = [
     
     new PowerUp(
         "Max Health",
-        "+25 max health and heal to full",
+        "+20% max health and heal to full",
         "💖",
         (player) => {
-            player.maxHp += 25;
+            const healthIncrease = Math.floor(player.maxHp * 0.2); // 20% increase
+            player.maxHp += healthIncrease;
             player.hp = player.maxHp;
         },
         2 // Uncommon
