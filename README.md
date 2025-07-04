@@ -18,7 +18,7 @@ A browser-based 2D tower-defense shooter with an infinite wave survival format a
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/diegofer25/neon-td
    cd neon-td-vanilla
    ```
 
@@ -29,7 +29,7 @@ A browser-based 2D tower-defense shooter with an infinite wave survival format a
 
 3. **Start the development server**:
    ```bash
-   npm start
+   npm run dev
    ```
 
 4. **Open your browser** to `http://localhost:8080`
