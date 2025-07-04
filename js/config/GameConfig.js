@@ -284,7 +284,7 @@ export const GameConfig = {
         // New utility power-up limits
         "Coin Magnet": 8,      // Up to 5x coin rewards (1 + 8*0.5)
         "Lucky Shots": 5,      // Up to 50% crit chance
-        "Immolation Aura": 10,   // Up to 20 damage per second
+        "Immolation Aura": 10,   // Up to 10% max health burn damage
         "Multishot": 4,        // Up to 4 additional projectiles
         "Chain Lightning": 6,  // Up to 80% chance, 75 damage
         "Ricochet": 8          // Up to 2.45x damage multiplier per bounce
