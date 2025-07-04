@@ -1,0 +1,136 @@
+/* ============================================================================
+   SHOP SYSTEM
+   ============================================================================ */
+
+/* Shop Container */
+.shop-container {
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid var(--color-tertiary-neon);
+  border-radius: var(--radius-xxl);
+  box-shadow: var(--shadow-glass);
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 800px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.shop-container h2 {
+  text-align: center;
+  margin: var(--spacing-xl) 0 0 0;
+  padding: 0 var(--spacing-xl);
+  flex-shrink: 0;
+}
+
+/* Shop Navigation Tabs */
+.shop-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: var(--spacing-xl);
+  border-bottom: 1px solid rgba(143, 0, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.tab-button {
+  background: rgba(143, 0, 255, 0.2);
+  border: 2px solid var(--color-tertiary-neon);
+  color: var(--color-tertiary-neon);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: var(--transition-normal);
+  text-shadow: 0 0 3px currentColor;
+  flex: 1;
+  max-width: 150px;
+}
+
+.tab-button:hover {
+  background: rgba(143, 0, 255, 0.4);
+  box-shadow: 0 0 10px rgba(143, 0, 255, 0.3);
+}
+
+.tab-button.active {
+  background: var(--gradient-button);
+  color: #fff;
+  box-shadow: 
+    0 0 15px rgba(143, 0, 255, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Shop Content Area */
+.shop-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-cards-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-xl);
+  display: flex;
+  gap: var(--spacing-xl);
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+}
+
+/* Custom Scrollbar for Shop */
+.shop-cards-container::-webkit-scrollbar {
+  width: var(--spacing-sm);
+}
+
+.shop-cards-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+}
+
+.shop-cards-container::-webkit-scrollbar-thumb {
+  background: var(--gradient-button);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 5px rgba(143, 0, 255, 0.5);
+}
+
+.shop-cards-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--color-secondary-neon), var(--color-tertiary-neon));
+}
+
+/* Shop Footer */
+.shop-footer {
+  padding: var(--spacing-xl);
+  border-top: 1px solid rgba(143, 0, 255, 0.3);
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.shop-close-btn {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  background: linear-gradient(45deg, var(--color-primary-neon), #00aa88);
+  border: 2px solid var(--color-primary-neon);
+  color: #000;
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: var(--transition-normal);
+  box-shadow: 
+    0 0 10px var(--color-primary-neon),
+    0 0 var(--spacing-xl) rgba(0, 255, 255, 0.3);
+  font-weight: bold;
+}
+
+.shop-close-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 0 var(--spacing-xl) var(--color-primary-neon),
+    0 0 40px rgba(0, 255, 255, 0.5);
+  background: linear-gradient(45deg, #00ffff, #00cc99);
+}

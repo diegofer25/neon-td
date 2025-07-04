@@ -1,0 +1,91 @@
+/* ============================================================================
+   HUD (HEADS-UP DISPLAY) COMPONENTS
+   ============================================================================ */
+
+/* HUD Container - Overlay container for UI elements */
+#hud {
+  position: absolute;
+  top: var(--spacing-xl);
+  left: var(--spacing-xl);
+  right: var(--spacing-xl);
+  bottom: var(--spacing-xl);
+  pointer-events: none;
+  z-index: var(--z-hud);
+}
+
+/* Base HUD Element Styling */
+.hud-element {
+  display: inline-block;
+  margin-right: var(--spacing-xl);
+  pointer-events: auto;
+}
+
+/* Wave Counter - Shows current wave number */
+#waveCounter {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#wave {
+  font-family: var(--font-pixel);
+  color: var(--color-primary-neon);
+  text-shadow: 
+    0 0 5px var(--color-primary-neon), 
+    0 0 10px var(--color-primary-neon);
+  font-size: 16px;
+}
+
+/* Mute Button - Audio control */
+#muteButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#muteBtn {
+  background: #222;
+  border: 2px solid var(--color-secondary-neon);
+  color: var(--color-secondary-neon);
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-normal);
+  box-shadow: 0 0 5px var(--color-secondary-neon);
+}
+
+#muteBtn:hover {
+  background: #333;
+  box-shadow: 0 0 15px var(--color-secondary-neon);
+  transform: translateY(-2px);
+}
+
+/* Coin Display - Shows current coins */
+.coin-display {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  display: flex;
+  align-items: center;
+  background: var(--bg-glass);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-accent-yellow);
+  box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
+}
+
+.coin-icon {
+  color: var(--color-accent-yellow);
+  font-size: 16px;
+  margin-right: var(--spacing-sm);
+  filter: drop-shadow(0 0 3px var(--color-accent-yellow));
+}
+
+.coin-amount {
+  font-family: var(--font-pixel);
+  color: var(--color-accent-yellow);
+  text-shadow: 0 0 3px var(--color-accent-yellow);
+  font-size: 12px;
+}

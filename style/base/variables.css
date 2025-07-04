@@ -1,0 +1,60 @@
+/* ============================================================================
+   CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+   ============================================================================ */
+:root {
+  /* Color Palette */
+  --color-primary-neon: #0ff;           /* Cyan neon */
+  --color-secondary-neon: #ff2dec;      /* Pink neon */
+  --color-tertiary-neon: #8f00ff;       /* Purple neon */
+  --color-accent-yellow: #ff0;          /* Yellow accent */
+  --color-accent-green: #0f0;           /* Green accent */
+  --color-accent-red: #f00;             /* Red accent */
+  
+  /* Background Colors */
+  --bg-primary: #05010a;                /* Dark purple base */
+  --bg-secondary: #1a0b2e;              /* Medium purple */
+  --bg-tertiary: #2d1b3d;               /* Light purple */
+  --bg-overlay: rgba(0, 0, 0, 0.8);     /* Semi-transparent overlay */
+  --bg-glass: rgba(0, 0, 0, 0.7);       /* Glass effect */
+  
+  /* Gradients */
+  --gradient-bg: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  --gradient-canvas: radial-gradient(circle at center, #0a0515 0%, var(--bg-primary) 100%);
+  --gradient-button: linear-gradient(45deg, var(--color-secondary-neon), var(--color-tertiary-neon));
+  --gradient-health: linear-gradient(90deg, var(--color-accent-red) 0%, var(--color-accent-yellow) 50%, var(--color-accent-green) 100%);
+  
+  /* Typography */
+  --font-primary: 'Audiowide', cursive;
+  --font-pixel: 'Press Start 2P', monospace;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-xxl: 30px;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-xxl: 16px;
+  
+  /* Shadows */
+  --shadow-neon: 0 0 10px currentColor;
+  --shadow-neon-strong: 0 0 20px currentColor, 0 0 40px currentColor;
+  --shadow-glass: 0 0 15px rgba(143, 0, 255, 0.3), inset 0 0 20px rgba(143, 0, 255, 0.1);
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease-out;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* Z-index layers */
+  --z-hud: 10;
+  --z-floating-text: 50;
+  --z-overlay: 100;
+  --z-flash: 200;
+}

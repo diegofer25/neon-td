@@ -1,0 +1,176 @@
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Tablet Breakpoint */
+@media (max-width: 768px) {
+  :root {
+    --spacing-xl: 15px;
+    --spacing-xxl: 20px;
+  }
+  
+  #gameCanvas {
+    max-width: 95vw;
+    max-height: 85vh;
+    border: 1px solid var(--color-primary-neon);
+  }
+  
+  .overlay h1 { font-size: 32px; }
+  
+  .shop-container {
+    width: 95vw;
+    max-height: 85vh;
+  }
+  
+  .shop-tabs {
+    padding: 15px 10px;
+    gap: 3px;
+  }
+  
+  .tab-button {
+    padding: var(--spacing-md) 10px;
+    font-size: 8px;
+  }
+  
+  .shop-cards-container {
+    padding: 15px 10px;
+    gap: 15px;
+  }
+  
+  .card {
+    width: 140px;
+    height: 200px;
+    padding: var(--spacing-md);
+  }
+  
+  .card-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+  
+  .card-title {
+    font-size: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .card-description { font-size: 8px; }
+  .card-price {
+    font-size: 8px;
+    bottom: var(--spacing-xxl);
+  }
+  
+  .status-text {
+    font-size: 7px;
+    bottom: var(--spacing-sm);
+  }
+  
+  .shop-close-btn {
+    font-size: 10px;
+    padding: 10px var(--spacing-lg);
+  }
+  
+  #hud {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+  
+  .healthbar {
+    width: 150px;
+    height: var(--spacing-lg);
+  }
+  
+  .stat-item {
+    margin-bottom: 2px;
+    padding: 3px var(--spacing-md);
+    min-width: 100px;
+  }
+  
+  .stat-label, .stat-value { font-size: 7px; }
+  .stat-icon { font-size: 10px; }
+}
+
+/* Mobile Breakpoint */
+@media (max-width: 480px) {
+  :root {
+    --spacing-xl: 10px;
+    --spacing-xxl: 15px;
+  }
+  
+  #gameCanvas {
+    max-width: 98vw;
+    max-height: 80vh;
+    border: 1px solid var(--color-primary-neon);
+  }
+  
+  .overlay h1 { font-size: 24px; }
+  .overlay h2 { font-size: 18px; }
+  .overlay p { font-size: 14px; }
+  .overlay button {
+    padding: 10px var(--spacing-xl);
+    font-size: 14px;
+  }
+  
+  .shop-container {
+    width: 98vw;
+    max-height: 90vh;
+  }
+  
+  .shop-tabs {
+    padding: 10px 5px;
+    gap: 2px;
+  }
+  
+  .tab-button {
+    padding: 5px var(--spacing-sm);
+    font-size: 7px;
+  }
+  
+  .shop-cards-container {
+    padding: 10px 5px;
+    gap: 10px;
+    justify-content: space-around;
+  }
+  
+  .card {
+    width: 120px;
+    height: 180px;
+    padding: 10px;
+  }
+  
+  .card-icon {
+    font-size: 28px;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .card-title {
+    font-size: 8px;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .card-description { font-size: 7px; }
+  .card-price {
+    font-size: 7px;
+    bottom: 25px;
+  }
+  
+  .status-text {
+    font-size: 6px;
+    bottom: var(--spacing-md);
+  }
+  
+  .shop-close-btn {
+    font-size: 9px;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  #statsDisplay {
+    transform: scale(0.85);
+    transform-origin: bottom right;
+  }
+  
+  .stat-item { min-width: 80px; }
+  .stat-label, .stat-value { font-size: 6px; }
+  .stat-icon { font-size: 8px; }
+}

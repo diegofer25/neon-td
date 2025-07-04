@@ -1,0 +1,19 @@
+/* ============================================================================
+   RESET AND BASE STYLES
+   ============================================================================ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--gradient-bg);
+  font-family: var(--font-primary);
+  color: #fff;
+  overflow: hidden;
+  user-select: none;
+  line-height: 1.4;
+}

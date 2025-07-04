@@ -1,0 +1,55 @@
+/* ============================================================================
+   STATS DISPLAY SYSTEM
+   ============================================================================ */
+
+/* Stats Container */
+#statsDisplay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-xs);
+}
+
+/* Individual Stat Item */
+.stat-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+  background: var(--bg-glass);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+  min-width: 120px;
+  justify-content: space-between;
+}
+
+.stat-icon {
+  font-size: 14px;
+  margin-right: var(--spacing-md);
+  filter: drop-shadow(0 0 3px currentColor);
+  flex-shrink: 0;
+}
+
+.stat-label {
+  font-family: var(--font-pixel);
+  color: var(--color-primary-neon);
+  text-shadow: 0 0 3px var(--color-primary-neon);
+  font-size: 9px;
+  margin-right: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.stat-value {
+  font-family: var(--font-pixel);
+  color: #fff;
+  text-shadow: 0 0 3px #fff;
+  font-size: 9px;
+  font-weight: bold;
+  transition: var(--transition-normal);
+  text-align: right;
+  min-width: 40px;
+}

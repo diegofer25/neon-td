@@ -1,0 +1,33 @@
+/* ============================================================================
+   FLOATING TEXT SYSTEM
+   ============================================================================ */
+
+.floating-text {
+  position: absolute;
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: var(--z-floating-text);
+  animation: floatUp 1s ease-out forwards;
+}
+
+.floating-text.damage {
+  color: var(--color-accent-yellow);
+  text-shadow: 0 0 5px var(--color-accent-yellow);
+}
+
+.floating-text.heal {
+  color: var(--color-accent-green);
+  text-shadow: 0 0 5px var(--color-accent-green);
+}
+
+.floating-text.player-damage {
+  color: var(--color-accent-red);
+  text-shadow: 0 0 5px var(--color-accent-red);
+}
+
+.floating-text.coins {
+  color: var(--color-accent-yellow);
+  text-shadow: 0 0 5px var(--color-accent-yellow);
+}

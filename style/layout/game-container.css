@@ -1,0 +1,27 @@
+/* ============================================================================
+   LAYOUT COMPONENTS
+   ============================================================================ */
+
+/* Game Container - Main viewport container */
+#gameContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Canvas - Game rendering surface */
+#gameCanvas {
+  border: 2px solid var(--color-primary-neon);
+  box-shadow: 
+    var(--shadow-neon),
+    inset 0 0 var(--spacing-xl) rgba(0, 255, 255, 0.1);
+  background: var(--gradient-canvas);
+  cursor: default;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: auto;
+  height: auto;
+}

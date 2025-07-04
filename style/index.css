@@ -1,0 +1,26 @@
+/* ============================================================================
+   NEON TOWER DEFENSE - MAIN STYLESHEET
+   ============================================================================
+   A cyberpunk-themed tower defense game with neon aesthetics.
+   This main stylesheet imports all component stylesheets for better organization.
+=============================================================================== */
+
+/* Base Styles */
+@import 'base/variables.css';
+@import 'base/reset.css';
+
+/* Layout */
+@import 'layout/game-container.css';
+
+/* Components */
+@import 'components/hud.css';
+@import 'components/health.css';
+@import 'components/stats.css';
+@import 'components/overlays.css';
+@import 'components/shop.css';
+@import 'components/cards.css';
+
+/* Effects */
+@import 'effects/floating-text.css';
+@import 'effects/visual-effects.css';
+@import 'effects/animations.css';

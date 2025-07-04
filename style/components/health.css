@@ -1,0 +1,31 @@
+/* ============================================================================
+   PLAYER HEALTH SYSTEM
+   ============================================================================ */
+
+/* Health Bar Container */
+.healthbar {
+  width: 200px;
+  height: var(--spacing-xl);
+  background: #222;
+  border: 2px solid var(--color-accent-green);
+  box-shadow: 0 0 10px var(--color-accent-green);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Health Bar Fill */
+.healthfill {
+  height: 100%;
+  background: var(--gradient-health);
+  transition: width var(--transition-normal);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+/* Health Text Display */
+#healthText {
+  color: var(--color-accent-green);
+  text-shadow: 0 0 5px var(--color-accent-green);
+  font-size: 14px;
+  margin-left: 10px;
+  vertical-align: top;
+}
