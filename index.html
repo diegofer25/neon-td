@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Tower Defense Shooter</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide:wght@400&family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <!-- HUD Elements -->
+        <div id="hud">
+            <div id="healthBar" class="hud-element">
+                <div class="healthbar">
+                    <div class="healthfill" id="healthFill"></div>
+                </div>
+                <span id="healthText">100/100</span>
+            </div>
+            <div id="waveCounter" class="hud-element">
+                <span id="wave">Wave: 1</span>
+            </div>
+            <div id="muteButton" class="hud-element">
+                <button id="muteBtn">🔊</button>
+            </div>
+            <div id="statsDisplay" class="hud-element">
+                <div class="stat-item">
+                    <span class="stat-icon">⚔️</span>
+                    <span class="stat-label">ATK:</span>
+                    <span id="attackValue" class="stat-value">10</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🛡️</span>
+                    <span class="stat-label">DEF:</span>
+                    <span id="defenseValue" class="stat-value">100</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">⚡</span>
+                    <span class="stat-label">SPD:</span>
+                    <span id="speedValue" class="stat-value">1.0x</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="overlay">
+            <h1>NEON DEFENDER</h1>
+            <p>Survive infinite waves of enemies</p>
+            <p>Auto-targeting turret defense game</p>
+            <p>Collect power-ups between waves to upgrade!</p>
+            <button id="startBtn" onclick="startGame()">CLICK TO START</button>
+        </div>
+
+        <!-- Power-Up Modal -->
+        <div id="powerUpModal" class="overlay">
+            <h2>Choose Your Power-Up</h2>
+            <div id="powerUpCards">
+                <!-- Cards will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOver" class="overlay">
+            <h1>GAME OVER</h1>
+            <p>Waves Survived: <span id="finalWave">0</span></p>
+            <button onclick="restartGame()">PLAY AGAIN</button>
+        </div>
+
+        <!-- Pause Screen -->
+        <div id="pauseScreen" class="overlay">
+            <h2>PAUSED</h2>
+            <p>Press P to resume</p>
+        </div>
+
+        <!-- Floating Text Container -->
+        <div id="floatingTexts"></div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

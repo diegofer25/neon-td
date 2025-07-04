@@ -1,0 +1,407 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #05010a 0%, #1a0b2e 100%);
+    font-family: 'Audiowide', cursive;
+    color: #fff;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* Game Container */
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Canvas */
+#gameCanvas {
+    border: 2px solid #0ff;
+    box-shadow: 
+        0 0 20px #0ff,
+        inset 0 0 20px rgba(0, 255, 255, 0.1);
+    background: radial-gradient(circle at center, #0a0515 0%, #05010a 100%);
+    cursor: default;
+}
+
+/* HUD Elements */
+#hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.hud-element {
+    display: inline-block;
+    margin-right: 20px;
+    pointer-events: auto;
+}
+
+#waveCounter {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#muteButton {
+    position: absolute;
+    top: 0;
+    right: 120px;
+}
+
+#statsDisplay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+/* Stats Display */
+.stat-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+}
+
+.stat-icon {
+    font-size: 16px;
+    margin-right: 8px;
+    filter: drop-shadow(0 0 3px currentColor);
+}
+
+.stat-label {
+    font-family: 'Press Start 2P', monospace;
+    color: #0ff;
+    text-shadow: 0 0 3px #0ff;
+    font-size: 10px;
+    margin-right: 6px;
+    min-width: 30px;
+}
+
+.stat-value {
+    font-family: 'Press Start 2P', monospace;
+    color: #fff;
+    text-shadow: 0 0 3px #fff;
+    font-size: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+/* Health Bar */
+.healthbar {
+    width: 200px;
+    height: 20px;
+    background: #222;
+    border: 2px solid #0f0;
+    box-shadow: 0 0 10px #0f0;
+    position: relative;
+    overflow: hidden;
+}
+
+.healthfill {
+    height: 100%;
+    background: linear-gradient(90deg, #f00 0%, #ff0 50%, #0f0 100%);
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+#healthText {
+    color: #0f0;
+    text-shadow: 0 0 5px #0f0;
+    font-size: 14px;
+    margin-left: 10px;
+    vertical-align: top;
+}
+
+/* Wave Counter */
+#wave {
+    font-family: 'Press Start 2P', monospace;
+    color: #0ff;
+    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+    font-size: 16px;
+}
+
+/* Mute Button */
+#muteBtn {
+    background: #222;
+    border: 2px solid #f0f;
+    color: #f0f;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 5px #f0f;
+}
+
+#muteBtn:hover {
+    background: #333;
+    box-shadow: 0 0 15px #f0f;
+    transform: translateY(-2px);
+}
+
+/* Overlays */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    text-align: center;
+}
+
+.overlay.show {
+    display: flex;
+}
+
+.overlay h1 {
+    font-family: 'Press Start 2P', monospace;
+    color: #ff2dec;
+    text-shadow: 
+        0 0 5px #ff2dec,
+        0 0 10px #ff2dec,
+        0 0 20px #ff2dec;
+    font-size: 48px;
+    margin-bottom: 30px;
+    animation: neonFlicker 2s infinite alternate;
+}
+
+.overlay h2 {
+    color: #0ff;
+    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.overlay p {
+    color: #fff;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.overlay button {
+    background: linear-gradient(45deg, #ff2dec, #8f00ff);
+    border: 2px solid #ff2dec;
+    color: #fff;
+    padding: 15px 30px;
+    font-family: 'Audiowide', cursive;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 0 10px #ff2dec,
+        0 0 20px rgba(255, 45, 236, 0.3);
+    margin: 10px;
+}
+
+.overlay button:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 0 20px #ff2dec,
+        0 0 40px rgba(255, 45, 236, 0.5);
+}
+
+/* Power-Up Cards */
+#powerUpCards {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    width: 200px;
+    height: 280px;
+    background: linear-gradient(135deg, #1a0b2e, #2d1b3d);
+    border: 2px solid #8f00ff;
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 0 15px rgba(143, 0, 255, 0.3),
+        inset 0 0 20px rgba(143, 0, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.card:hover {
+    transform: translateY(-10px) scale(1.05);
+    border-color: #ff2dec;
+    box-shadow: 
+        0 0 30px rgba(255, 45, 236, 0.6),
+        inset 0 0 30px rgba(255, 45, 236, 0.2);
+}
+
+.card-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 10px currentColor);
+}
+
+.card-title {
+    font-family: 'Press Start 2P', monospace;
+    color: #0ff;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-shadow: 0 0 5px #0ff;
+}
+
+.card-description {
+    color: #ccc;
+    font-size: 12px;
+    line-height: 1.4;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+/* Floating Text */
+.floating-text {
+    position: absolute;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 50;
+    animation: floatUp 1s ease-out forwards;
+}
+
+.floating-text.damage {
+    color: #ff0;
+    text-shadow: 0 0 5px #ff0;
+}
+
+.floating-text.heal {
+    color: #0f0;
+    text-shadow: 0 0 5px #0f0;
+}
+
+.floating-text.player-damage {
+    color: #f00;
+    text-shadow: 0 0 5px #f00;
+}
+
+/* Animations */
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-50px) scale(1.2);
+        opacity: 0;
+    }
+}
+
+@keyframes neonFlicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        text-shadow: 
+            0 0 5px #ff2dec,
+            0 0 10px #ff2dec,
+            0 0 20px #ff2dec;
+    }
+    20%, 24%, 55% {
+        text-shadow: none;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #gameCanvas {
+        width: 100vw;
+        height: 100vh;
+        border: none;
+    }
+    
+    .overlay h1 {
+        font-size: 32px;
+    }
+    
+    .card {
+        width: 150px;
+        height: 220px;
+        padding: 15px;
+    }
+    
+    .card-title {
+        font-size: 12px;
+    }
+    
+    .card-description {
+        font-size: 10px;
+    }
+    
+    #hud {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+    }
+    
+    .healthbar {
+        width: 150px;
+        height: 16px;
+    }
+    
+    #statsDisplay {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+    }
+    
+    .stat-item {
+        margin-bottom: 4px;
+        padding: 4px 8px;
+    }
+    
+    .stat-label, .stat-value {
+        font-size: 8px;
+    }
+    
+    .stat-icon {
+        font-size: 12px;
+    }
+}
+
+/* Additional visual effects */
+.screen-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 0, 0, 0.3);
+    pointer-events: none;
+    z-index: 200;
+    animation: flash 0.2s ease-out;
+}
+
+@keyframes flash {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
