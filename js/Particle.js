@@ -81,8 +81,8 @@ export class Particle {
         
         ctx.save();
         
-        // Set alpha
-        ctx.globalAlpha = Math.max(0, this.alpha);
+        // Set alpha (ensure proper range)
+        ctx.globalAlpha = Math.max(0, Math.min(1, this.alpha));
         
         // Set glow effect
         ctx.shadowColor = this.glowColor;
@@ -95,10 +95,10 @@ export class Particle {
         
         const renderRadius = Math.max(0, this.radius * this.scale);
         
-        // Only draw if radius is positive
+        // Only draw if radius is positive (round to avoid decimal positioning)
         if (renderRadius > 0) {
             ctx.beginPath();
-            ctx.arc(this.x, this.y, renderRadius, 0, Math.PI * 2);
+            ctx.arc(Math.round(this.x), Math.round(this.y), renderRadius, 0, Math.PI * 2);
             ctx.fill();
         }
         

@@ -145,7 +145,7 @@ export class Shop {
         this.currentOnPurchase = onPurchase;
         
         // Update modal title to show current coin count
-        modal.querySelector('h2').textContent = `Power-Up Shop (Coins: ${coins})`;
+        modal.querySelector('h2').textContent = `Power-Up Shop (Coins: ${Math.round(coins)})`;
         
         // Initialize tab system and event handlers
         this.setupTabs(player, coins, onPurchase);

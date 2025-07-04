@@ -618,7 +618,7 @@ export class Player {
             const canvas = document.getElementById('gameCanvas');
             const rect = canvas.getBoundingClientRect();
             window.createFloatingText(
-                `+${Math.floor(amount)} health`,
+                `+${amount.toFixed(1)} health`,
                 this.x * (rect.width / canvas.width) + rect.left,
                 this.y * (rect.height / canvas.height) + rect.top,
                 'heal'
@@ -664,6 +664,41 @@ export class Player {
                 enemy.slowFactor = slowFactor;
             } else {
                 enemy.slowFactor = 1; // Normal speed outside field
+            }
+        });
+    }
+    
+    /**
+     * Apply Immolation Aura burn damage to nearby enemies
+     * Deals percentage-based damage over time to all enemies within range
+     * 
+     * @param {Array<Object>} enemies - Array of enemy objects to affect
+     * @param {number} delta - Time elapsed since last frame (milliseconds)
+     */
+    applyImmolationAura(enemies, delta) {
+        if (!this.immolationAura || !this.immolationAura.active) return;
+        
+        const damagePerSecond = this.immolationAura.damagePercent;
+        const range = this.immolationAura.range;
+        const deltaSeconds = delta / 1000;
+        
+        enemies.forEach(enemy => {
+            if (enemy.dying) return; // Skip dying enemies
+            
+            const dx = enemy.x - this.x;
+            const dy = enemy.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance <= range) {
+                // Apply burn damage as percentage of enemy's max health
+                const burnDamage = enemy.maxHealth * damagePerSecond * deltaSeconds;
+                enemy.health -= burnDamage;
+                
+                // Ensure enemy doesn't go below 0 health
+                if (enemy.health <= 0) {
+                    enemy.health = 0;
+                    enemy.dying = true;
+                }
             }
         });
     }

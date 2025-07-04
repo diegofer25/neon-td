@@ -137,22 +137,22 @@ function setupCanvas() {
         canvasHeight = minHeight;
     }
     
-    // Apply calculated dimensions
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    canvas.style.width = canvasWidth + 'px';
-    canvas.style.height = canvasHeight + 'px';
+    // Apply calculated dimensions with proper rounding
+    canvas.width = Math.round(canvasWidth);
+    canvas.height = Math.round(canvasHeight);
+    canvas.style.width = Math.round(canvasWidth) + 'px';
+    canvas.style.height = Math.round(canvasHeight) + 'px';
     
     // Handle high DPI displays for crisp rendering
     const dpr = window.devicePixelRatio || 1;
     const ctx = canvas.getContext('2d');
     
-    // Scale canvas backing store for high DPI
-    canvas.width = canvasWidth * dpr;
-    canvas.height = canvasHeight * dpr;
+    // Scale canvas backing store for high DPI with proper rounding
+    canvas.width = Math.round(canvasWidth * dpr);
+    canvas.height = Math.round(canvasHeight * dpr);
     ctx.scale(dpr, dpr);
-    canvas.style.width = canvasWidth + 'px';
-    canvas.style.height = canvasHeight + 'px';
+    canvas.style.width = Math.round(canvasWidth) + 'px';
+    canvas.style.height = Math.round(canvasHeight) + 'px';
 }
 
 /**
@@ -374,11 +374,11 @@ function gameLoop(timestamp = 0) {
 function updateHUD() {
     // Update health bar visualization
     const healthPercentage = Math.max(0, (game.player.hp / game.player.maxHp) * 100);
-    document.getElementById('healthFill').style.width = healthPercentage + '%';
+    document.getElementById('healthFill').style.width = healthPercentage.toFixed(1) + '%';
     document.getElementById('healthText').textContent = `${Math.max(0, Math.floor(game.player.hp))}/${game.player.maxHp}`;
     
-    // Update currency display
-    document.getElementById('coinAmount').textContent = game.player.coins;
+    // Update currency display (rounded to whole number)
+    document.getElementById('coinAmount').textContent = Math.round(game.player.coins);
     
     // Update wave progress with enemy count using wave manager data
     const waveProgress = game.getWaveProgress();
@@ -408,7 +408,7 @@ function updateStatsDisplay() {
     const currentDefense = game.player.maxHp + (game.player.hasShield ? game.player.maxShieldHp : 0);
     updateStatValue('defenseValue', currentDefense);
     
-    // Display attack speed multiplier with rotation status
+    // Display attack speed multiplier with rotation status (formatted to 1 decimal)
     const currentSpeed = game.player.fireRateMod.toFixed(1);
     const rotationStatus = game.player.isRotating ? ' (Aiming)' : '';
     updateStatValue('speedValue', `${currentSpeed}x${rotationStatus}`);
@@ -450,7 +450,7 @@ function updatePerformanceStats() {
     
     const stats = game.performanceManager.getStats();
     
-    // Update FPS with color coding
+    // Update FPS with color coding (rounded to whole number)
     const fpsElement = document.getElementById('fpsValue');
     fpsElement.textContent = Math.round(stats.currentFps);
     fpsElement.className = 'perf-value';
@@ -461,10 +461,10 @@ function updatePerformanceStats() {
         fpsElement.className += ' critical';
     }
     
-    // Update frame time
-    document.getElementById('frameTimeValue').textContent = `${Math.round(stats.frameTime)}ms`;
+    // Update frame time (formatted to 1 decimal)
+    document.getElementById('frameTimeValue').textContent = `${stats.frameTime.toFixed(1)}ms`;
     
-    // Update average FPS
+    // Update average FPS (rounded to whole number)
     const avgFpsElement = document.getElementById('avgFpsValue');
     avgFpsElement.textContent = Math.round(stats.averageFps);
     avgFpsElement.className = 'perf-value';

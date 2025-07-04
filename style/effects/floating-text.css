@@ -10,6 +10,8 @@
   pointer-events: none;
   z-index: var(--z-floating-text);
   animation: floatUp 1s ease-out forwards;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .floating-text.damage {
@@ -30,4 +32,17 @@
 .floating-text.coins {
   color: var(--color-accent-yellow);
   text-shadow: 0 0 5px var(--color-accent-yellow);
+}
+
+/* Mobile responsive sizes */
+@media (max-width: 768px) {
+  .floating-text {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-text {
+    font-size: 10px;
+  }
 }
