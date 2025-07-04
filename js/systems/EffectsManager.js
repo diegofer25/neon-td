@@ -33,8 +33,13 @@ export class EffectsManager {
      * @param {number} delta - Time elapsed since last frame
      */
     update(delta) {
+        // Always update screen shake for visual feedback even when paused
         this.updateScreenShake(delta);
-        this.updateParticles(delta);
+        
+        // Only update particles when game is playing
+        if (this.game.gameState === 'playing') {
+            this.updateParticles(delta);
+        }
     }
 
     /**

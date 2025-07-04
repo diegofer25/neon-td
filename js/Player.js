@@ -220,6 +220,9 @@ export class Player {
      * @param {Array} game.particles - Array to add visual effect particles to
      */
     update(delta, input, game) {
+        // Skip all updates if game is not in playing state
+        if (game.gameState !== 'playing') return;
+        
         // Find and acquire target
         const nearestEnemy = this.findNearestEnemy(game.enemies);
         

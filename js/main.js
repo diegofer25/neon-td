@@ -197,7 +197,7 @@ function setupInputHandlers() {
         input.keys[e.code] = true;
         
         // Game pause toggle
-        if (e.code === 'KeyP' && game && game.gameState === 'playing' || game.gameState === 'paused') {
+        if (e.code === 'KeyP' && (game && game.gameState === 'playing' || game.gameState === 'paused')) {
             togglePause();
         }
         
@@ -340,14 +340,20 @@ function gameLoop(timestamp = 0) {
     const delta = timestamp - lastTime;
     lastTime = timestamp;
     
-    // Update game logic
-    game.update(delta, input);
+    // Update performance manager with current game state
+    game.performanceManager?.update(delta, game.gameState);
     
-    // Render current frame
-    game.render();
-    
-    // Update user interface elements
-    updateHUD();
+    // Only update and render when game is in active states
+    if (game.gameState === 'playing' || game.gameState === 'powerup') {
+        // Update game logic
+        game.update(delta, input);
+        
+        // Render current frame
+        game.render();
+        
+        // Update user interface elements
+        updateHUD();
+    }
     
     // Continue loop based on game state
     if (game.gameState === 'playing' || game.gameState === 'powerup') {

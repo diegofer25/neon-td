@@ -78,12 +78,13 @@ export class PerformanceManager {
      * every second and adjusts optimization flags based on performance trends.
      * 
      * @param {number} deltaTime - Time elapsed since last frame in milliseconds
+     * @param {string} [gameState] - Current game state to optimize tracking
      * @example
      * // In main game loop
      * const deltaTime = now - lastTime;
-     * performanceManager.update(deltaTime);
+     * performanceManager.update(deltaTime, game.gameState);
      */
-    update(deltaTime) {
+    update(deltaTime, gameState = 'playing') {
         this.frameTime = deltaTime;
         this.frameCount++;
         
@@ -100,8 +101,10 @@ export class PerformanceManager {
                 this.fpsHistory.shift(); // Remove oldest sample
             }
             
-            // Reassess optimization needs based on recent performance
-            this.updateOptimizationFlags();
+            // Only reassess optimization needs when game is actively playing
+            if (gameState === 'playing') {
+                this.updateOptimizationFlags();
+            }
         }
     }
     

@@ -40,6 +40,10 @@ export class Particle {
      * @param {number} delta - Time elapsed since last update in milliseconds
      */
     update(delta) {
+        // Skip position updates if game is not playing
+        const game = window.game?.();
+        if (game && game.gameState !== 'playing') return;
+        
         // Update position (convert from pixels per second to pixels per frame)
         this.x += this.vx * (delta / 1000);
         this.y += this.vy * (delta / 1000);

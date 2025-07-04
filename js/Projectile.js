@@ -77,6 +77,11 @@ export class Projectile {
      * @param {number} delta - Time elapsed since last frame in milliseconds
      */
     update(delta) {
+        // Skip position updates if game is not playing
+        // Note: game reference needs to be passed to projectile or accessed globally
+        const game = window.game?.();
+        if (game && game.gameState !== 'playing') return;
+        
         // Update position using velocity and frame time
         // Convert from pixels per second to pixels per frame
         this.x += this.vx * (delta / 1000);

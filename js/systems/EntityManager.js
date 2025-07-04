@@ -17,6 +17,9 @@ export class EntityManager {
      * @param {Object} input - Current input state
      */
     updateAll(delta, input) {
+        // Skip all entity updates if game is not in playing state
+        if (this.game.gameState !== 'playing') return;
+        
         this._updatePlayer(delta, input);
         this._updateEnemies(delta);
         this._updateProjectiles(delta);
@@ -28,6 +31,9 @@ export class EntityManager {
      * @param {number} index - Index of enemy in array
      */
     onEnemyDeath(enemy, index) {
+        // Skip enemy death processing if game is not playing
+        if (this.game.gameState !== 'playing') return;
+        
         // Create visual explosion effect
         this.game.effectsManager.createExplosion(enemy.x, enemy.y, 10);
         
@@ -53,6 +59,9 @@ export class EntityManager {
      * Clean up off-screen projectiles.
      */
     cleanupProjectiles() {
+        // Skip cleanup if game is not playing
+        if (this.game.gameState !== 'playing') return;
+        
         this.game.projectiles = this.game.projectiles.filter(projectile => {
             if (projectile.isOffScreen(this.game.canvas)) {
                 return false;
