@@ -46,6 +46,20 @@ export class Player {
         this.explosiveShots = false;
         this.explosionRadius = 50;
         this.explosionDamage = 20;
+        
+        // Power-up stack tracking
+        this.powerUpStacks = {
+            "Damage Boost": 0,
+            "Fire Rate": 0,
+            "Speed Boost": 0,
+            "Double Damage": 0,
+            "Rapid Fire": 0,
+            "Max Health": 0,
+            "Shield": 0,
+            "Regeneration": 0,
+            "Shield Regen": 0,
+            "Bigger Explosions": 0
+        };
     }
     
     reset() {
@@ -76,6 +90,20 @@ export class Player {
         
         // Reset coins
         this.coins = 0;
+        
+        // Reset power-up stacks
+        this.powerUpStacks = {
+            "Damage Boost": 0,
+            "Fire Rate": 0,
+            "Speed Boost": 0,
+            "Double Damage": 0,
+            "Rapid Fire": 0,
+            "Max Health": 0,
+            "Shield": 0,
+            "Regeneration": 0,
+            "Shield Regen": 0,
+            "Bigger Explosions": 0
+        };
     }
     
     update(delta, input, game) {
@@ -236,11 +264,12 @@ export class Player {
         this.hp = Math.min(this.maxHp, this.hp + amount);
         
         if (window.createFloatingText) {
-            const rect = document.getElementById('gameCanvas').getBoundingClientRect();
+            const canvas = document.getElementById('gameCanvas');
+            const rect = canvas.getBoundingClientRect();
             window.createFloatingText(
                 `+${Math.floor(amount)}`,
-                this.x * (rect.width / 800) + rect.left,
-                this.y * (rect.height / 600) + rect.top,
+                this.x * (rect.width / canvas.width) + rect.left,
+                this.y * (rect.height / canvas.height) + rect.top,
                 'heal'
             );
         }
@@ -303,7 +332,14 @@ export class Player {
     addCoins(amount) {
         this.coins += amount;
         if (window.createFloatingText) {
-            window.createFloatingText(`+${amount} coins`, this.x, this.y - 40, 'coins');
+            const canvas = document.getElementById('gameCanvas');
+            const rect = canvas.getBoundingClientRect();
+            window.createFloatingText(
+                `+${amount} coins`,
+                this.x * (rect.width / canvas.width) + rect.left,
+                (this.y - 40) * (rect.height / canvas.height) + rect.top,
+                'coins'
+            );
         }
     }
 

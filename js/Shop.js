@@ -30,10 +30,13 @@ export class Shop {
     getPowerUpPrice(powerUpName, currentStacks = 0) {
         const basePrice = this.powerUpPrices[powerUpName] || 20;
         
-        // Increase price for each stack (stackable power-ups get more expensive)
-        const stackMultiplier = 1 + (currentStacks * 0.5); // 50% more expensive per stack
+        // Ensure stacks is not negative (safety check)
+        const validStacks = Math.max(0, currentStacks);
         
-        return Math.floor(basePrice * stackMultiplier);
+        // Increase price for each stack (stackable power-ups get more expensive)
+        const stackMultiplier = 1 + (validStacks * 0.5); // 50% more expensive per stack
+        
+        return Math.max(1, Math.floor(basePrice * stackMultiplier)); // Minimum price of 1 coin
     }
 
     // Check if player can afford a power-up
@@ -43,15 +46,15 @@ export class Shop {
 
     // Get current stacks for stackable power-ups
     getCurrentStacks(powerUpName, player) {
+        // Check if player has a stack tracker for this power-up
+        if (player.powerUpStacks && player.powerUpStacks[powerUpName] !== undefined) {
+            return player.powerUpStacks[powerUpName];
+        }
+        
+        // Fallback to legacy calculation for non-tracked power-ups
         switch(powerUpName) {
-            case "Damage Boost":
-                return Math.round(Math.log(player.damageMod) / Math.log(1.5));
-            case "Fire Rate":
-                return Math.round(Math.log(player.fireRateMod) / Math.log(1.25));
             case "Max Health":
                 return Math.round((player.maxHp - 100) / 20); // Approximation
-            case "Speed Boost":
-                return Math.round(Math.log(player.projectileSpeedMod) / Math.log(1.3));
             case "Shield":
                 return player.hasShield ? Math.floor((player.maxShieldHp - 50) / 25) + 1 : 0;
             case "Regeneration":
@@ -60,10 +63,6 @@ export class Shop {
                 return player.shieldRegen / 10;
             case "Bigger Explosions":
                 return Math.round(Math.log(player.explosionRadius / 50) / Math.log(1.5));
-            case "Double Damage":
-                return Math.round(Math.log(player.damageMod) / Math.log(2)) - Math.round(Math.log(player.damageMod) / Math.log(1.5));
-            case "Rapid Fire":
-                return Math.round(Math.log(player.fireRateMod) / Math.log(1.5)) - Math.round(Math.log(player.fireRateMod) / Math.log(1.25));
             case "Full Heal":
                 return 0; // Always available at base price
             case "Slow Field":
@@ -258,16 +257,32 @@ export class Shop {
             return true;
         }
 
-        // Check specific stackable power-up limits
+        // Check specific stackable power-up limits using stack tracker
+        const currentStacks = this.getCurrentStacks(powerUpName, player);
+        
         switch(powerUpName) {
             case "Slow Field":
                 return player.isSlowFieldMaxed();
             case "Damage Boost":
-                return player.damageMod >= 10; // Reasonable limit
+                return currentStacks >= 10; // Max 10 stacks
             case "Fire Rate":
-                return player.fireRateMod >= 5; // Reasonable limit
+                return currentStacks >= 8; // Max 8 stacks
             case "Speed Boost":
-                return player.projectileSpeedMod >= 3; // Reasonable limit
+                return currentStacks >= 6; // Max 6 stacks
+            case "Double Damage":
+                return currentStacks >= 5; // Max 5 stacks
+            case "Rapid Fire":
+                return currentStacks >= 5; // Max 5 stacks
+            case "Max Health":
+                return currentStacks >= 10; // Max 10 stacks
+            case "Shield":
+                return currentStacks >= 8; // Max 8 stacks
+            case "Regeneration":
+                return currentStacks >= 10; // Max 10 stacks
+            case "Shield Regen":
+                return currentStacks >= 8; // Max 8 stacks
+            case "Bigger Explosions":
+                return currentStacks >= 6; // Max 6 stacks
             default:
                 return false; // No limit for other stackable power-ups
         }

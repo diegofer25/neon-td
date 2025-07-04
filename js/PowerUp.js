@@ -47,6 +47,7 @@ PowerUp.ALL_POWERUPS = [
         "⚡",
         (player) => {
             player.damageMod *= 1.5;
+            player.powerUpStacks["Damage Boost"]++;
         },
         3 // Common
     ),
@@ -57,6 +58,7 @@ PowerUp.ALL_POWERUPS = [
         "🔥",
         (player) => {
             player.fireRateMod *= 1.25;
+            player.powerUpStacks["Fire Rate"]++;
         },
         3 // Common
     ),
@@ -92,6 +94,7 @@ PowerUp.ALL_POWERUPS = [
             const healthIncrease = Math.floor(player.maxHp * 0.2); // 20% increase
             player.maxHp += healthIncrease;
             player.hp = player.maxHp;
+            player.powerUpStacks["Max Health"]++;
         },
         2 // Uncommon
     ),
@@ -102,6 +105,7 @@ PowerUp.ALL_POWERUPS = [
         "💨",
         (player) => {
             player.projectileSpeedMod *= 1.3;
+            player.powerUpStacks["Speed Boost"]++;
         },
         3 // Common
     ),
@@ -144,6 +148,7 @@ PowerUp.ALL_POWERUPS = [
                 player.maxShieldHp += 25;
                 player.shieldHp += 25;
             }
+            player.powerUpStacks["Shield"]++;
         },
         2 // Uncommon
     ),
@@ -154,6 +159,7 @@ PowerUp.ALL_POWERUPS = [
         "💚",
         (player) => {
             player.hpRegen += 5;
+            player.powerUpStacks["Regeneration"]++;
         },
         1 // Rare
     ),
@@ -169,6 +175,7 @@ PowerUp.ALL_POWERUPS = [
                 player.shieldHp = 25;
             }
             player.shieldRegen += 10;
+            player.powerUpStacks["Shield Regen"]++;
         },
         1 // Rare
     ),
@@ -191,6 +198,7 @@ PowerUp.ALL_POWERUPS = [
         (player) => {
             player.explosionRadius *= 1.5;
             player.explosionDamage *= 1.5;
+            player.powerUpStacks["Bigger Explosions"]++;
         },
         1 // Rare - only useful with explosive shots
     ),
@@ -201,6 +209,7 @@ PowerUp.ALL_POWERUPS = [
         "⚔️",
         (player) => {
             player.damageMod *= 2;
+            player.powerUpStacks["Double Damage"]++;
         },
         1 // Rare
     ),
@@ -211,6 +220,7 @@ PowerUp.ALL_POWERUPS = [
         "🌪️",
         (player) => {
             player.fireRateMod *= 1.5;
+            player.powerUpStacks["Rapid Fire"]++;
         },
         1 // Rare
     ),
