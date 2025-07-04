@@ -94,6 +94,18 @@ export class PowerUp {
 }
 
 /**
+ * Available power-up types that can be stacked
+ * @static
+ * @readonly
+ * @type {string[]}
+ */
+PowerUp.POWER_UP_STACK_NAMES = [
+    "Damage Boost", "Fire Rate", "Speed Boost", "Turn Speed", "Double Damage", 
+    "Rapid Fire", "Max Health", "Shield", "Regeneration", 
+    "Shield Regen", "Bigger Explosions"
+];
+
+/**
  * Complete collection of all available power-ups in the game
  * 
  * @static
@@ -134,6 +146,17 @@ PowerUp.ALL_POWERUPS = [
         (player) => {
             player.projectileSpeedMod *= 1.3;
             player.powerUpStacks["Speed Boost"]++;
+        },
+        3 // Common
+    ),
+    
+    new PowerUp(
+        "Turn Speed",
+        "+20% rotation speed for faster targeting",
+        "🌀",
+        (player) => {
+            player.rotationSpeedMod *= 1.2;
+            player.powerUpStacks["Turn Speed"]++;
         },
         3 // Common
     ),
@@ -321,7 +344,7 @@ PowerUp.ALL_POWERUPS = [
 PowerUp.CATEGORIES = {
     OFFENSE: [
         "Damage Boost", "Fire Rate", "Piercing Shots", "Triple Shot", 
-        "Speed Boost", "Explosive Shots", "Bigger Explosions", 
+        "Speed Boost", "Turn Speed", "Explosive Shots", "Bigger Explosions", 
         "Double Damage", "Rapid Fire"
     ],
     DEFENSE: [

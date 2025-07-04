@@ -276,7 +276,7 @@ export class Shop {
         const categoryNames = {
             'OFFENSE': [
                 "Damage Boost", "Fire Rate", "Piercing Shots", "Triple Shot", 
-                "Speed Boost", "Explosive Shots", "Bigger Explosions", 
+                "Speed Boost", "Turn Speed", "Explosive Shots", "Bigger Explosions", 
                 "Double Damage", "Rapid Fire"
             ],
             'DEFENSE': [

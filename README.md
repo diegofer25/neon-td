@@ -7,7 +7,7 @@ A browser-based 2D tower defense game with infinite wave survival, auto-targetin
 ## ✨ Features
 
 ### 🎯 Core Gameplay
-- **Auto-targeting System**: Advanced player rotation and targeting AI
+- **Intelligent Auto-targeting System**: Advanced player rotation and targeting AI with customizable turn speed
 - **Infinite Wave Survival**: Progressively challenging enemy waves
 - **Power-up Shop**: 15+ upgrades across offense, defense, and utility categories
 - **Stackable Upgrades**: Build your perfect loadout with combinable power-ups
@@ -85,6 +85,7 @@ npx live-server --port=8080
 #### ⚔️ Offense
 - **Damage Boost**: +50% bullet damage (stackable)
 - **Fire Rate**: +25% attack speed (stackable)
+- **Turn Speed**: +20% rotation speed for faster target acquisition (stackable)
 - **Triple Shot**: Fire 3 bullets in a spread
 - **Piercing Shots**: Bullets pierce through enemies
 - **Explosive Shots**: Bullets explode on impact

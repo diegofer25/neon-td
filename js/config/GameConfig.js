@@ -220,6 +220,7 @@ export const GameConfig = {
         "Damage Boost": 15,
         "Fire Rate": 12,
         "Speed Boost": 10,
+        "Turn Speed": 18,
         
         // Defensive options (moderate cost)
         "Max Health": 20,
@@ -258,6 +259,9 @@ export const GameConfig = {
         // Attack speed (multiplicative effects)
         "Fire Rate": 8,        // Up to 6.3x attack speed (1.25^8)
         "Rapid Fire": 5,       // Up to 7.6x attack speed (1.5^5)
+        
+        // Movement and aiming (multiplicative effects)
+        "Turn Speed": 8,       // Up to 4.3x rotation speed (1.2^8)
         
         // Health and defense (additive effects)
         "Max Health": 10,      // Up to 300% base health

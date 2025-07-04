@@ -49,7 +49,7 @@ export class Player {
      * @type {string[]}
      */
     static POWER_UP_STACK_NAMES = [
-        "Damage Boost", "Fire Rate", "Speed Boost", "Double Damage", 
+        "Damage Boost", "Fire Rate", "Speed Boost", "Turn Speed", "Double Damage", 
         "Rapid Fire", "Max Health", "Shield", "Regeneration", 
         "Shield Regen", "Bigger Explosions"
     ];
@@ -121,6 +121,8 @@ export class Player {
         this.fireRateMod = 1;
         /** @type {number} Projectile speed multiplier */
         this.projectileSpeedMod = 1;
+        /** @type {number} Rotation speed multiplier (2.0 = twice as fast rotation) */
+        this.rotationSpeedMod = 1;
     }
     
     /**
@@ -200,6 +202,7 @@ export class Player {
         this.damageMod = 1;
         this.fireRateMod = 1;
         this.projectileSpeedMod = 1;
+        this.rotationSpeedMod = 1;
         
         this.hasPiercing = false;
         this.hasTripleShot = false;
@@ -324,9 +327,10 @@ export class Player {
         // Mark as rotating if we're not within tolerance
         this.isRotating = true;
         
-        // Calculate rotation amount for this frame
-        const rotationSpeed = GameConfig.PLAYER.ROTATION_SPEED;
-        const maxRotation = rotationSpeed * (delta / 1000);
+        // Calculate rotation amount for this frame with rotation speed modifier
+        const baseRotationSpeed = GameConfig.PLAYER.ROTATION_SPEED;
+        const modifiedRotationSpeed = baseRotationSpeed * this.rotationSpeedMod;
+        const maxRotation = modifiedRotationSpeed * (delta / 1000);
         
         // Use smooth angle interpolation with speed limiting
         const angleDiff = MathUtils.angleDifference(this.angle, this.targetAngle);
