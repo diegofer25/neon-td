@@ -53,3 +53,54 @@
   text-align: right;
   min-width: 40px;
 }
+
+/* Performance Statistics */
+.performance-stats {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  background: rgba(0, 0, 0, 0.8);
+  padding: var(--spacing-sm);
+  border-radius: 0 var(--radius-sm) 0 0;
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.2);
+  font-family: var(--font-pixel);
+  z-index: 100;
+}
+
+.perf-stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 80px;
+  gap: var(--spacing-xs);
+}
+
+.perf-label {
+  color: #ffa500;
+  text-shadow: 0 0 3px #ffa500;
+  font-size: 8px;
+  flex-shrink: 0;
+}
+
+.perf-value {
+  color: #fff;
+  text-shadow: 0 0 3px #fff;
+  font-size: 8px;
+  font-weight: bold;
+  text-align: right;
+  min-width: 30px;
+}
+
+.perf-value.warning {
+  color: #ff0;
+  text-shadow: 0 0 3px #ff0;
+}
+
+.perf-value.critical {
+  color: #f00;
+  text-shadow: 0 0 3px #f00;
+}

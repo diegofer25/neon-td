@@ -20,6 +20,9 @@ let lastTime = 0;
 /** @type {number|null} Animation frame ID for game loop control */
 let animationId = null;
 
+/** @type {boolean} Whether to show performance statistics */
+let showPerformanceStats = false;
+
 /**
  * Audio system configuration and state
  * @type {Object}
@@ -87,6 +90,14 @@ function init() {
     // Restore user audio preferences from localStorage
     if (localStorage.getItem('mute') === 'true') {
         toggleMute();
+    }
+
+    // Check for performance stats URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    showPerformanceStats = urlParams.get('stats') === 'true';
+    
+    if (showPerformanceStats) {
+        document.getElementById('performanceStats').style.display = 'flex';
     }
 
     // Display initial start screen
@@ -374,6 +385,11 @@ function updateHUD() {
     
     // Refresh player statistics display
     updateStatsDisplay();
+    
+    // Update performance statistics if enabled
+    if (showPerformanceStats && game) {
+        updatePerformanceStats();
+    }
 }
 
 /**
@@ -419,6 +435,50 @@ function updateStatValue(elementId, newValue) {
             element.style.textShadow = '0 0 3px #fff';
             element.style.transform = 'scale(1)';
         }, 500);
+    }
+}
+
+/**
+ * Update performance statistics display with current values
+ * Shows FPS, frame time, average FPS, and optimization status
+ */
+function updatePerformanceStats() {
+    if (!game.performanceManager) return;
+    
+    const stats = game.performanceManager.getStats();
+    
+    // Update FPS with color coding
+    const fpsElement = document.getElementById('fpsValue');
+    fpsElement.textContent = Math.round(stats.currentFps);
+    fpsElement.className = 'perf-value';
+    if (stats.currentFps < 30) {
+        fpsElement.className += ' warning';
+    }
+    if (stats.currentFps < 15) {
+        fpsElement.className += ' critical';
+    }
+    
+    // Update frame time
+    document.getElementById('frameTimeValue').textContent = `${Math.round(stats.frameTime)}ms`;
+    
+    // Update average FPS
+    const avgFpsElement = document.getElementById('avgFpsValue');
+    avgFpsElement.textContent = Math.round(stats.averageFps);
+    avgFpsElement.className = 'perf-value';
+    if (stats.averageFps < 30) {
+        avgFpsElement.className += ' warning';
+    }
+    if (stats.averageFps < 15) {
+        avgFpsElement.className += ' critical';
+    }
+    
+    // Update optimization status
+    const optimizedElement = document.getElementById('optimizedValue');
+    const isOptimized = game.performanceManager.needsOptimization();
+    optimizedElement.textContent = isOptimized ? 'Yes' : 'No';
+    optimizedElement.className = 'perf-value';
+    if (isOptimized) {
+        optimizedElement.className += ' warning';
     }
 }
 

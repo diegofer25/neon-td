@@ -173,4 +173,21 @@
   .stat-item { min-width: 80px; }
   .stat-label, .stat-value { font-size: 6px; }
   .stat-icon { font-size: 8px; }
+
+  #statsDisplay {
+    transform: scale(0.85);
+    transform-origin: bottom right;
+  }
+  
+  .performance-stats {
+    transform: scale(0.75);
+    transform-origin: bottom left;
+  }
+  
+  .perf-stat-item { min-width: 70px; }
+  .perf-label, .perf-value { font-size: 6px; }
+  
+  .stat-item { min-width: 80px; }
+  .stat-label, .stat-value { font-size: 6px; }
+  .stat-icon { font-size: 8px; }
 }
