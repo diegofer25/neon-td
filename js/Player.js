@@ -658,7 +658,7 @@ export class Player {
      */
     onEnemyKill(enemy) {
         if (this.hasLifeSteal) {
-            const healAmount = enemy.maxHealth * 0.1; // Heal 10% of enemy's max health
+            const healAmount = enemy.maxHealth * 0.01; // Heal 1% of enemy's max health
             this.heal(healAmount);
         }
     }

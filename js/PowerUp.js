@@ -51,60 +51,54 @@ export class PowerUp {
 	 * All power-ups are available for purchase when requirements are met.
 	 */
 	static ALL_POWERUPS = [
-		// === COMMON POWER-UPS ===
 		new PowerUp(
 			"Damage Boost",
-			"+50% bullet damage",
+			"+25% bullet damage",
 			"⚡",
 			(player) => {
-				player.damageMod *= 1.5;
+				player.damageMod *= 1.25;
 				player.powerUpStacks["Damage Boost"]++;
 			}
 		),
 
 		new PowerUp(
 			"Fire Rate",
-			"+25% attack speed",
+			"+12.5% attack speed",
 			"🔥",
 			(player) => {
-				player.fireRateMod *= 1.25;
+				player.fireRateMod *= 1.125;
 				player.powerUpStacks["Fire Rate"]++;
 			}
 		),
 
 		new PowerUp(
 			"Speed Boost",
-			"+30% projectile speed",
+			"+15% projectile speed",
 			"💨",
 			(player) => {
-				player.projectileSpeedMod *= 1.3;
+				player.projectileSpeedMod *= 1.15;
 				player.powerUpStacks["Speed Boost"]++;
 			}
 		),
 
 		new PowerUp(
 			"Turn Speed",
-			"+20% rotation speed for faster targeting",
+			"+10% rotation speed for faster targeting",
 			"🌀",
 			(player) => {
-				player.rotationSpeedMod *= 1.2;
+				player.rotationSpeedMod *= 1.1;
 				player.powerUpStacks["Turn Speed"]++;
 			}
 		),
 
-		// === UNCOMMON POWER-UPS ===
 		new PowerUp(
 			"Piercing Shots",
 			"Bullets pierce through enemies (-25% damage per enemy hit)",
 			"🎯",
 			(player) => {
 				player.hasPiercing = true;
-				console.log(
-					"Piercing Shots power-up applied! Player now has piercing:",
-					player.hasPiercing
-				);
 			},
-			false // Non-stackable
+			false
 		),
 
 		new PowerUp(
@@ -114,15 +108,15 @@ export class PowerUp {
 			(player) => {
 				player.hasTripleShot = true;
 			},
-			false // Non-stackable
+			false
 		),
 
 		new PowerUp(
 			"Max Health",
-			"+20% max health and heal to full",
+			"+10% max health and heal to full",
 			"💖",
 			(player) => {
-				const healthIncrease = Math.floor(player.maxHp * 0.2); // 20% increase
+				const healthIncrease = Math.floor(player.maxHp * 0.1); // 10% increase
 				player.maxHp += healthIncrease;
 				player.hp = player.maxHp;
 				player.powerUpStacks["Max Health"]++;
@@ -137,7 +131,7 @@ export class PowerUp {
 				if (player.slowFieldStrength < player.maxSlowFieldStacks) {
 					player.hasSlowField = true;
 					player.slowFieldStrength += 1; // Each stack increases strength
-					player.slowFieldRadius += 20; // Each stack increases radius by 20
+					player.slowFieldRadius += 50; // Each stack increases radius by 50
 				}
 			}
 		),
@@ -171,30 +165,29 @@ export class PowerUp {
 			}
 		),
 
-		// === RARE POWER-UPS ===
 		new PowerUp(
 			"Life Steal",
-			"Heal 10% of enemy max health on kill",
+			"Heal 1% of enemy max health on kill",
 			"🧛",
 			(player) => {
 				player.hasLifeSteal = true;
 			},
-			false // Non-stackable
+			false
 		),
 
 		new PowerUp(
 			"Regeneration",
-			"+5 health per second",
+			"+1 health per second",
 			"💚",
 			(player) => {
-				player.hpRegen += 5;
+				player.hpRegen += 1; // 1 health per second
 				player.powerUpStacks["Regeneration"]++;
 			}
 		),
 
 		new PowerUp(
 			"Shield Regen",
-			"+10 shield per second",
+			"+2 shield per second",
 			"🔋",
 			(player) => {
 				if (!player.hasShield) {
@@ -202,7 +195,7 @@ export class PowerUp {
 					player.maxShieldHp = 25;
 					player.shieldHp = 25;
 				}
-				player.shieldRegen += 10;
+				player.shieldRegen += 2;
 				player.powerUpStacks["Shield Regen"]++;
 			}
 		),
@@ -214,49 +207,49 @@ export class PowerUp {
 			(player) => {
 				player.explosiveShots = true;
 			},
-			false // Non-stackable
+			false
 		),
 
 		new PowerUp(
 			"Bigger Explosions",
-			"+50% explosion radius and damage (enhances Explosive Shots)",
+			"+25% explosion radius and damage (enhances Explosive Shots)",
 			"☄️",
 			(player) => {
-				player.explosionRadius *= 1.5;
-				player.explosionDamage *= 1.5;
+				player.explosionRadius *= 1.25;
+				player.explosionDamage *= 1.25;
 				player.powerUpStacks["Bigger Explosions"]++;
 			}
 		),
 
 		new PowerUp(
 			"Double Damage",
-			"+100% bullet damage",
+			"+50% bullet damage",
 			"⚔️",
 			(player) => {
-				player.damageMod *= 2;
+				player.damageMod *= 1.5;
 				player.powerUpStacks["Double Damage"]++;
 			}
 		),
 
 		new PowerUp(
 			"Rapid Fire",
-			"+50% attack speed",
+			"+25% attack speed",
 			"🌪️",
 			(player) => {
-				player.fireRateMod *= 1.5;
+				player.fireRateMod *= 1.25;
 				player.powerUpStacks["Rapid Fire"]++;
 			}
 		),
 
 		new PowerUp(
 			"Coin Magnet",
-			"+50% coin rewards from enemy kills",
+			"+20% coin rewards from enemy kills",
 			"🧲",
 			(player) => {
 				if (!player.coinMagnetMultiplier) {
 					player.coinMagnetMultiplier = 1;
 				}
-				player.coinMagnetMultiplier += 0.5;
+				player.coinMagnetMultiplier += 0.2;
 				player.powerUpStacks["Coin Magnet"]++;
 			}
 		),
@@ -300,7 +293,7 @@ export class PowerUp {
 			(player) => {
 				player.hasTimeDilation = true;
 			},
-			false // Non-stackable
+			false
 		),
 
 		new PowerUp(
@@ -317,7 +310,7 @@ export class PowerUp {
 					};
 				}
 			},
-			false // Non-stackable
+			false
 		),
 
 		new PowerUp(
