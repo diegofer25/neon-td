@@ -435,4 +435,78 @@ export class Shop {
     closeShop() {
         document.getElementById('powerUpModal').classList.remove('show');
     }
+    
+    /**
+     * Check if slow field power-up is at maximum stack count
+     * 
+     * @returns {boolean} True if slow field cannot be upgraded further
+     */
+    isSlowFieldMaxed() {
+        return this.slowFieldStrength >= this.maxSlowFieldStacks;
+    }
+
+    /**
+     * Determines if a power-up has reached its maximum stack limit.
+     * Checks both stackable power-ups against their limits and non-stackable power-ups.
+     * 
+     * @param {string} powerUpName - Name of the power-up to check
+     * @param {Player} player - Player object to check current state
+     * @returns {boolean} True if power-up is at maximum level or already owned (non-stackable)
+     */
+    isPowerUpMaxed(powerUpName, player) {
+        // Check if it's a non-stackable power-up that's already owned
+        const nonStackable = player.getNonStackablePowerUps();
+        if (nonStackable.includes(powerUpName)) {
+            return true;
+        }
+        
+        // Check stack limits for stackable power-ups
+        if (this.stackLimits[powerUpName] !== undefined) {
+            const currentStacks = this.getCurrentStacks(powerUpName, player);
+            return currentStacks >= this.stackLimits[powerUpName];
+        }
+        
+        // Special case for Slow Field (has its own max tracking)
+        if (powerUpName === "Slow Field") {
+            return player.isSlowFieldMaxed();
+        }
+        
+        // For power-ups without limits (like Full Heal), never maxed
+        return false;
+    }
+
+    /**
+     * Add coins to the player's total with visual feedback
+     * Creates floating text showing coin gain
+     * 
+     * @param {number} amount - Number of coins to add (must be positive)
+     * @throws {Error} If amount is negative or not a number
+     * 
+     * @example
+     * player.addCoins(10); // Adds 10 coins, shows "+10 coins" text
+     */
+    addCoins(amount) {
+        if (typeof amount !== 'number' || amount <= 0) {
+            throw new Error('Invalid coin amount');
+        }
+        
+        this.coins += amount;
+        
+        // Create floating text effect
+        const floatingText = document.createElement('div');
+        floatingText.className = 'floating-coins';
+        floatingText.textContent = `+${amount} coins`;
+        
+        document.getElementById('gameCanvas').appendChild(floatingText);
+        
+        // Animate floating text
+        setTimeout(() => {
+            floatingText.style.transform = 'translateY(-30px)';
+            floatingText.style.opacity = '0';
+        }, 50);
+        
+        setTimeout(() => {
+            floatingText.remove();
+        }, 1000);
+    }
 }
