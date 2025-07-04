@@ -115,14 +115,8 @@ export const GameConfig = {
         FIRING_TOLERANCE: Math.PI / 36,
         /** @type {number} Maximum time to spend rotating before giving up on target in milliseconds */
         MAX_ROTATION_TIME: 1500,
-        /** @type {number} Base player radius in pixels */
-        RADIUS: 20,
         /** @type {number} Maximum health points */
         MAX_HP: 100,
-        /** @type {number} Base fire rate in milliseconds between shots */
-        BASE_FIRE_RATE: 1000,
-        /** @type {number} Base damage per projectile */
-        BASE_DAMAGE: 10,
         /** @type {number} Base radius for slow field effect */
         SLOW_FIELD_BASE_RADIUS: 80,
         /** @type {number} Maximum slow field stack count */

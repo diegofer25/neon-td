@@ -118,6 +118,9 @@ export class Shop {
             case "Coin Magnet":
                 // Calculate stacks based on multiplier (base 1.0, +0.5 per stack)
                 return Math.round((player.coinMagnetMultiplier - 1) / 0.5);
+            case "Lucky Shots":
+                // Calculate stacks based on chance (10% per stack)
+                return player.luckyShots ? Math.round(player.luckyShots.chance / 0.1) : 0;
             default:
                 return 0;
         }
@@ -290,7 +293,9 @@ export class Shop {
                 "Full Heal"
             ],
             'UTILITY': [
-                "Life Steal", "Slow Field", "Coin Magnet"
+                "Life Steal", "Slow Field", "Coin Magnet", "Lucky Shots",
+                "Vampiric Aura", "Time Dilation", "Phantom Dash", "Multishot",
+                "Chain Lightning", "Ricochet"
             ]
         };
 

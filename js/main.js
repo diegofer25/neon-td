@@ -17,9 +17,6 @@ let game = null;
 /** @type {number} Previous frame timestamp for delta calculation */
 let lastTime = 0;
 
-/** @type {number|null} Animation frame ID for game loop control */
-let animationId = null;
-
 /** @type {boolean} Whether to show performance statistics */
 let showPerformanceStats = false;
 
@@ -355,7 +352,7 @@ function gameLoop(timestamp = 0) {
     
     // Continue loop based on game state
     if (game.gameState === 'playing' || game.gameState === 'powerup') {
-        animationId = requestAnimationFrame(gameLoop);
+        requestAnimationFrame(gameLoop);
     } else if (game.gameState === 'gameover') {
         showGameOver();
     }

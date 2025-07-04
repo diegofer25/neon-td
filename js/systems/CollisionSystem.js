@@ -18,7 +18,7 @@ export class CollisionSystem {
      * Check all collision types and handle responses.
      * @param {number} delta - Time elapsed since last frame
      */
-    checkAllCollisions(delta) {
+    checkAllCollisions() {
         this._checkProjectileEnemyCollisions();
         this._checkPlayerEnemyCollisions();
     }
@@ -29,7 +29,7 @@ export class CollisionSystem {
      */
     _checkProjectileEnemyCollisions() {
         this.game.projectiles.forEach((projectile, pIndex) => {
-            this.game.enemies.forEach((enemy, eIndex) => {
+            this.game.enemies.forEach((enemy) => {
                 if (MathUtils.circleCollision(projectile, enemy)) {
                     this._handleProjectileHit(projectile, enemy, pIndex);
                 }

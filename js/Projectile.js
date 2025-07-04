@@ -61,6 +61,14 @@ export class Projectile {
         
         // Destruction flag for cleanup
         this._destroy = false;
+        
+        // Critical hit properties
+        /** @type {boolean} Whether this projectile is a critical hit */
+        this.isCritical = false;
+        /** @type {boolean} Visual flag for critical hit effects */
+        this.isCriticalVisual = false;
+        /** @type {string} Glow color for visual effects */
+        this.glowColor = '#fff';
     }
     
     /**
@@ -151,87 +159,35 @@ export class Projectile {
     }
     
     /**
-     * Renders the projectile and its visual effects to the canvas.
-     * Handles different rendering styles based on projectile type.
+     * Render the projectile with appropriate visual effects
      * 
-     * @param {CanvasRenderingContext2D} ctx - The 2D rendering context
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
      */
     draw(ctx) {
         ctx.save();
         
-        // Render trailing effect behind projectile
-        if (this.trail.length > 1) {
-            ctx.strokeStyle = this.glowColor;
-            ctx.lineWidth = 2;
-            ctx.globalAlpha = 0.3;
-            
-            ctx.beginPath();
-            for (let i = 0; i < this.trail.length; i++) {
-                const point = this.trail[i];
-                // Create fading effect along trail
-                const alpha = i / this.trail.length;
-                ctx.globalAlpha = alpha * 0.3;
-                
-                if (i === 0) {
-                    ctx.moveTo(point.x, point.y);
-                } else {
-                    ctx.lineTo(point.x, point.y);
-                }
-            }
-            ctx.stroke();
+        // Enhanced glow for critical hits
+        if (this.isCriticalVisual) {
+            ctx.shadowColor = this.glowColor;
+            ctx.shadowBlur = 20; // Stronger glow for critical hits
+        } else {
+            ctx.shadowColor = '#fff';
+            ctx.shadowBlur = 10;
         }
-        
-        // Configure glow effect for all projectile types
-        ctx.shadowColor = this.glowColor;
-        ctx.shadowBlur = 10;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
-        ctx.globalAlpha = 1;
         
-        // Render projectile based on type
-        if (this.piercing) {
-            // Piercing projectiles: Diamond shape oriented with direction
-            ctx.fillStyle = '#0ff';
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 1;
-            
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.rotate(this.angle); // Orient diamond with flight direction
-            
-            ctx.beginPath();
-            ctx.moveTo(this.radius * 2, 0);     // Point
-            ctx.lineTo(0, -this.radius);        // Top
-            ctx.lineTo(-this.radius, 0);        // Back
-            ctx.lineTo(0, this.radius);         // Bottom
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-            
-            ctx.restore();
-        } else if (this.explosive) {
-            // Explosive projectiles: Larger orange circles with white core
-            ctx.fillStyle = '#f80';
-            this.glowColor = '#f80';
-            
-            // Outer explosive shell
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Inner white core for contrast
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius * 0.5, 0, Math.PI * 2);
-            ctx.fill();
-        } else {
-            // Standard projectiles: Simple white circles
-            ctx.fillStyle = this.color;
-            
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fill();
-        }
+        // Different color for critical projectiles
+        ctx.fillStyle = this.isCriticalVisual ? this.glowColor : '#fff';
+        ctx.strokeStyle = this.isCriticalVisual ? '#ffaa00' : '#fff';
+        ctx.lineWidth = this.isCriticalVisual ? 3 : 2;
+        
+        // Draw projectile body (slightly larger for crits)
+        const size = this.isCriticalVisual ? 6 : 4;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
         
         ctx.restore();
     }

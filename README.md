@@ -106,7 +106,7 @@ npx live-server --port=8080
 - **Life Steal**: Heal 10% of enemy max health on kill
 - **Slow Field**: Enemies move slower near you (stackable)
 - **Coin Magnet**: +50% coin rewards from enemy kills (stackable)
-- **Lucky Shots**: 10% chance for bullets to deal double damage (stackable chance)
+- **Lucky Shots**: 10% chance for bullets to deal double damage (stackable chance up to 50%)
 - **Vampiric Aura**: All nearby enemies take damage per second (stackable)
 - **Time Dilation**: Briefly slow down time when health drops below 25%
 - **Phantom Dash**: Become briefly invulnerable when taking damage

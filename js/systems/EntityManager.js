@@ -1,5 +1,3 @@
-import { MathUtils } from '../utils/MathUtils.js';
-
 /**
  * Manages all game entities including players, enemies, and projectiles.
  * Handles entity updates, lifecycle management, and cleanup.

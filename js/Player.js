@@ -1,3 +1,4 @@
+import { PowerUp } from './PowerUp.js';
 import { Projectile } from './Projectile.js';
 import { GameConfig } from './config/GameConfig.js';
 import { MathUtils } from './utils/MathUtils.js';
@@ -17,19 +18,6 @@ import { MathUtils } from './utils/MathUtils.js';
  * @since 1.0.0
  */
 export class Player {
-    /**
-     * Available power-up types that can be stacked
-     * @static
-     * @readonly
-     * @type {string[]}
-     */
-    static POWER_UP_STACK_NAMES = [
-        "Damage Boost", "Fire Rate", "Speed Boost", "Turn Speed", "Double Damage", 
-        "Rapid Fire", "Max Health", "Shield", "Regeneration", 
-        "Shield Regen", "Bigger Explosions", "Coin Magnet", "Lucky Shots",
-        "Vampiric Aura", "Multishot", "Chain Lightning", "Ricochet"
-    ];
-
     /**
      * Creates a new player instance with default stats and power-ups
      * 
@@ -137,6 +125,10 @@ export class Player {
         /** @type {number} Coin reward multiplier (1.0 = normal rewards) */
         this.coinMagnetMultiplier = 1.0;
         
+        // Lucky Shots power-up configuration
+        /** @type {Object|null} Lucky shots configuration object */
+        this.luckyShots = null;
+        
         // Slow field configuration
         /** @type {number} Radius of slow field effect */
         this.slowFieldRadius = GameConfig.PLAYER.SLOW_FIELD_BASE_RADIUS;
@@ -154,7 +146,7 @@ export class Player {
     _initializeStackTracking() {
         /** @type {Object.<string, number>} Power-up stack counts by name */
         this.powerUpStacks = {};
-        Player.POWER_UP_STACK_NAMES.forEach(name => {
+        PowerUp.POWER_UP_STACK_NAMES.forEach(name => {
             this.powerUpStacks[name] = 0;
         });
     }
@@ -201,12 +193,15 @@ export class Player {
         // Reset coin multiplier
         this.coinMagnetMultiplier = 1.0;
         
+        // Reset Lucky Shots
+        this.luckyShots = null;
+        
         // Reset coins
         this.coins = 0;
         
         // Reset power-up stacks
         this.powerUpStacks = {};
-        Player.POWER_UP_STACK_NAMES.forEach(name => {
+        PowerUp.POWER_UP_STACK_NAMES.forEach(name => {
             this.powerUpStacks[name] = 0;
         });
     }
@@ -327,7 +322,7 @@ export class Player {
      * @param {Object} game - Game instance
      * @param {number} delta - Time elapsed since last frame
      */
-    _updateFiring(game, delta) {
+    _updateFiring(game) {
         // Fire if we have a target, are off cooldown, and are reasonably aimed
         const hasValidTarget = this.currentTarget && this.currentTarget.health > 0;
         const isOffCooldown = this.fireCooldown <= 0;
@@ -499,6 +494,19 @@ export class Player {
             projectile.explosive = true;
             projectile.explosionRadius = this.explosionRadius;
             projectile.explosionDamage = this.explosionDamage;
+        }
+        
+        // Apply Lucky Shots critical hit chance
+        if (this.luckyShots && this.luckyShots.active) {
+            const critRoll = Math.random();
+            if (critRoll < this.luckyShots.chance) {
+                projectile.isCritical = true;
+                projectile.damage *= 2; // Double damage for critical hits
+                
+                // Visual indicator for critical projectiles
+                projectile.glowColor = '#ffff00'; // Golden glow for crits
+                projectile.isCriticalVisual = true;
+            }
         }
     }
     
