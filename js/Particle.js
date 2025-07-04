@@ -257,4 +257,53 @@ export class Particle {
         
         return particles;
     }
+
+    /**
+     * Creates an expanding explosion ring particle for blast radius visualization.
+     * @param {number} x - Explosion center X coordinate
+     * @param {number} y - Explosion center Y coordinate
+     * @param {number} maxRadius - Maximum explosion radius
+     * @param {string} [color='#f80'] - Ring color in CSS format
+     * @returns {Particle} Single expanding ring particle
+     */
+    static createExplosionRing(x, y, maxRadius, color = '#f80') {
+        const particle = new Particle(x, y, 0, 0, 600, color);
+        
+        // Custom properties for ring rendering
+        particle.isRing = true;
+        particle.currentRadius = 5;
+        particle.maxRadius = maxRadius;
+        particle.lineWidth = 4;
+        
+        // Override update method for ring expansion
+        particle.update = function(delta) {
+            this.life -= delta;
+            
+            // Expand ring over time
+            const lifePercent = this.life / this.maxLife;
+            this.currentRadius = this.maxRadius * (1 - lifePercent);
+            this.alpha = lifePercent * 0.8; // Fade out as it expands
+            this.lineWidth = 6 * lifePercent; // Thicker at start
+        };
+        
+        // Override draw method for ring rendering
+        particle.draw = function(ctx) {
+            if (this.isDead()) return;
+            
+            ctx.save();
+            ctx.globalAlpha = this.alpha;
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = this.lineWidth;
+            ctx.shadowColor = this.color;
+            ctx.shadowBlur = 15;
+            
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.currentRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.restore();
+        };
+        
+        return particle;
+    }
 }

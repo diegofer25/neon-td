@@ -739,33 +739,90 @@ export class Game {
             this.particles.push(particle);
         }
     }
-    
+
     /**
-     * Create small hit effect particles when enemies take damage.
+     * Create visual explosion ring to show blast radius clearly to player.
      * 
-     * Provides visual feedback for successful hits with small,
-     * short-lived particles that indicate impact location.
+     * Creates both DOM-based and canvas-based explosion ring effects
+     * to ensure the blast area is clearly visible.
+     * 
+     * @param {number} x - Explosion center X coordinate
+     * @param {number} y - Explosion center Y coordinate
+     * @param {number} radius - Explosion radius in pixels
+     */
+    createExplosionRing(x, y, radius) {
+        // Create canvas-based explosion ring particle
+        const ringParticle = Particle.createExplosionRing(x, y, radius, '#f80');
+        this.particles.push(ringParticle);
+        
+        // Create DOM-based explosion ring for extra visibility
+        this.createDOMExplosionRing(x, y, radius);
+    }
+
+    /**
+     * Create hit effect when projectiles strike enemies.
+     * 
+     * Creates a small burst of particles to provide visual feedback
+     * for successful hits without overwhelming the screen.
      * 
      * @param {number} x - Hit location X coordinate
      * @param {number} y - Hit location Y coordinate
      */
     createHitEffect(x, y) {
-        // Use object pool for hit particles instead of creating new ones
-        for (let i = 0; i < 3; i++) {
+        // Create small spark effect for hit feedback
+        const particleCount = this.performanceManager.reduceParticleCount ? 2 : 4;
+        
+        for (let i = 0; i < particleCount; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const speed = 20 + Math.random() * 30;
-            const life = 200 + Math.random() * 200;
+            const speed = MathUtils.random(20, 60);
+            const life = MathUtils.random(200, 400);
             
             const particle = this.particlePool.get(
                 x, y,
                 Math.cos(angle) * speed,
                 Math.sin(angle) * speed,
                 life,
-                '#ff0'
+                '#fff'
             );
             
             this.particles.push(particle);
         }
+    }
+
+    /**
+     * Create DOM-based explosion ring overlay for maximum visibility.
+     * 
+     * @private
+     * @param {number} x - Explosion center X coordinate (canvas coordinates)
+     * @param {number} y - Explosion center Y coordinate (canvas coordinates)
+     * @param {number} radius - Explosion radius in canvas pixels
+     */
+    createDOMExplosionRing(x, y, radius) {
+        const ring = document.createElement('div');
+        ring.className = 'explosion-ring';
+        
+        // Convert canvas coordinates to screen coordinates
+        const rect = this.canvas.getBoundingClientRect();
+        const screenX = (x / this.canvas.width) * rect.width + rect.left;
+        const screenY = (y / this.canvas.height) * rect.height + rect.top;
+        const screenRadius = (radius / this.canvas.width) * rect.width;
+        
+        // Position and size the ring
+        const ringSize = screenRadius * 2;
+        ring.style.left = (screenX - screenRadius) + 'px';
+        ring.style.top = (screenY - screenRadius) + 'px';
+        ring.style.width = ringSize + 'px';
+        ring.style.height = ringSize + 'px';
+        
+        // Add to game container
+        document.getElementById('gameContainer').appendChild(ring);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (ring.parentNode) {
+                ring.parentNode.removeChild(ring);
+            }
+        }, 600);
     }
     
     /**

@@ -29,3 +29,20 @@
   0% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+@keyframes explosionRing {
+  0% {
+    transform: scale(0.1);
+    opacity: 1;
+    border-width: 6px;
+  }
+  50% {
+    opacity: 0.8;
+    border-width: 4px;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+    border-width: 1px;
+  }
+}

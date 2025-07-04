@@ -120,6 +120,9 @@ export class Projectile {
         // Generate visual explosion particles
         game.createExplosion(this.x, this.y, 12);
         
+        // Create visual explosion ring to show blast radius
+        game.createExplosionRing(this.x, this.y, this.explosionRadius);
+        
         // Apply area damage to all enemies within explosion radius
         game.enemies.forEach(enemy => {
             const dx = enemy.x - this.x;

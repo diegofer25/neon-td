@@ -14,3 +14,16 @@
   z-index: var(--z-flash);
   animation: flash var(--transition-fast);
 }
+
+/* Explosion Ring Effect */
+.explosion-ring {
+  position: absolute;
+  border: 3px solid #f80;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: var(--z-effects);
+  animation: explosionRing 600ms ease-out;
+  box-shadow: 
+    0 0 20px #f80,
+    inset 0 0 20px rgba(255, 136, 0, 0.3);
+}
