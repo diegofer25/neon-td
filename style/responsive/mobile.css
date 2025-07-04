@@ -39,7 +39,7 @@
   
   .card {
     width: 140px;
-    height: 200px;
+    min-height: 200px;
     padding: var(--spacing-md);
   }
   
@@ -55,17 +55,16 @@
   
   .card-description { 
     font-size: 8px;
-    margin-bottom: 45px; /* Adjust for smaller card height */
+    margin-bottom: 12px;
   }
   
   .card-price {
     font-size: 8px;
-    bottom: 25px;
+    margin-bottom: 6px;
   }
   
   .status-text {
     font-size: 7px;
-    bottom: 8px;
   }
   
   .shop-close-btn {
@@ -139,7 +138,7 @@
   
   .card {
     width: 120px;
-    height: 180px;
+    min-height: 180px;
     padding: 10px;
   }
   
@@ -155,17 +154,16 @@
   
   .card-description { 
     font-size: 7px;
-    margin-bottom: 40px; /* Adjust for smallest card height */
+    margin-bottom: 10px;
   }
   
   .card-price {
     font-size: 7px;
-    bottom: 22px;
+    margin-bottom: 5px;
   }
   
   .status-text {
     font-size: 6px;
-    bottom: 6px;
   }
   
   .shop-close-btn {
@@ -197,5 +195,7 @@
   
   .stat-item { min-width: 80px; }
   .stat-label, .stat-value { font-size: 6px; }
+  .stat-icon { font-size: 8px; }
+}
   .stat-icon { font-size: 8px; }
 }

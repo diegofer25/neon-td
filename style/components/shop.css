@@ -140,16 +140,16 @@
     font-size: 10px;
     color: #ff0;
     text-align: center;
-    margin: 4px 0;
+    margin: 4px 0 8px 0;
     padding: 2px 4px;
     background: rgba(255, 255, 0, 0.1);
     border: 1px solid rgba(255, 255, 0, 0.3);
     border-radius: 3px;
     text-shadow: 0 0 3px #ff0;
-    position: absolute;
-    bottom: 55px; /* Position above price but below description */
-    left: 50%;
-    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 8px;
+    flex-shrink: 0;
+}
     white-space: nowrap;
     font-size: 8px;
 }
