@@ -301,15 +301,15 @@ export class PowerUp {
 			"All nearby enemies take 1% of their max health as burn damage per second",
 			"🔥",
 			(player) => {
-				if (!player.vampiricAura) {
-					player.vampiricAura = {
+				if (!player.immolationAura) {
+					player.immolationAura = {
 						active: true,
 						damagePercent: 0.01, // 1% burn damage per second
 						range: 300, // Aura radius
 					};
 				} else {
-					player.vampiricAura.damagePercent += 0.01; // Increase burn damage by 1% per stack
-					player.vampiricAura.range += 50; // Increase aura radius by 10
+					player.immolationAura.damagePercent += 0.01; // Increase burn damage by 1% per stack
+					player.immolationAura.range += 50; // Increase aura radius by 10
 				}
 				player.powerUpStacks["Immolation Aura"]++;
 			},
