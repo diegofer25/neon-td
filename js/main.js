@@ -197,7 +197,7 @@ function setupInputHandlers() {
         input.keys[e.code] = true;
         
         // Game pause toggle
-        if (e.code === 'KeyP' && game && game.gameState === 'playing') {
+        if (e.code === 'KeyP' && game && game.gameState === 'playing' || game.gameState === 'paused') {
             togglePause();
         }
         
