@@ -164,6 +164,10 @@ export class Game {
 	 */
 	pause() {
 		this.gameState = "paused";
+		// Clear particles to prevent visual artifacts when resuming
+		this.particles = [];
+		// Clear any pooled particles
+		this.particlePool.clear();
 	}
 
 	/**

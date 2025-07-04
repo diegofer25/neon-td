@@ -128,6 +128,9 @@ export class EffectsManager {
      * @param {number} radius - Explosion radius in pixels
      */
     createExplosionRing(x, y, radius) {
+        // Only create ring if game is actively playing
+        if (this.game.gameState !== 'playing') return;
+        
         const ringParticle = Particle.createExplosionRing(x, y, radius, '#f80');
         this.game.particles.push(ringParticle);
         this._createDOMExplosionRing(x, y, radius);
