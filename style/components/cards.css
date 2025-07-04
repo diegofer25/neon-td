@@ -30,6 +30,7 @@
   align-items: center;
   text-align: center;
   flex-shrink: 0;
+  position: relative;
 }
 
 .card:hover {
@@ -45,6 +46,7 @@
   font-size: 48px;
   margin-bottom: 15px;
   filter: drop-shadow(0 0 10px currentColor);
+  flex-shrink: 0;
 }
 
 .card-title {
@@ -53,6 +55,7 @@
   font-size: 14px;
   margin-bottom: 15px;
   text-shadow: 0 0 5px var(--color-primary-neon);
+  flex-shrink: 0;
 }
 
 .card-description {
@@ -61,7 +64,8 @@
   line-height: 1.4;
   flex-grow: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  margin-bottom: 60px; /* Add space for price and status elements */
 }
 
 /* Shop-Specific Card Styles */
@@ -96,7 +100,7 @@
 
 .card-price {
   position: absolute;
-  bottom: 40px;
+  bottom: 35px;
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-pixel);
@@ -107,11 +111,12 @@
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-accent-yellow);
+  white-space: nowrap;
 }
 
 .status-text {
   position: absolute;
-  bottom: 10px;
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-pixel);
@@ -119,6 +124,7 @@
   padding: 2px var(--spacing-md);
   border-radius: 3px;
   text-align: center;
+  white-space: nowrap;
 }
 
 .status-text.maxed {

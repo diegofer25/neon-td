@@ -146,4 +146,10 @@
     border: 1px solid rgba(255, 255, 0, 0.3);
     border-radius: 3px;
     text-shadow: 0 0 3px #ff0;
+    position: absolute;
+    bottom: 55px; /* Position above price but below description */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 8px;
 }

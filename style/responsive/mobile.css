@@ -53,15 +53,19 @@
     margin-bottom: 10px;
   }
   
-  .card-description { font-size: 8px; }
+  .card-description { 
+    font-size: 8px;
+    margin-bottom: 45px; /* Adjust for smaller card height */
+  }
+  
   .card-price {
     font-size: 8px;
-    bottom: var(--spacing-xxl);
+    bottom: 25px;
   }
   
   .status-text {
     font-size: 7px;
-    bottom: var(--spacing-sm);
+    bottom: 8px;
   }
   
   .shop-close-btn {
@@ -149,15 +153,19 @@
     margin-bottom: var(--spacing-sm);
   }
   
-  .card-description { font-size: 7px; }
+  .card-description { 
+    font-size: 7px;
+    margin-bottom: 40px; /* Adjust for smallest card height */
+  }
+  
   .card-price {
     font-size: 7px;
-    bottom: 25px;
+    bottom: 22px;
   }
   
   .status-text {
     font-size: 6px;
-    bottom: var(--spacing-md);
+    bottom: 6px;
   }
   
   .shop-close-btn {
