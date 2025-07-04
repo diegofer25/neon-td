@@ -18,31 +18,6 @@ import { MathUtils } from './utils/MathUtils.js';
  */
 export class Player {
     /**
-     * Default configuration values for player properties
-     * @static
-     * @readonly
-     * @type {Object}
-     */
-    static DEFAULTS = {
-        /** @type {number} Base player radius in pixels */
-        RADIUS: 20,
-        /** @type {number} Maximum health points */
-        MAX_HP: 100,
-        /** @type {number} Base fire rate in milliseconds between shots */
-        BASE_FIRE_RATE: 300,
-        /** @type {number} Base damage per projectile */
-        BASE_DAMAGE: 10,
-        /** @type {number} Base radius for slow field effect */
-        SLOW_FIELD_BASE_RADIUS: 80,
-        /** @type {number} Maximum slow field stack count */
-        MAX_SLOW_FIELD_STACKS: 6,
-        /** @type {number} Number of particles in muzzle flash effect */
-        MUZZLE_FLASH_PARTICLES: 3,
-        /** @type {number} Distance from player center to muzzle flash */
-        MUZZLE_FLASH_DISTANCE: 10
-    };
-
-    /**
      * Available power-up types that can be stacked
      * @static
      * @readonly
@@ -83,7 +58,7 @@ export class Player {
         /** @type {number} Current y position */
         this.y = y;
         /** @type {number} Player collision radius */
-        this.radius = Player.DEFAULTS.RADIUS;
+        this.radius = GameConfig.PLAYER.RADIUS;
         /** @type {number} Current facing angle in radians */
         this.angle = 0;
         
@@ -105,13 +80,13 @@ export class Player {
      */
     _initializeStats() {
         /** @type {number} Maximum health points */
-        this.maxHp = Player.DEFAULTS.MAX_HP;
+        this.maxHp = GameConfig.PLAYER.MAX_HP;
         /** @type {number} Current health points */
         this.hp = this.maxHp;
         /** @type {number} Time remaining until next shot (milliseconds) */
         this.fireCooldown = 0;
         /** @type {number} Base time between shots (milliseconds) */
-        this.baseFireRate = Player.DEFAULTS.BASE_FIRE_RATE;
+        this.baseFireRate = GameConfig.PLAYER.BASE_FIRE_RATE;
         /** @type {number} Player's currency amount */
         this.coins = 0;
         
@@ -164,11 +139,11 @@ export class Player {
         
         // Slow field configuration
         /** @type {number} Radius of slow field effect */
-        this.slowFieldRadius = Player.DEFAULTS.SLOW_FIELD_BASE_RADIUS;
+        this.slowFieldRadius = GameConfig.PLAYER.SLOW_FIELD_BASE_RADIUS;
         /** @type {number} Current slow field strength (stack count) */
         this.slowFieldStrength = 0;
         /** @type {number} Maximum allowed slow field stacks */
-        this.maxSlowFieldStacks = Player.DEFAULTS.MAX_SLOW_FIELD_STACKS;
+        this.maxSlowFieldStacks = GameConfig.PLAYER.MAX_SLOW_FIELD_STACKS;
     }
     
     /**
@@ -219,9 +194,9 @@ export class Player {
         this.explosiveShots = false;
         
         // Reset slow field properties
-        this.slowFieldRadius = Player.DEFAULTS.SLOW_FIELD_BASE_RADIUS;
+        this.slowFieldRadius = GameConfig.PLAYER.SLOW_FIELD_BASE_RADIUS;
         this.slowFieldStrength = 0;
-        this.maxSlowFieldStacks = Player.DEFAULTS.MAX_SLOW_FIELD_STACKS;
+        this.maxSlowFieldStacks = GameConfig.PLAYER.MAX_SLOW_FIELD_STACKS;
         
         // Reset coin multiplier
         this.coinMagnetMultiplier = 1.0;
@@ -444,7 +419,7 @@ export class Player {
      * @param {Array} game.particles - Array to add muzzle flash particles to
      */
     fireProjectile(game) {
-        const damage = Player.DEFAULTS.BASE_DAMAGE * this.damageMod;
+        const damage = GameConfig.PLAYER.BASE_DAMAGE * this.damageMod;
         
         if (this.hasTripleShot) {
             this._fireTripleShot(game, damage);
@@ -536,12 +511,12 @@ export class Player {
      */
     createMuzzleFlash(game) {
         // Calculate position at gun barrel tip
-        const flashDistance = this.radius + Player.DEFAULTS.MUZZLE_FLASH_DISTANCE;
+        const flashDistance = this.radius + GameConfig.PLAYER.MUZZLE_FLASH_DISTANCE;
         const flashX = this.x + Math.cos(this.angle) * flashDistance;
         const flashY = this.y + Math.sin(this.angle) * flashDistance;
         
         // Create small white particles with random spread using game's particle pool
-        for (let i = 0; i < Player.DEFAULTS.MUZZLE_FLASH_PARTICLES; i++) {
+        for (let i = 0; i < GameConfig.PLAYER.MUZZLE_FLASH_PARTICLES; i++) {
             const angle = this.angle + (Math.random() - 0.5) * 0.5; // ±0.25 radian spread
             const speed = 30 + Math.random() * 20; // 30-50 pixel/second speed
             const life = 100 + Math.random() * 100; // 100-200ms lifetime

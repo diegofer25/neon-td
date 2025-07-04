@@ -8,7 +8,8 @@ A browser-based 2D tower defense game with infinite wave survival, auto-targetin
 
 ### 🎯 Core Gameplay
 - **Intelligent Auto-targeting System**: Advanced player rotation and targeting AI with customizable turn speed
-- **Infinite Wave Survival**: Progressively challenging enemy waves
+- **Balanced Difficulty Curve**: Slower initial firing with strategic enemy scaling that increases challenge over time
+- **Infinite Wave Survival**: Progressively challenging enemy waves with 25% health increase per wave
 - **Power-up Shop**: 15+ upgrades across offense, defense, and utility categories
 - **Stackable Upgrades**: Build your perfect loadout with combinable power-ups
 - **Smart Enemy AI**: Enemies with varied movement patterns and behaviors

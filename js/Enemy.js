@@ -1,3 +1,5 @@
+import { GameConfig } from "./config/GameConfig.js";
+
 /**
  * Represents an enemy unit in the tower defense game.
  * Enemies move toward the player, can take damage, and have visual effects.
@@ -191,9 +193,9 @@ export class Enemy {
      * @returns {Enemy} New basic enemy instance
      */
     static createBasicEnemy(x, y, waveScale = 1) {
-        const baseHealth = 50;
-        const baseSpeed = 50; // pixels per second
-        const baseDamage = 10;
+        const baseHealth = GameConfig.ENEMY.BASE_HEALTH;
+        const baseSpeed = GameConfig.ENEMY.BASE_SPEED;
+        const baseDamage = GameConfig.ENEMY.BASE_DAMAGE;
         
         return new Enemy(
             x, y,
@@ -211,9 +213,9 @@ export class Enemy {
      * @returns {Enemy} New fast enemy instance with magenta coloring
      */
     static createFastEnemy(x, y, waveScale = 1) {
-        const baseHealth = 25; // Lower health
-        const baseSpeed = 100; // Higher speed
-        const baseDamage = 15;
+        const baseHealth = GameConfig.ENEMY.BASE_HEALTH * GameConfig.ENEMY.VARIANTS.FAST.health;
+        const baseSpeed = GameConfig.ENEMY.BASE_SPEED * GameConfig.ENEMY.VARIANTS.FAST.speed;
+        const baseDamage = GameConfig.ENEMY.BASE_DAMAGE * GameConfig.ENEMY.VARIANTS.FAST.damage;
         
         const enemy = new Enemy(
             x, y,
@@ -238,9 +240,9 @@ export class Enemy {
      * @returns {Enemy} New tank enemy instance with yellow coloring
      */
     static createTankEnemy(x, y, waveScale = 1) {
-        const baseHealth = 150; // Much higher health
-        const baseSpeed = 25; // Lower speed
-        const baseDamage = 25; // Higher damage
+        const baseHealth = GameConfig.ENEMY.BASE_HEALTH * GameConfig.ENEMY.VARIANTS.TANK.health;
+        const baseSpeed = GameConfig.ENEMY.BASE_SPEED * GameConfig.ENEMY.VARIANTS.TANK.speed;
+        const baseDamage = GameConfig.ENEMY.BASE_DAMAGE * GameConfig.ENEMY.VARIANTS.TANK.damage;
         
         const enemy = new Enemy(
             x, y,

@@ -80,12 +80,27 @@ export class WaveManager {
         const x = centerX + Math.cos(angle) * spawnRadius;
         const y = centerY + Math.sin(angle) * spawnRadius;
         
-        const enemy = new Enemy(
-            x, y,
-            GameConfig.ENEMY.BASE_SPEED * this.waveScaling.speed,
-            GameConfig.ENEMY.BASE_HEALTH * this.waveScaling.health,
-            GameConfig.ENEMY.BASE_DAMAGE * this.waveScaling.damage
-        );
+        // Determine enemy type based on percentages
+        // base: 60%, speed: 20%, tank: 20%
+        const random = Math.random();
+        let enemy;
+        
+        if (random < 0.7) {
+            // Base enemy (70%)
+            enemy = Enemy.createBasicEnemy(x, y, 1);
+        } else if (random < 0.9) {
+            // Fast enemy (20%)
+            enemy = Enemy.createFastEnemy(x, y, 1);
+        } else {
+            // Tank enemy (10%)
+            enemy = Enemy.createTankEnemy(x, y, 1);
+        }
+        
+        // Apply wave scaling to the created enemy
+        enemy.health *= this.waveScaling.health;
+        enemy.maxHealth *= this.waveScaling.health;
+        enemy.speed *= this.waveScaling.speed;
+        enemy.damage *= this.waveScaling.damage;
         
         this.game.enemies.push(enemy);
     }

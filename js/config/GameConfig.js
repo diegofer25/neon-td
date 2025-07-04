@@ -91,43 +91,46 @@ export const GameConfig = {
     PLAYER: {
         /** @type {number} Starting and base health points */
         BASE_HP: 100,
-        
         /** @type {number} Base damage per projectile before modifiers */
         BASE_DAMAGE: 10,
-        
         /** @type {number} Base fire rate in milliseconds between shots */
-        BASE_FIRE_RATE: 300,
-        
+        BASE_FIRE_RATE: 100,
         /** @type {number} Player collision radius in pixels */
         RADIUS: 20,
-        
         /** @type {number} Base projectile speed in pixels per second */
         BASE_PROJECTILE_SPEED: 400,
-        
         // Player-specific ability constants
-        
         /** @type {number} Number of enemies piercing shots can hit */
         PIERCING_COUNT: 3,
-        
         /** @type {number} Damage reduction per enemy pierced (0.25 = 25% reduction) */
         PIERCING_DAMAGE_REDUCTION: 0.25,
-        
         /** @type {number} Angle spread for triple shot in radians */
         TRIPLE_SHOT_SPREAD: 0.3,
-        
         /** @type {number} Percentage of enemy max health restored on kill with life steal */
         LIFE_STEAL_PERCENTAGE: 0.1,
-        
         // Player rotation and aiming system
-        
         /** @type {number} Player rotation speed in radians per second */
         ROTATION_SPEED: Math.PI * 2, // 360 degrees per second
-        
         /** @type {number} Angular tolerance for firing in radians (approximately 5 degrees) */
         FIRING_TOLERANCE: Math.PI / 36,
-        
         /** @type {number} Maximum time to spend rotating before giving up on target in milliseconds */
-        MAX_ROTATION_TIME: 1500
+        MAX_ROTATION_TIME: 1500,
+        /** @type {number} Base player radius in pixels */
+        RADIUS: 20,
+        /** @type {number} Maximum health points */
+        MAX_HP: 100,
+        /** @type {number} Base fire rate in milliseconds between shots */
+        BASE_FIRE_RATE: 1000,
+        /** @type {number} Base damage per projectile */
+        BASE_DAMAGE: 10,
+        /** @type {number} Base radius for slow field effect */
+        SLOW_FIELD_BASE_RADIUS: 80,
+        /** @type {number} Maximum slow field stack count */
+        MAX_SLOW_FIELD_STACKS: 6,
+        /** @type {number} Number of particles in muzzle flash effect */
+        MUZZLE_FLASH_PARTICLES: 3,
+        /** @type {number} Distance from player center to muzzle flash */
+        MUZZLE_FLASH_DISTANCE: 10
     },
 
     /**
@@ -138,10 +141,10 @@ export const GameConfig = {
      */
     ENEMY: {
         /** @type {number} Base health points for standard enemies */
-        BASE_HEALTH: 50,
+        BASE_HEALTH: 20,
         
         /** @type {number} Base movement speed in pixels per second */
-        BASE_SPEED: 50,
+        BASE_SPEED: 45,
         
         /** @type {number} Base damage dealt to player on contact */
         BASE_DAMAGE: 10,
@@ -186,11 +189,11 @@ export const GameConfig = {
          * Values > 1.0 increase difficulty, < 1.0 would decrease it.
          */
         SCALING_FACTORS: {
-            /** @type {number} Health multiplier per wave (15% increase) */
-            HEALTH: 1.15,
+            /** @type {number} Health multiplier per wave (25% increase) */
+            HEALTH: 1.5,
             
-            /** @type {number} Speed multiplier per wave (10% increase) */
-            SPEED: 1.1,
+            /** @type {number} Speed multiplier per wave (12% increase) */
+            SPEED: 1.12,
             
             /** @type {number} Damage multiplier per wave (15% increase) */
             DAMAGE: 1.15
