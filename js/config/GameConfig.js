@@ -189,14 +189,14 @@ export const GameConfig = {
          * Values > 1.0 increase difficulty, < 1.0 would decrease it.
          */
         SCALING_FACTORS: {
-            /** @type {number} Health multiplier per wave (25% increase) */
+            /** @type {number} Health multiplier per wave (15% increase) */
             HEALTH: 1.5,
             
             /** @type {number} Speed multiplier per wave (12% increase) */
             SPEED: 1.12,
             
-            /** @type {number} Damage multiplier per wave (15% increase) */
-            DAMAGE: 1.15
+            /** @type {number} Damage multiplier per wave (10% increase) */
+            DAMAGE: 1.10
         },
         
         // Enemy spawn timing controls

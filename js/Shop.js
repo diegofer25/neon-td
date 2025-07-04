@@ -248,11 +248,14 @@ export class Shop {
         // Get available power-ups for this category
         const categoryPowerUps = this.getPowerUpsByCategory(category, player);
         
+        // Use current player coins instead of initial coins parameter
+        const currentCoins = player.coins;
+        
         // Create cards for each available power-up
         categoryPowerUps.forEach(powerUp => {
             const currentStacks = this.getCurrentStacks(powerUp.name, player);
             const price = this.getPowerUpPrice(powerUp.name, currentStacks);
-            const canAfford = this.canAfford(powerUp.name, currentStacks, coins);
+            const canAfford = this.canAfford(powerUp.name, currentStacks, currentCoins);
             const isMaxed = this.isPowerUpMaxed(powerUp.name, player);
 
             const card = this.createPowerUpCard(powerUp, currentStacks, price, canAfford, isMaxed, onPurchase);
