@@ -1,290 +1,304 @@
-# Neon Tower-Defense Shooter
+# 🎮 Neon Tower Defense Shooter
 
-A browser-based 2D tower-defense shooter with an infinite wave survival format and stunning neon synthwave aesthetics. Built with vanilla JavaScript and modern web technologies.
+A browser-based 2D tower defense game with infinite wave survival, auto-targeting mechanics, and vibrant neon aesthetics. Built with vanilla JavaScript and HTML5 Canvas for smooth 60fps gameplay.
 
-## 🎮 Game Features
+![Game Screenshot](https://via.placeholder.com/800x400/000000/00ffff?text=Neon+Tower+Defense+Shooter)
 
-- **Infinite Wave Survival**: Face increasingly difficult waves of enemies with exponential scaling
-- **Advanced Power-Up System**: Choose from 16+ upgrades in a shop-style interface with tabs (Offense/Defense/Utility)
-- **Smart Power-Up Requirements**: Some advanced power-ups require prerequisites (e.g., Bigger Explosions requires Explosive Shots)
-- **Stack-Based Progression**: Most power-ups can be stacked multiple times with balanced pricing
-- **Neon Synthwave Aesthetics**: Retro-futuristic visuals with glowing effects and neon color palette
-- **Responsive Design**: Fully responsive gameplay that adapts to any screen size while maintaining 4:3 aspect ratio
-- **Mobile-First Controls**: Touch controls with optimized UI for mobile devices
-- **Performance Optimization**: Built-in performance monitoring with automatic quality adjustments
-- **Visual Effects**: Screen shake, particle explosions, floating damage text, muzzle flash effects
-- **Balanced Economic System**: Carefully tuned coin-based economy with wave completion bonuses and controlled inflation
+## ✨ Features
+
+### 🎯 Core Gameplay
+- **Auto-targeting System**: Advanced player rotation and targeting AI
+- **Infinite Wave Survival**: Progressively challenging enemy waves
+- **Power-up Shop**: 15+ upgrades across offense, defense, and utility categories
+- **Stackable Upgrades**: Build your perfect loadout with combinable power-ups
+- **Smart Enemy AI**: Enemies with varied movement patterns and behaviors
+
+### 🎨 Visual Effects
+- **Neon Aesthetic**: Synthwave-inspired visual design
+- **Dynamic Particles**: Explosions, muzzle flashes, and hit effects
+- **Screen Shake**: Responsive feedback for impacts and explosions
+- **Glowing Elements**: All game objects feature neon glow effects
+- **Animated UI**: Smooth transitions and floating damage text
+
+### ⚡ Performance
+- **Object Pooling**: Optimized memory management for particles and projectiles
+- **Performance Monitoring**: Real-time FPS tracking and automatic optimization
+- **Responsive Design**: Adapts to different screen sizes while maintaining 4:3 aspect ratio
+- **High DPI Support**: Crisp rendering on retina displays
+
+### 🛠️ Technical Features
+- **Modular Architecture**: Clean separation of concerns with dedicated systems
+- **Collision System**: Efficient circular collision detection
+- **Wave Management**: Dynamic enemy spawning and difficulty scaling
+- **Effect System**: Centralized visual effects management
+- **Configuration System**: Centralized game balance and settings
 
 ## 🚀 Quick Start
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/diegofer25/neon-td
-   cd neon-td-vanilla
-   ```
+### Play Online
+Visit the [live demo](https://your-username.github.io/neon-td-vanilla) to play immediately in your browser.
 
-2. **Install dependencies** (requires Node.js):
-   ```bash
-   npm install
-   ```
+### Local Development
+```bash
+# Clone the repository
+git clone https://github.com/your-username/neon-td-vanilla.git
+cd neon-td-vanilla
 
-3. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
+# Install development server (optional)
+npm install
 
-4. **Open your browser** to `http://localhost:8080`
+# Start development server
+npm run dev
+# OR
+npm start
 
-## 🎯 How to Play
-
-- **Auto-Targeting**: Your turret automatically targets and fires at the nearest enemy
-- **Survive Waves**: Destroy enemies before they reach the center and damage you
-- **Earn Coins**: Gain coins for each enemy killed and bonus coins for wave completion
-- **Shop Between Waves**: Use coins to purchase power-ups in the organized shop interface
-- **Stack Power-Ups**: Many upgrades can be purchased multiple times for compounding effects
-- **Piercing Mechanics**: Piercing shots pass through enemies but deal reduced damage with each hit
-- **Reach High Waves**: Survive as long as possible with exponentially increasing difficulty
-
-### Controls
-- **Mouse/Touch**: Navigate menus and interact with shop
-- **P Key**: Pause/unpause game during waves
-- **Audio Toggle**: Click speaker icon to mute/unmute
-
-## 🛠️ Architecture & Code Structure
-
-### Project Organization
-
-```
-/neon-td-vanilla
-├── index.html              ← Main game page with responsive layout
-├── package.json            ← Development dependencies and scripts
-├── /style                  ← Modular CSS architecture
-│   ├── index.css           ← Main stylesheet with imports
-│   ├── /base               ← Foundation styles
-│   │   ├── variables.css   ← CSS custom properties and design tokens
-│   │   └── reset.css       ← Browser normalization
-│   ├── /layout             ← Layout components
-│   │   └── game-container.css
-│   ├── /components         ← UI component styles
-│   │   ├── cards.css       ← Power-up card styling
-│   │   ├── health.css      ← Health bar component
-│   │   ├── hud.css         ← HUD elements
-│   │   ├── overlays.css    ← Modal and overlay styles
-│   │   ├── shop.css        ← Shop interface styling
-│   │   └── stats.css       ← Statistics display
-│   ├── /effects            ← Visual effects
-│   │   ├── animations.css  ← Keyframe animations
-│   │   ├── floating-text.css ← Damage text effects
-│   │   └── visual-effects.css
-│   └── /responsive         ← Responsive design
-│       └── mobile.css      ← Mobile-specific adaptations
-└── /js                     ← Game logic modules
-    ├── main.js             ← Application entry point and game loop
-    ├── Game.js             ← Core game state and wave management
-    ├── Player.js           ← Player entity with auto-targeting
-    ├── Enemy.js            ← Enemy behavior and pathfinding
-    ├── Projectile.js       ← Bullet physics and collision
-    ├── PowerUp.js          ← Power-up system with weighted selection
-    ├── Shop.js             ← Shop interface and pricing logic
-    ├── Particle.js         ← Visual effects system
-    ├── /config             ← Game configuration
-    │   └── GameConfig.js   ← Centralized balance and settings
-    ├── /managers           ← System managers
-    │   └── PerformanceManager.js ← Performance monitoring
-    └── /utils              ← Utility functions
-        ├── MathUtils.js    ← Mathematical helpers
-        └── ObjectPool.js   ← Memory management
+# Open browser to http://localhost:8080
 ```
 
-### Key Technologies & Patterns
+### Manual Setup
+Simply open `index.html` in any modern web browser. For best experience, serve from a local HTTP server:
 
-- **ES6 Modules**: Clean, modular JavaScript architecture
-- **CSS Custom Properties**: Centralized design system with CSS variables
-- **Responsive Design**: Mobile-first approach with CSS Grid and Flexbox
-- **Object-Oriented Design**: Entity system with inheritance and composition
-- **Performance Optimization**: Object pooling, performance monitoring, adaptive quality
-- **Configuration-Driven**: Centralized game balance in `GameConfig.js`
+```bash
+# Using Python 3
+python -m http.server 8080
 
-## 🎨 Visual Design System
+# Using Node.js
+npx live-server --port=8080
+```
 
-### Neon Synthwave Aesthetic
-- **Color Palette**: Cyan (#0ff), Hot Pink (#ff2dec), Purple (#8f00ff), Yellow (#ff0)
-- **Typography**: 'Press Start 2P' for UI, 'Audiowide' for headers
-- **Effects**: CSS-based glow effects using `text-shadow` and `box-shadow`
-- **Responsive Layout**: Maintains visual consistency across all screen sizes
+## 🎮 How to Play
 
-### Component System
-- **Modular CSS**: Each UI component has dedicated stylesheet
-- **Design Tokens**: Centralized colors, spacing, and effects in `variables.css`
-- **Mobile Optimization**: Automatic scaling and layout adjustments
+### Basic Controls
+- **Automatic Aiming**: Player automatically targets nearest enemy
+- **P Key**: Pause/unpause game
+- **Mouse**: Navigate menus and shop interface
 
-## ⚙️ Game Systems
+### Gameplay Loop
+1. **Survive Waves**: Your character auto-fires at approaching enemies
+2. **Collect Coins**: Earn currency for each enemy defeated
+3. **Shop Phase**: Between waves, purchase power-ups to strengthen your character
+4. **Progress**: Each wave increases enemy count, health, speed, and damage
+5. **Survive**: See how many waves you can endure!
 
-### Wave Progression
-- **Linear Enemy Count**: Base count + (wave × multiplier)
-- **Exponential Stat Scaling**: Health/Speed/Damage increase by 15%/10%/15% per wave
-- **Dynamic Spawn Timing**: Faster enemy spawning in later waves
-- **Difficulty Balancing**: Configured scaling caps prevent infinite growth
+### Power-Up Categories
 
-### Power-Up System
-- **16+ Available Upgrades**: Organized in Offense/Defense/Utility categories
-- **Weighted Random Selection**: Balanced rarity system (Common/Uncommon/Rare)
-- **Stack-Based Pricing**: Exponential cost increase for repeated purchases
-- **Economic Balance**: Wave-based coin rewards with inflation adjustment
+#### ⚔️ Offense
+- **Damage Boost**: +50% bullet damage (stackable)
+- **Fire Rate**: +25% attack speed (stackable)
+- **Triple Shot**: Fire 3 bullets in a spread
+- **Piercing Shots**: Bullets pierce through enemies
+- **Explosive Shots**: Bullets explode on impact
+- **Speed Boost**: +30% projectile speed (stackable)
 
-### Performance System
-- **Real-Time FPS Monitoring**: Automatic quality adjustments
-- **Adaptive Particle Limits**: Reduces effects when performance drops
-- **Object Pooling**: Efficient memory management for high-frequency objects
-- **Mobile Optimization**: Reduced effects and optimized rendering on mobile
+#### 🛡️ Defense
+- **Max Health**: +20% health and full heal (stackable)
+- **Shield**: Absorbs damage before health (stackable)
+- **Regeneration**: +5 health per second (stackable)
+- **Shield Regen**: +10 shield per second (stackable)
+- **Full Heal**: Instantly restore all health
 
-## 🔧 Configuration & Customization
+#### ⚡ Utility
+- **Life Steal**: Heal 10% of enemy max health on kill
+- **Slow Field**: Enemies move slower near you (stackable)
 
-### Game Balance (`GameConfig.js`)
-- **Wave Scaling**: Adjust difficulty progression curves
-- **Power-Up Pricing**: Modify shop economics and balance
-- **Performance Limits**: Set particle counts and optimization thresholds
-- **Visual Effects**: Configure screen shake intensity and particle settings
+## 🏗️ Architecture
 
-### Adding New Features
+### Core Systems
 
-#### New Power-Ups
+```
+Game.js (Main Controller)
+├── CollisionSystem.js (Collision detection & responses)
+├── WaveManager.js (Enemy spawning & wave progression)
+├── EffectsManager.js (Visual effects & screen shake)
+├── EntityManager.js (Entity lifecycle management)
+└── PerformanceManager.js (FPS monitoring & optimization)
+```
+
+### Game Entities
+
+```
+Player.js (Player character & abilities)
+Enemy.js (Enemy AI & behaviors)
+Projectile.js (Bullets & projectile physics)
+Particle.js (Visual effect particles)
+PowerUp.js (Upgrade system & definitions)
+Shop.js (Power-up purchasing interface)
+```
+
+### Utilities & Configuration
+
+```
+utils/
+├── ObjectPool.js (Memory optimization)
+├── MathUtils.js (Mathematical operations)
+└── config/
+    └── GameConfig.js (Centralized game balance)
+```
+
+### Key Design Patterns
+
+- **Object Pooling**: Reduces garbage collection for frequently created/destroyed objects
+- **System Architecture**: Separation of concerns with dedicated managers
+- **Configuration-Driven**: Centralized balance and settings management
+- **Event-Driven**: Loose coupling between systems through callbacks
+
+## 🎛️ Configuration
+
+Game balance and settings are centralized in `GameConfig.js`. Key configurable areas:
+
+### Wave Scaling
 ```javascript
-// In PowerUp.js
+WAVE: {
+    BASE_ENEMY_COUNT: 4,          // Enemies in wave 1
+    ENEMY_COUNT_SCALING: 2,       // Additional enemies per wave
+    SCALING_FACTORS: {
+        HEALTH: 1.15,             // 15% health increase per wave
+        SPEED: 1.1,               // 10% speed increase per wave
+        DAMAGE: 1.15              // 15% damage increase per wave
+    }
+}
+```
+
+### Power-Up Pricing
+```javascript
+POWERUP_PRICES: {
+    "Damage Boost": 15,
+    "Triple Shot": 40,
+    "Explosive Shots": 60,
+    // ... see GameConfig.js for full list
+}
+```
+
+### Performance Tuning
+```javascript
+VFX: {
+    PARTICLE_LIMITS: {
+        MAX_PARTICLES: 200,       // Maximum active particles
+        MAX_PROJECTILES: 100      // Maximum active projectiles
+    }
+}
+```
+
+## 🔧 Development
+
+### Project Structure
+```
+neon-td-vanilla/
+├── index.html              # Main HTML file
+├── package.json            # Dependencies and scripts
+├── style/
+│   └── index.css          # Game styling and UI
+├── js/
+│   ├── main.js            # Application entry point
+│   ├── Game.js            # Main game controller
+│   ├── Player.js          # Player character
+│   ├── Enemy.js           # Enemy entities
+│   ├── Projectile.js      # Bullet mechanics
+│   ├── Particle.js        # Visual effects
+│   ├── PowerUp.js         # Upgrade system
+│   ├── Shop.js            # Power-up shop
+│   ├── config/
+│   │   └── GameConfig.js  # Game balance settings
+│   ├── utils/
+│   │   ├── ObjectPool.js  # Memory optimization
+│   │   └── MathUtils.js   # Utility functions
+│   ├── systems/
+│   │   ├── CollisionSystem.js    # Collision handling
+│   │   ├── WaveManager.js        # Wave progression
+│   │   ├── EffectsManager.js     # Visual effects
+│   │   └── EntityManager.js     # Entity management
+│   └── managers/
+│       └── PerformanceManager.js # Performance monitoring
+└── README.md
+```
+
+### Adding New Power-Ups
+
+1. **Define the power-up** in `PowerUp.js`:
+```javascript
 new PowerUp(
-    "Power Name",
+    "My Power-Up",
     "Description of effect",
-    "🎯", // Icon
-    (player) => {
-        // Apply effect to player
-        player.damageMod *= 1.5;
-        player.powerUpStacks["Power Name"]++;
-    },
-    2, // Weight (1=rare, 3=common)
+    "🎯",
+    (player) => { /* Apply effect */ },
+    2, // Weight (rarity)
     true // Stackable
 )
 ```
 
-#### New Enemy Types
+2. **Add pricing** in `GameConfig.js`:
 ```javascript
-// Extend Enemy.js for new behavior
-class FastEnemy extends Enemy {
-    constructor(x, y, waveScaling) {
-        super(x, y, 
-            baseSpeed * 2 * waveScaling.speed,
-            baseHealth * 0.5 * waveScaling.health, 
-            baseDamage * waveScaling.damage
-        );
-        this.color = '#ff0080'; // Pink fast enemy
-    }
+POWERUP_PRICES: {
+    "My Power-Up": 25
 }
 ```
 
-#### Custom Visual Effects
+3. **Add to shop category** in `Shop.js` or `PowerUp.js`:
 ```javascript
-// Add to Game.js particle system
-createCustomEffect(x, y) {
-    for (let i = 0; i < 8; i++) {
-        const particle = this.particlePool.get(
-            x, y, velocityX, velocityY, lifetime, color
-        );
-        this.particles.push(particle);
-    }
+CATEGORIES: {
+    OFFENSE: [..., "My Power-Up"]
 }
 ```
 
-## 📱 Mobile Support & Responsive Design
+### Performance Debugging
 
-### Automatic Adaptations
-- **Canvas Scaling**: Maintains 4:3 aspect ratio across all devices
-- **UI Scaling**: Responsive HUD elements with appropriate sizing
-- **Touch Controls**: Optimized for mobile interaction
-- **Performance**: Reduced effects on lower-end devices
+Add `?stats=true` to the URL to enable performance monitoring:
+```
+http://localhost:8080/?stats=true
+```
 
-### Mobile-Specific Features
-- **Touch-Friendly UI**: Larger buttons and touch targets
-- **Simplified Controls**: Auto-targeting reduces complexity
-- **Adaptive Quality**: Automatic performance adjustments
-- **Portrait Support**: Responsive layout for various orientations
+This displays real-time FPS, frame time, and optimization status.
 
-## 🔊 Audio System (Optional)
+### Balancing Guidelines
 
-### Supported Audio Files
-Place in `/assets/` directory:
-- `synthwave.mp3` - Background music
-- `shoot.wav` - Gunshot sound effect
-- `explode.wav` - Explosion sound
-- `hurt.wav` - Player damage sound
-- `powerup.wav` - Power-up selection sound
-
-### Features
-- **Graceful Degradation**: Game works without audio files
-- **User Controls**: Mute/unmute toggle with persistent preferences
-- **Browser Compatibility**: Handles autoplay policies correctly
-
-## 🚀 Deployment
-
-### GitHub Pages
-1. Push code to `gh-pages` branch or enable Pages in repository settings
-2. Game will be live at `https://<username>.github.io/<repo-name>/`
-
-### Netlify
-1. Connect repository to Netlify or drag project folder to dashboard
-2. Automatic deployment with custom domain support
-
-### Testing Deployment
-- Verify all asset paths work correctly
-- Test on multiple browsers and devices
-- Confirm audio functionality (if using)
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Game won't start**:
-- Ensure running from web server (not file://)
-- Check browser console for JavaScript errors
-- Verify all file paths are correct and case-sensitive
-
-**Performance issues**:
-- Monitor with Performance Manager built-in system
-- Reduce particle counts in `GameConfig.js`
-- Check `PerformanceManager` settings for optimization
-
-**Mobile controls not responsive**:
-- Verify touch event handling in `main.js`
-- Check viewport meta tag in HTML
-- Test on actual devices, not just browser dev tools
-
-**Audio not playing**:
-- Ensure user interaction before audio starts (handled automatically)
-- Check file paths and audio format compatibility
-- Test mute/unmute functionality
-
-## 🎯 Performance Guidelines
-
-### Recommended Specs
-- **Desktop**: Modern browser, 60 FPS target
-- **Mobile**: iOS Safari 12+, Chrome Mobile 80+
-- **Memory**: <100MB RAM usage during gameplay
-
-### Optimization Features
-- **Automatic Quality Scaling**: Reduces effects when FPS drops
-- **Object Pooling**: Prevents garbage collection hitches
-- **Efficient Rendering**: Optimized canvas operations
-- **Mobile Adaptations**: Reduced particle counts and effects
-
-## 📄 License
-
-MIT License - Feel free to modify and extend!
+- **Wave Scaling**: Enemy stats should scale exponentially but be capped to prevent infinite growth
+- **Power-Up Pricing**: Use stacking multipliers to encourage build diversity
+- **Performance**: Keep particle counts under 200 for smooth gameplay on lower-end devices
+- **Difficulty**: Each wave should feel challenging but achievable with proper upgrades
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Test thoroughly on multiple devices
-4. Submit a pull request with detailed description
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+- Use JSDoc comments for all functions
+- Follow the existing modular architecture
+- Add configuration options to `GameConfig.js` instead of hardcoding values
+- Write performance-conscious code (prefer object pooling for frequently created objects)
+
+## 🐛 Known Issues
+
+- Audio may not autoplay in some browsers due to autoplay policies
+- Performance may degrade on very old mobile devices (pre-2018)
+- High DPI scaling may cause slight blurriness on some displays
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Fonts**: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) and [Audiowide](https://fonts.google.com/specimen/Audiowide) from Google Fonts
+- **Inspiration**: Classic arcade shooters and modern tower defense games
+- **Graphics**: Pure CSS and HTML5 Canvas, no external image assets
+
+## 📈 Roadmap
+
+- [ ] **Audio System**: Add sound effects and background music
+- [ ] **Enemy Varieties**: Multiple enemy types with unique behaviors  
+- [ ] **Boss Battles**: Special boss enemies every 10 waves
+- [ ] **Achievements**: Unlock system for milestone rewards
+- [ ] **Leaderboards**: High score tracking and sharing
+- [ ] **Mobile Controls**: Touch-friendly interface improvements
+- [ ] **Visual Polish**: Enhanced particle effects and animations
+- [ ] **Save System**: Progress persistence between sessions
 
 ---
 
-*Built with passion for retro gaming aesthetics and modern web performance.*
+**Built with ❤️ by [Diego Lamarão](https://github.com/your-username) & GitHub Copilot**
+
+*Star ⭐ this repository if you enjoyed the game!*
