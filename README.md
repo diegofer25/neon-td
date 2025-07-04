@@ -234,7 +234,6 @@ new PowerUp(
     "Description of effect",
     "🎯",
     (player) => { /* Apply effect */ },
-    2, // Weight (rarity)
     true // Stackable
 )
 ```
@@ -314,4 +313,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ by [Diego Lamarão](https://github.com/your-username) & GitHub Copilot**
 
+*Star ⭐ this repository if you enjoyed the game!*
 *Star ⭐ this repository if you enjoyed the game!*

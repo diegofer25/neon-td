@@ -2,18 +2,18 @@
  * PowerUp System
  *
  * Manages the power-up mechanics for the tower defense game.
- * Provides weighted random selection, stacking logic, and categorization
- * of various player upgrades including offense, defense, and utility enhancements.
+ * Provides categorization of various player upgrades including offense, 
+ * defense, and utility enhancements for the shop system.
  *
- * @fileoverview Core power-up system with weighted selection and stack management
+ * @fileoverview Core power-up system with shop integration and stack management
  */
 
 /**
  * Represents a power-up that can be applied to enhance player capabilities
  *
  * @class PowerUp
- * @description Encapsulates power-up data and behavior, including application logic,
- * weighting for random selection, and stacking rules.
+ * @description Encapsulates power-up data and behavior, including application logic
+ * and stacking rules for the shop-based purchase system.
  */
 export class PowerUp {
 	/**
@@ -47,13 +47,11 @@ export class PowerUp {
 	 *
 	 * @static
 	 * @type {PowerUp[]}
-	 * @description Organized by rarity through weight values:
-	 * - Weight 3: Common power-ups (appear frequently)
-	 * - Weight 2: Uncommon power-ups (moderate appearance rate)
-	 * - Weight 1: Rare power-ups (appear infrequently)
+	 * @description Power-ups are now purchased from the shop rather than randomly selected.
+	 * All power-ups are available for purchase when requirements are met.
 	 */
 	static ALL_POWERUPS = [
-		// === COMMON POWER-UPS (Weight: 3) ===
+		// === COMMON POWER-UPS ===
 		new PowerUp(
 			"Damage Boost",
 			"+50% bullet damage",
@@ -61,8 +59,7 @@ export class PowerUp {
 			(player) => {
 				player.damageMod *= 1.5;
 				player.powerUpStacks["Damage Boost"]++;
-			},
-			3 // Common
+			}
 		),
 
 		new PowerUp(
@@ -72,8 +69,7 @@ export class PowerUp {
 			(player) => {
 				player.fireRateMod *= 1.25;
 				player.powerUpStacks["Fire Rate"]++;
-			},
-			3 // Common
+			}
 		),
 
 		new PowerUp(
@@ -83,8 +79,7 @@ export class PowerUp {
 			(player) => {
 				player.projectileSpeedMod *= 1.3;
 				player.powerUpStacks["Speed Boost"]++;
-			},
-			3 // Common
+			}
 		),
 
 		new PowerUp(
@@ -94,11 +89,10 @@ export class PowerUp {
 			(player) => {
 				player.rotationSpeedMod *= 1.2;
 				player.powerUpStacks["Turn Speed"]++;
-			},
-			3 // Common
+			}
 		),
 
-		// === UNCOMMON POWER-UPS (Weight: 2) ===
+		// === UNCOMMON POWER-UPS ===
 		new PowerUp(
 			"Piercing Shots",
 			"Bullets pierce through enemies (-25% damage per enemy hit)",
@@ -110,7 +104,6 @@ export class PowerUp {
 					player.hasPiercing
 				);
 			},
-			2, // Uncommon
 			false // Non-stackable
 		),
 
@@ -121,7 +114,6 @@ export class PowerUp {
 			(player) => {
 				player.hasTripleShot = true;
 			},
-			2, // Uncommon
 			false // Non-stackable
 		),
 
@@ -134,8 +126,7 @@ export class PowerUp {
 				player.maxHp += healthIncrease;
 				player.hp = player.maxHp;
 				player.powerUpStacks["Max Health"]++;
-			},
-			2 // Uncommon
+			}
 		),
 
 		new PowerUp(
@@ -148,8 +139,7 @@ export class PowerUp {
 					player.slowFieldStrength += 1; // Each stack increases strength
 					player.slowFieldRadius += 20; // Each stack increases radius by 20
 				}
-			},
-			2 // Uncommon
+			}
 		),
 
 		new PowerUp(
@@ -166,8 +156,7 @@ export class PowerUp {
 					player.shieldHp += 25;
 				}
 				player.powerUpStacks["Shield"]++;
-			},
-			2 // Uncommon
+			}
 		),
 
 		new PowerUp(
@@ -179,11 +168,10 @@ export class PowerUp {
 				if (player.hasShield) {
 					player.shieldHp = player.maxShieldHp;
 				}
-			},
-			2 // Uncommon
+			}
 		),
 
-		// === RARE POWER-UPS (Weight: 1) ===
+		// === RARE POWER-UPS ===
 		new PowerUp(
 			"Life Steal",
 			"Heal 10% of enemy max health on kill",
@@ -191,7 +179,6 @@ export class PowerUp {
 			(player) => {
 				player.hasLifeSteal = true;
 			},
-			1, // Rare
 			false // Non-stackable
 		),
 
@@ -202,8 +189,7 @@ export class PowerUp {
 			(player) => {
 				player.hpRegen += 5;
 				player.powerUpStacks["Regeneration"]++;
-			},
-			1 // Rare
+			}
 		),
 
 		new PowerUp(
@@ -218,8 +204,7 @@ export class PowerUp {
 				}
 				player.shieldRegen += 10;
 				player.powerUpStacks["Shield Regen"]++;
-			},
-			1 // Rare
+			}
 		),
 
 		new PowerUp(
@@ -229,7 +214,6 @@ export class PowerUp {
 			(player) => {
 				player.explosiveShots = true;
 			},
-			1, // Rare
 			false // Non-stackable
 		),
 
@@ -241,8 +225,7 @@ export class PowerUp {
 				player.explosionRadius *= 1.5;
 				player.explosionDamage *= 1.5;
 				player.powerUpStacks["Bigger Explosions"]++;
-			},
-			1 // Rare - only useful with explosive shots
+			}
 		),
 
 		new PowerUp(
@@ -252,8 +235,7 @@ export class PowerUp {
 			(player) => {
 				player.damageMod *= 2;
 				player.powerUpStacks["Double Damage"]++;
-			},
-			1 // Rare
+			}
 		),
 
 		new PowerUp(
@@ -263,8 +245,7 @@ export class PowerUp {
 			(player) => {
 				player.fireRateMod *= 1.5;
 				player.powerUpStacks["Rapid Fire"]++;
-			},
-			1 // Rare
+			}
 		),
 
 		new PowerUp(
@@ -277,8 +258,7 @@ export class PowerUp {
 				}
 				player.coinMagnetMultiplier += 0.5;
 				player.powerUpStacks["Coin Magnet"]++;
-			},
-			2 // Uncommon
+			}
 		),
 
 		new PowerUp(
@@ -291,8 +271,7 @@ export class PowerUp {
 				}
 				player.luckyShots.chance += 0.1; // 10% chance per stack
 				player.powerUpStacks["Lucky Shots"]++;
-			},
-			2 // Uncommon
+			}
 		),
 
 		new PowerUp(
@@ -311,8 +290,7 @@ export class PowerUp {
 					player.immolationAura.range += 50; // Increase aura radius by 10
 				}
 				player.powerUpStacks["Immolation Aura"]++;
-			},
-			1
+			}
 		),
 
 		new PowerUp(
@@ -322,7 +300,6 @@ export class PowerUp {
 			(player) => {
 				player.hasTimeDilation = true;
 			},
-			1, // Rare
 			false // Non-stackable
 		),
 
@@ -340,7 +317,6 @@ export class PowerUp {
 					};
 				}
 			},
-			1, // Rare
 			false // Non-stackable
 		),
 
@@ -354,8 +330,7 @@ export class PowerUp {
 				}
 				player.multishotCount += 1;
 				player.powerUpStacks["Multishot"]++;
-			},
-			2 // Uncommon
+			}
 		),
 
 		new PowerUp(
@@ -378,8 +353,7 @@ export class PowerUp {
 					player.chainLightning.damage += 10;
 				}
 				player.powerUpStacks["Chain Lightning"]++;
-			},
-			1 // Rare
+			}
 		),
 
 		new PowerUp(
@@ -393,8 +367,7 @@ export class PowerUp {
 					player.ricochet.damageMultiplier += 0.15; // Additional 15% per stack
 				}
 				player.powerUpStacks["Ricochet"]++;
-			},
-			2 // Uncommon
+			}
 		),
 	];
 
@@ -470,7 +443,6 @@ export class PowerUp {
 	 * @param {string} description - Detailed description of the power-up's effects
 	 * @param {string} icon - Emoji or symbol representing the power-up visually
 	 * @param {Function} apply - Function that applies the power-up effect to a player
-	 * @param {number} [weight=1] - Selection weight (higher = more likely to appear)
 	 * @param {boolean} [stackable=true] - Whether multiple instances can be applied
 	 *
 	 * @example
@@ -479,65 +451,14 @@ export class PowerUp {
 	 *   "+50% bullet damage",
 	 *   "⚡",
 	 *   (player) => { player.damageMod *= 1.5; },
-	 *   3,
 	 *   true
 	 * );
 	 */
-	constructor(name, description, icon, apply, weight = 1, stackable = true) {
+	constructor(name, description, icon, apply, stackable = true) {
 		this.name = name;
 		this.description = description;
 		this.icon = icon;
 		this.apply = apply;
-		this.weight = weight;
 		this.stackable = stackable;
-	}
-
-	/**
-	 * Selects random power-ups using weighted probability
-	 *
-	 * @static
-	 * @param {number} [count=3] - Number of power-ups to select
-	 * @param {string[]} [playerPowerUps=[]] - Array of non-stackable power-up names the player owns
-	 * @returns {PowerUp[]} Array of selected power-ups
-	 *
-	 * @description Uses weighted random selection to choose power-ups. Non-stackable
-	 * power-ups are filtered out if already owned. Selection avoids duplicates
-	 * within the same selection batch.
-	 *
-	 * @example
-	 * const selectedPowerUps = PowerUp.getRandomPowerUps(3, ["Piercing Shots"]);
-	 */
-	static getRandomPowerUps(count = 3, playerPowerUps = []) {
-		// Filter out non-stackable power-ups that the player already has
-		const available = PowerUp.ALL_POWERUPS.filter((powerUp) => {
-			if (powerUp.stackable) {
-				return true; // Stackable power-ups are always available
-			} else {
-				return !playerPowerUps.includes(powerUp.name); // Non-stackable only if not owned
-			}
-		});
-
-		const selected = [];
-
-		// Weighted random selection using cumulative probability
-		for (let i = 0; i < count && available.length > 0; i++) {
-			const totalWeight = available.reduce(
-				(sum, powerUp) => sum + powerUp.weight,
-				0
-			);
-			let random = Math.random() * totalWeight;
-
-			// Find the selected power-up using weighted probability
-			for (let j = 0; j < available.length; j++) {
-				random -= available[j].weight;
-				if (random <= 0) {
-					selected.push(available[j]);
-					available.splice(j, 1); // Remove to avoid duplicates in same selection
-					break;
-				}
-			}
-		}
-
-		return selected;
 	}
 }
