@@ -116,7 +116,18 @@ export const GameConfig = {
         TRIPLE_SHOT_SPREAD: 0.3,
         
         /** @type {number} Percentage of enemy max health restored on kill with life steal */
-        LIFE_STEAL_PERCENTAGE: 0.1
+        LIFE_STEAL_PERCENTAGE: 0.1,
+        
+        // Player rotation and aiming system
+        
+        /** @type {number} Player rotation speed in radians per second */
+        ROTATION_SPEED: Math.PI * 2, // 360 degrees per second
+        
+        /** @type {number} Angular tolerance for firing in radians (approximately 5 degrees) */
+        FIRING_TOLERANCE: Math.PI / 36,
+        
+        /** @type {number} Maximum time to spend rotating before giving up on target in milliseconds */
+        MAX_ROTATION_TIME: 1500
     },
 
     /**

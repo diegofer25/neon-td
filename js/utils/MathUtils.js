@@ -378,4 +378,82 @@ export class MathUtils {
     static approximately(a, b, epsilon = this.EPSILON) {
         return Math.abs(a - b) < epsilon;
     }
+    
+    /**
+     * Calculates the shortest angular difference between two angles
+     * 
+     * Returns the smallest rotation needed to get from angle1 to angle2.
+     * Result is in range [-π, π] where positive values indicate clockwise rotation.
+     * 
+     * @param {number} angle1 - Starting angle in radians
+     * @param {number} angle2 - Target angle in radians
+     * @returns {number} Shortest angular difference in radians
+     * 
+     * @example
+     * // Rotating from 0 to π/4 (45 degrees clockwise)
+     * const diff = MathUtils.angleDifference(0, Math.PI/4);
+     * // Returns: π/4
+     * 
+     * // Rotating across the 0/2π boundary
+     * const diff2 = MathUtils.angleDifference(Math.PI * 1.8, Math.PI * 0.2);
+     * // Returns: -π * 1.2 (shorter to go counter-clockwise)
+     */
+    static angleDifference(angle1, angle2) {
+        let diff = angle2 - angle1;
+        
+        // Normalize difference to [-π, π] range
+        while (diff > Math.PI) diff -= this.TAU;
+        while (diff < -Math.PI) diff += this.TAU;
+        
+        return diff;
+    }
+    
+    /**
+     * Interpolates between two angles using the shortest rotation path
+     * 
+     * Unlike linear interpolation, this ensures rotation takes the shortest
+     * path around the circle, preventing unnecessary full rotations.
+     * 
+     * @param {number} angleFrom - Starting angle in radians
+     * @param {number} angleTo - Target angle in radians
+     * @param {number} t - Interpolation factor (0 = start, 1 = end)
+     * @returns {number} Interpolated angle in range [0, 2π]
+     * 
+     * @example
+     * // Smooth rotation from east to north-east
+     * const current = MathUtils.lerpAngle(0, Math.PI/4, 0.5);
+     * // Returns: π/8 (halfway between 0 and π/4)
+     * 
+     * // Rotation across 0/2π boundary (350° to 10°)
+     * const current2 = MathUtils.lerpAngle(Math.PI * 1.944, Math.PI * 0.056, 0.5);
+     * // Returns: 0 (goes through 0° rather than the long way around)
+     */
+    static lerpAngle(angleFrom, angleTo, t) {
+        const difference = this.angleDifference(angleFrom, angleTo);
+        const result = angleFrom + difference * t;
+        return this.normalizeAngle(result);
+    }
+    
+    /**
+     * Checks if an angle is within a specified tolerance of a target angle
+     * 
+     * Uses the shortest angular distance for comparison, so angles near
+     * the 0/2π boundary are handled correctly.
+     * 
+     * @param {number} currentAngle - Current angle in radians
+     * @param {number} targetAngle - Target angle in radians
+     * @param {number} tolerance - Maximum acceptable difference in radians
+     * @returns {boolean} True if angles are within tolerance
+     * 
+     * @example
+     * // Check if player is aimed at target within 5 degrees
+     * const tolerance = Math.PI / 36; // 5 degrees in radians
+     * if (MathUtils.isAngleWithinTolerance(player.angle, targetAngle, tolerance)) {
+     *   player.canFire = true;
+     * }
+     */
+    static isAngleWithinTolerance(currentAngle, targetAngle, tolerance) {
+        const difference = Math.abs(this.angleDifference(currentAngle, targetAngle));
+        return difference <= tolerance;
+    }
 }

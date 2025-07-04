@@ -394,7 +394,7 @@ function updateHUD() {
 
 /**
  * Update player statistics display with current values
- * Shows attack damage, defense (HP + shield), and attack speed
+ * Shows attack damage, defense (HP + shield), attack speed, and rotation status
  */
 function updateStatsDisplay() {
     // Calculate current attack damage with modifiers
@@ -406,9 +406,10 @@ function updateStatsDisplay() {
     const currentDefense = game.player.maxHp + (game.player.hasShield ? game.player.maxShieldHp : 0);
     updateStatValue('defenseValue', currentDefense);
     
-    // Display attack speed multiplier
+    // Display attack speed multiplier with rotation status
     const currentSpeed = game.player.fireRateMod.toFixed(1);
-    updateStatValue('speedValue', `${currentSpeed}x`);
+    const rotationStatus = game.player.isRotating ? ' (Aiming)' : '';
+    updateStatValue('speedValue', `${currentSpeed}x${rotationStatus}`);
 }
 
 /**

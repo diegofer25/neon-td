@@ -30,7 +30,7 @@ export class Projectile {
         // Position properties
         this.x = x;
         this.y = y;
-        this.radius = 3;
+        this.radius = 5; // Increased from 3 to 5 for better visibility and hit detection
         this.damage = damage;
         this.angle = angle;
         

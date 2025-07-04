@@ -1,5 +1,6 @@
 import { Projectile } from './Projectile.js';
 import { GameConfig } from './config/GameConfig.js';
+import { MathUtils } from './utils/MathUtils.js';
 
 /**
  * Player character class for the neon tower defense game
@@ -84,6 +85,16 @@ export class Player {
         this.radius = Player.DEFAULTS.RADIUS;
         /** @type {number} Current facing angle in radians */
         this.angle = 0;
+        
+        // Rotation system properties
+        /** @type {number|null} Target angle the player is rotating towards */
+        this.targetAngle = null;
+        /** @type {boolean} Whether player is currently rotating to face a target */
+        this.isRotating = false;
+        /** @type {number} Time spent rotating towards current target */
+        this.rotationTime = 0;
+        /** @type {Object|null} Current enemy target being tracked */
+        this.currentTarget = null;
     }
     
     /**
@@ -179,6 +190,12 @@ export class Player {
         this.fireCooldown = 0;
         this.angle = 0;
         
+        // Reset rotation system
+        this.targetAngle = null;
+        this.isRotating = false;
+        this.rotationTime = 0;
+        this.currentTarget = null;
+        
         // Reset all power-up modifiers
         this.damageMod = 1;
         this.fireRateMod = 1;
@@ -212,7 +229,7 @@ export class Player {
     
     /**
      * Update player state each frame
-     * Handles auto-targeting, firing, regeneration, and power-up effects
+     * Handles rotation, targeting, firing, regeneration, and power-up effects
      * 
      * @param {number} delta - Time elapsed since last frame (milliseconds)
      * @param {Object} input - Input state object (currently unused)
@@ -222,17 +239,19 @@ export class Player {
      * @param {Array} game.particles - Array to add visual effect particles to
      */
     update(delta, input, game) {
-        // Auto-targeting system: find and engage nearest threat
+        // Find and acquire target
         const nearestEnemy = this.findNearestEnemy(game.enemies);
+        
         if (nearestEnemy) {
-            // Rotate to face the nearest enemy
-            this.angle = Math.atan2(nearestEnemy.y - this.y, nearestEnemy.x - this.x);
-            
-            // Auto-fire at enemies when off cooldown
-            if (this.fireCooldown <= 0) {
-                this.fireProjectile(game);
-                this.fireCooldown = this.getFireInterval();
-            }
+            this._updateTargeting(nearestEnemy, delta);
+            this._updateRotation(delta);
+            this._updateFiring(game, delta);
+        } else {
+            // No enemies - stop rotating and clear target
+            this.isRotating = false;
+            this.currentTarget = null;
+            this.targetAngle = null;
+            this.rotationTime = 0;
         }
         
         // Update fire cooldown timer
@@ -252,6 +271,87 @@ export class Player {
         // Apply area-of-effect slow field to nearby enemies
         if (this.hasSlowField && this.slowFieldStrength > 0) {
             this.applySlowField(game.enemies);
+        }
+    }
+    
+    /**
+     * Update targeting system - track current target and decide when to switch
+     * 
+     * @private
+     * @param {Object} nearestEnemy - Closest enemy to player
+     * @param {number} delta - Time elapsed since last frame
+     */
+    _updateTargeting(nearestEnemy, delta) {
+        // Check if we should switch targets
+        const shouldSwitchTarget = !this.currentTarget || 
+                                 this.currentTarget !== nearestEnemy ||
+                                 this.currentTarget.health <= 0 ||
+                                 this.rotationTime > GameConfig.PLAYER.MAX_ROTATION_TIME;
+        
+        if (shouldSwitchTarget) {
+            this.currentTarget = nearestEnemy;
+            this.isRotating = true;
+            this.rotationTime = 0;
+        }
+        
+        // Continuously update target angle to track moving enemies
+        if (this.currentTarget) {
+            this.targetAngle = MathUtils.angleBetween(this.x, this.y, this.currentTarget.x, this.currentTarget.y);
+        }
+        
+        // Update rotation timer if currently rotating
+        if (this.isRotating) {
+            this.rotationTime += delta;
+        }
+    }
+    
+    /**
+     * Update player rotation towards target angle
+     * 
+     * @private
+     * @param {number} delta - Time elapsed since last frame
+     */
+    _updateRotation(delta) {
+        if (this.targetAngle === null) return;
+        
+        // Check if already facing target within tolerance
+        if (MathUtils.isAngleWithinTolerance(this.angle, this.targetAngle, GameConfig.PLAYER.FIRING_TOLERANCE)) {
+            this.isRotating = false;
+            this.rotationTime = 0;
+            return;
+        }
+        
+        // Mark as rotating if we're not within tolerance
+        this.isRotating = true;
+        
+        // Calculate rotation amount for this frame
+        const rotationSpeed = GameConfig.PLAYER.ROTATION_SPEED;
+        const maxRotation = rotationSpeed * (delta / 1000);
+        
+        // Use smooth angle interpolation with speed limiting
+        const angleDiff = MathUtils.angleDifference(this.angle, this.targetAngle);
+        const rotationAmount = Math.sign(angleDiff) * Math.min(Math.abs(angleDiff), maxRotation);
+        
+        this.angle = MathUtils.normalizeAngle(this.angle + rotationAmount);
+    }
+    
+    /**
+     * Update firing logic - fire when reasonably aimed, even during minor adjustments
+     * 
+     * @private
+     * @param {Object} game - Game instance
+     * @param {number} delta - Time elapsed since last frame
+     */
+    _updateFiring(game, delta) {
+        // Fire if we have a target, are off cooldown, and are reasonably aimed
+        const hasValidTarget = this.currentTarget && this.currentTarget.health > 0;
+        const isOffCooldown = this.fireCooldown <= 0;
+        const isReasonablyAimed = this.targetAngle !== null && 
+            MathUtils.isAngleWithinTolerance(this.angle, this.targetAngle, GameConfig.PLAYER.FIRING_TOLERANCE);
+        
+        if (hasValidTarget && isOffCooldown && isReasonablyAimed) {
+            this.fireProjectile(game);
+            this.fireCooldown = this.getFireInterval();
         }
     }
     
@@ -654,7 +754,7 @@ export class Player {
 
     /**
      * Render the player and all associated visual effects
-     * Draws player body, gun barrel, shield, and slow field effects
+     * Draws player body, gun barrel, shield, slow field, and rotation indicators
      * 
      * @param {CanvasRenderingContext2D} ctx - Canvas 2D rendering context
      * 
@@ -668,14 +768,16 @@ export class Player {
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
         
-        // Set glow effect
-        ctx.shadowColor = '#ff2dec';
+        // Set glow effect - change color when rotating
+        const glowColor = this.isRotating ? '#ff6d00' : '#ff2dec';
+        ctx.shadowColor = glowColor;
         ctx.shadowBlur = 15;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
         
-        // Draw player body (triangle shape)
-        ctx.fillStyle = '#ff2dec';
+        // Draw player body (triangle shape) - change color when rotating
+        const bodyColor = this.isRotating ? '#ff6d00' : '#ff2dec';
+        ctx.fillStyle = bodyColor;
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 2;
         
@@ -696,6 +798,39 @@ export class Player {
         ctx.stroke();
         
         ctx.restore();
+        
+        // Draw targeting indicator when rotating
+        if (this.isRotating && this.targetAngle !== null && this.currentTarget) {
+            ctx.save();
+            ctx.strokeStyle = '#ff6d00';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.globalAlpha = 0.7;
+            
+            // Draw line to target
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.currentTarget.x, this.currentTarget.y);
+            ctx.stroke();
+            
+            // Draw target angle indicator
+            ctx.strokeStyle = '#ff6d00';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([]);
+            ctx.globalAlpha = 0.5;
+            
+            const indicatorLength = this.radius + 25;
+            const targetX = this.x + Math.cos(this.targetAngle) * indicatorLength;
+            const targetY = this.y + Math.sin(this.targetAngle) * indicatorLength;
+            
+            ctx.beginPath();
+            ctx.moveTo(this.x + Math.cos(this.targetAngle) * this.radius, 
+                      this.y + Math.sin(this.targetAngle) * this.radius);
+            ctx.lineTo(targetX, targetY);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
         
         // Draw shield if active
         if (this.hasShield && this.shieldHp > 0) {

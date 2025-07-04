@@ -22,7 +22,7 @@ export class Enemy {
         this.health = health;
         this.maxHealth = health;
         this.damage = damage;
-        this.radius = 15; // Collision radius in pixels
+        this.radius = 20; // Collision radius in pixels
         
         // Visual properties
         this.color = '#0ff'; // Main body color (cyan)
@@ -225,7 +225,7 @@ export class Enemy {
         // Visual differentiation
         enemy.color = '#f0f'; // Magenta
         enemy.glowColor = '#f0f';
-        enemy.radius = 12; // Smaller collision radius
+        enemy.radius = 15; // Smaller collision radius
         
         return enemy;
     }
