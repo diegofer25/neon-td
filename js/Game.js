@@ -3,6 +3,10 @@ import { Enemy } from './Enemy.js';
 import { Particle } from './Particle.js';
 import { PowerUp } from './PowerUp.js';
 import { Shop } from './Shop.js';
+import { GameConfig } from './config/GameConfig.js';
+import { ObjectPool } from './utils/ObjectPool.js';
+import { MathUtils } from './utils/MathUtils.js';
+import { PerformanceManager } from './managers/PerformanceManager.js';
 
 export class Game {
     constructor(canvas, ctx) {
@@ -15,6 +19,26 @@ export class Game {
         this.enemies = [];
         this.projectiles = [];
         this.particles = [];
+        
+        // Performance management
+        this.performanceManager = new PerformanceManager();
+        
+        // Object pools for performance
+        this.particlePool = new ObjectPool(
+            () => new Particle(0, 0, 0, 0, 0),
+            (particle, x, y, vx, vy, life, color) => {
+                particle.x = x;
+                particle.y = y;
+                particle.vx = vx;
+                particle.vy = vy;
+                particle.life = life;
+                particle.maxLife = life;
+                particle.color = color || '#fff';
+                particle.glowColor = color || '#fff';
+                particle._destroy = false;
+            },
+            50, 200
+        );
         
         // Game state
         this.wave = 0;
@@ -32,10 +56,8 @@ export class Game {
         // Enemy spawning
         this.enemiesToSpawn = 0;
         this.enemySpawnTimer = 0;
-        this.enemySpawnInterval = 800; // milliseconds between enemy spawns
-        this.waveHealthScale = 1;
-        this.waveSpeedScale = 1;
-        this.waveDamageScale = 1;
+        this.enemySpawnInterval = GameConfig.WAVE.BASE_SPAWN_INTERVAL;
+        this.waveScaling = { health: 1, speed: 1, damage: 1 };
         
         // Screen shake
         this.screenShake = {
@@ -122,50 +144,41 @@ export class Game {
         this.waveComplete = false;
         this.enemiesSpawned = 0;
         this.enemiesKilled = 0;
-        this.waveCompletionTimer = 0; // Reset wave completion timer
+        this.waveCompletionTimer = 0;
         this.waveStartTime = Date.now();
         
-        // Calculate enemy count and stats for this wave
-        const enemyCount = Math.floor(4 + this.wave * 2);
-        this.waveHealthScale = Math.pow(1.15, this.wave - 1);
-        this.waveSpeedScale = Math.pow(1.1, this.wave - 1);
-        this.waveDamageScale = Math.pow(1.15, this.wave - 1);
+        // Use configuration for wave scaling
+        const enemyCount = GameConfig.DERIVED.getEnemyCountForWave(this.wave);
+        this.waveScaling = GameConfig.DERIVED.getScalingForWave(this.wave);
+        this.enemySpawnInterval = GameConfig.DERIVED.getSpawnIntervalForWave(this.wave);
         
         // Set up incremental spawning
         this.enemiesToSpawn = enemyCount;
         this.enemySpawnTimer = 0;
         
-        // Adjust spawn interval based on wave (spawn faster in later waves)
-        this.enemySpawnInterval = Math.max(300, 800 - (this.wave * 20));
-        
         // Spawn first enemy immediately
         if (this.enemiesToSpawn > 0) {
-            this.spawnEnemy(this.waveHealthScale, this.waveSpeedScale, this.waveDamageScale);
+            this.spawnEnemy();
             this.enemiesToSpawn--;
             this.enemiesSpawned++;
         }
     }
     
-    spawnEnemy(healthScale = 1, speedScale = 1, damageScale = 1) {
+    spawnEnemy() {
         // Spawn enemy at random position around screen perimeter
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
-        const spawnRadius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
+        const spawnRadius = Math.max(this.canvas.width, this.canvas.height) / 2 + GameConfig.ENEMY.SPAWN_MARGIN;
         
         const angle = Math.random() * Math.PI * 2;
         const x = centerX + Math.cos(angle) * spawnRadius;
         const y = centerY + Math.sin(angle) * spawnRadius;
         
-        // Base enemy stats
-        const baseHealth = 50;
-        const baseSpeed = 50;
-        const baseDamage = 10;
-        
         const enemy = new Enemy(
             x, y,
-            baseSpeed * speedScale,
-            baseHealth * healthScale,
-            baseDamage * damageScale
+            GameConfig.ENEMY.BASE_SPEED * this.waveScaling.speed,
+            GameConfig.ENEMY.BASE_HEALTH * this.waveScaling.health,
+            GameConfig.ENEMY.BASE_DAMAGE * this.waveScaling.damage
         );
         
         this.enemies.push(enemy);
@@ -174,6 +187,9 @@ export class Game {
     update(delta, input) {
         if (this.gameState !== 'playing') return;
         
+        // Update performance metrics
+        this.performanceManager.update(delta);
+        
         // Update screen shake
         this.updateScreenShake(delta);
         
@@ -181,7 +197,7 @@ export class Game {
         if (this.enemiesToSpawn > 0) {
             this.enemySpawnTimer += delta;
             if (this.enemySpawnTimer >= this.enemySpawnInterval) {
-                this.spawnEnemy(this.waveHealthScale, this.waveSpeedScale, this.waveDamageScale);
+                this.spawnEnemy();
                 this.enemiesToSpawn--;
                 this.enemiesSpawned++;
                 this.enemySpawnTimer = 0;
@@ -230,14 +246,8 @@ export class Game {
             }
         });
         
-        // Update particles
-        this.particles.forEach((particle, index) => {
-            particle.update(delta);
-            
-            if (particle.isDead()) {
-                this.particles.splice(index, 1);
-            }
-        });
+        // Update particles with performance consideration
+        this.updateParticles(delta);
         
         // Check collisions
         this.checkCollisions();
@@ -256,11 +266,35 @@ export class Game {
         }
     }
     
+    updateParticles(delta) {
+        // Use performance-aware particle updates
+        const particleLimit = this.performanceManager.reduceParticleCount ? 
+            GameConfig.VFX.PARTICLE_LIMITS.MAX_PARTICLES / 2 : 
+            GameConfig.VFX.PARTICLE_LIMITS.MAX_PARTICLES;
+            
+        // Remove excess particles if over limit
+        while (this.particles.length > particleLimit) {
+            const particle = this.particles.shift();
+            this.particlePool.release(particle);
+        }
+        
+        // Update remaining particles
+        this.particles.forEach((particle, index) => {
+            particle.update(delta);
+            
+            if (particle.isDead()) {
+                this.particles.splice(index, 1);
+                this.particlePool.release(particle);
+            }
+        });
+    }
+    
     checkCollisions() {
+        // Use MathUtils for collision detection
         // Projectiles vs Enemies
         this.projectiles.forEach((projectile, pIndex) => {
             this.enemies.forEach((enemy, eIndex) => {
-                if (this.isColliding(projectile, enemy)) {
+                if (MathUtils.circleCollision(projectile, enemy)) {
                     // Damage enemy
                     enemy.takeDamage(projectile.damage);
                     
@@ -304,12 +338,15 @@ export class Game {
         
         // Enemies vs Player
         this.enemies.forEach((enemy, index) => {
-            if (this.isColliding(enemy, this.player)) {
+            if (MathUtils.circleCollision(enemy, this.player)) {
                 // Damage player
                 this.player.takeDamage(enemy.damage);
                 
-                // Screen shake on player hit
-                this.addScreenShake(10, 300);
+                // Use configuration for screen shake
+                this.addScreenShake(
+                    GameConfig.VFX.SCREEN_SHAKE.PLAYER_HIT_INTENSITY,
+                    GameConfig.VFX.SCREEN_SHAKE.PLAYER_HIT_DURATION
+                );
                 
                 // Flash effect
                 if (window.screenFlash) window.screenFlash();
@@ -334,21 +371,14 @@ export class Game {
         });
     }
     
-    isColliding(obj1, obj2) {
-        const dx = obj1.x - obj2.x;
-        const dy = obj1.y - obj2.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < (obj1.radius + obj2.radius);
-    }
-    
     completeWave() {
         this.waveComplete = true;
         this.gameState = 'powerup';
         
-        // Calculate coin reward based on wave number and performance
-        const baseCoins = 10;
-        const waveBonus = this.wave * 2;
-        const performanceBonus = Math.floor(this.enemiesKilled / 5); // Bonus for killing enemies efficiently
+        // Calculate coin reward using configuration
+        const baseCoins = GameConfig.ECONOMY.WAVE_COMPLETION_BASE_COINS;
+        const waveBonus = this.wave * GameConfig.ECONOMY.WAVE_COMPLETION_WAVE_BONUS;
+        const performanceBonus = Math.floor(this.enemiesKilled / GameConfig.ECONOMY.PERFORMANCE_BONUS_DIVISOR);
         const totalCoins = baseCoins + waveBonus + performanceBonus;
         
         // Give coins to player
@@ -412,12 +442,16 @@ export class Game {
     }
     
     createExplosion(x, y, particleCount = 8) {
-        for (let i = 0; i < particleCount; i++) {
-            const angle = (Math.PI * 2 / particleCount) * i + Math.random() * 0.5;
-            const speed = 50 + Math.random() * 100;
-            const life = 500 + Math.random() * 500;
+        // Use object pool for particles
+        const actualCount = this.performanceManager.reduceParticleCount ? 
+            Math.floor(particleCount / 2) : particleCount;
             
-            const particle = new Particle(
+        for (let i = 0; i < actualCount; i++) {
+            const angle = (Math.PI * 2 / actualCount) * i + Math.random() * 0.5;
+            const speed = MathUtils.random(50, 150);
+            const life = MathUtils.random(500, 1000);
+            
+            const particle = this.particlePool.get(
                 x, y,
                 Math.cos(angle) * speed,
                 Math.sin(angle) * speed,
@@ -476,10 +510,13 @@ export class Game {
     }
     
     drawBackground() {
-        const ctx = this.ctx;
-        const gridSize = 50;
+        // Skip background grid if performance is poor
+        if (this.performanceManager.needsOptimization()) return;
         
-        ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+        const ctx = this.ctx;
+        const gridSize = GameConfig.VFX.GRID_SIZE;
+        
+        ctx.strokeStyle = `rgba(0, 255, 255, ${GameConfig.VFX.GRID_ALPHA})`;
         ctx.lineWidth = 1;
         
         // Draw vertical lines

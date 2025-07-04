@@ -1,24 +1,11 @@
+import { GameConfig } from './config/GameConfig.js';
+import { PowerUp } from './PowerUp.js';
+
 export class Shop {
     constructor() {
-        // Power-up prices (in coins)
-        this.powerUpPrices = {
-            "Damage Boost": 15,
-            "Fire Rate": 12,
-            "Piercing Shots": 35,
-            "Triple Shot": 40,
-            "Max Health": 20,
-            "Speed Boost": 10,
-            "Life Steal": 50,
-            "Slow Field": 25,
-            "Shield": 30,
-            "Regeneration": 45,
-            "Shield Regen": 40,
-            "Explosive Shots": 60,
-            "Bigger Explosions": 35,
-            "Double Damage": 80,
-            "Rapid Fire": 55,
-            "Full Heal": 25
-        };
+        // Use centralized configuration
+        this.powerUpPrices = GameConfig.POWERUP_PRICES;
+        this.stackLimits = GameConfig.STACK_LIMITS;
         
         // Track current tab and shop state
         this.currentTab = 'offense';
@@ -34,7 +21,7 @@ export class Shop {
         const validStacks = Math.max(0, currentStacks);
         
         // Increase price for each stack (stackable power-ups get more expensive)
-        const stackMultiplier = 1 + (validStacks * 0.5); // 50% more expensive per stack
+        const stackMultiplier = 1 + (validStacks * GameConfig.ECONOMY.SHOP_STACK_PRICE_MULTIPLIER);
         
         return Math.max(1, Math.floor(basePrice * stackMultiplier)); // Minimum price of 1 coin
     }
@@ -259,39 +246,21 @@ export class Shop {
 
         // Check specific stackable power-up limits using stack tracker
         const currentStacks = this.getCurrentStacks(powerUpName, player);
+        const maxStacks = this.stackLimits[powerUpName];
         
-        switch(powerUpName) {
-            case "Slow Field":
-                return player.isSlowFieldMaxed();
-            case "Damage Boost":
-                return currentStacks >= 10; // Max 10 stacks
-            case "Fire Rate":
-                return currentStacks >= 8; // Max 8 stacks
-            case "Speed Boost":
-                return currentStacks >= 6; // Max 6 stacks
-            case "Double Damage":
-                return currentStacks >= 5; // Max 5 stacks
-            case "Rapid Fire":
-                return currentStacks >= 5; // Max 5 stacks
-            case "Max Health":
-                return currentStacks >= 10; // Max 10 stacks
-            case "Shield":
-                return currentStacks >= 8; // Max 8 stacks
-            case "Regeneration":
-                return currentStacks >= 10; // Max 10 stacks
-            case "Shield Regen":
-                return currentStacks >= 8; // Max 8 stacks
-            case "Bigger Explosions":
-                return currentStacks >= 6; // Max 6 stacks
-            default:
-                return false; // No limit for other stackable power-ups
+        if (maxStacks !== undefined) {
+            return currentStacks >= maxStacks;
         }
+        
+        // Special cases
+        if (powerUpName === "Slow Field") {
+            return player.isSlowFieldMaxed();
+        }
+        
+        return false; // No limit for other stackable power-ups
     }
 
     closeShop() {
         document.getElementById('powerUpModal').classList.remove('show');
     }
 }
-
-// Import PowerUp class for reference
-import { PowerUp } from './PowerUp.js';
