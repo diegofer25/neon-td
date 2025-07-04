@@ -483,7 +483,7 @@ export class Player {
      * @throws {Error} If amount is negative
      * 
      * @example
-     * player.heal(15); // Restores 15 HP, shows "+15" floating text
+     * player.heal(15); // Restores 15 HP, shows "+15 health" floating text
      */
     heal(amount) {
         if (amount < 0) {
@@ -497,7 +497,7 @@ export class Player {
             const canvas = document.getElementById('gameCanvas');
             const rect = canvas.getBoundingClientRect();
             window.createFloatingText(
-                `+${Math.floor(amount)}`,
+                `+${Math.floor(amount)} health`,
                 this.x * (rect.width / canvas.width) + rect.left,
                 this.y * (rect.height / canvas.height) + rect.top,
                 'heal'

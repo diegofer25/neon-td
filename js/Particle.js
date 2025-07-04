@@ -89,11 +89,14 @@ export class Particle {
         // Draw particle
         ctx.fillStyle = this.color;
         
-        const renderRadius = this.radius * this.scale;
+        const renderRadius = Math.max(0, this.radius * this.scale);
         
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, renderRadius, 0, Math.PI * 2);
-        ctx.fill();
+        // Only draw if radius is positive
+        if (renderRadius > 0) {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, renderRadius, 0, Math.PI * 2);
+            ctx.fill();
+        }
         
         ctx.restore();
     }
