@@ -1,6 +1,5 @@
 import { Player } from './Player.js';
 import { Enemy } from './Enemy.js';
-import { Projectile } from './Projectile.js';
 import { Particle } from './Particle.js';
 import { PowerUp } from './PowerUp.js';
 
@@ -26,6 +25,8 @@ export class Game {
         this.waveStartTime = 0;
         this.waveComplete = false;
         this.powerUpOptions = [];
+        this.waveCompletionTimer = 0;
+        this.waveCompletionDelay = 1000; // 1 second delay
         
         // Enemy spawning
         this.enemiesToSpawn = 0;
@@ -117,6 +118,7 @@ export class Game {
         this.waveComplete = false;
         this.enemiesSpawned = 0;
         this.enemiesKilled = 0;
+        this.waveCompletionTimer = 0; // Reset wave completion timer
         this.waveStartTime = Date.now();
         
         // Calculate enemy count and stats for this wave
@@ -234,7 +236,10 @@ export class Game {
         
         // Check wave completion (all enemies spawned and defeated)
         if (this.enemies.length === 0 && this.enemiesToSpawn === 0 && !this.waveComplete) {
-            this.completeWave();
+            this.waveCompletionTimer += delta;
+            if (this.waveCompletionTimer >= this.waveCompletionDelay) {
+                this.completeWave();
+            }
         }
         
         // Check game over
