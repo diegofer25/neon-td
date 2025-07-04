@@ -57,13 +57,14 @@ body {
 #waveCounter {
     position: absolute;
     top: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 #muteButton {
     position: absolute;
     top: 0;
-    right: 120px;
+    right: 0;
 }
 
 #statsDisplay {
