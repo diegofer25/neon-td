@@ -33,20 +33,17 @@ function init() {
     const ctx = canvas.getContext('2d');
     input.canvas = canvas;
 
-    // Set up canvas for high DPI displays
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
-    canvas.style.width = rect.width + 'px';
-    canvas.style.height = rect.height + 'px';
-
+    // Set up responsive canvas
+    setupCanvas();
+    
     // Initialize game
     game = new Game(canvas, ctx);
     
     // Set up input handlers
     setupInputHandlers();
+    
+    // Set up resize handler
+    window.addEventListener('resize', handleResize);
     
     // Load audio
     loadAudio();
@@ -58,6 +55,70 @@ function init() {
 
     // Show start screen
     document.getElementById('startScreen').classList.add('show');
+}
+
+// Set up canvas dimensions and scaling
+function setupCanvas() {
+    const canvas = input.canvas;
+    const container = document.getElementById('gameContainer');
+    
+    // Calculate optimal canvas size maintaining aspect ratio
+    const targetAspectRatio = 4/3; // 800/600 = 4/3
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    const containerAspectRatio = containerWidth / containerHeight;
+    
+    let canvasWidth, canvasHeight;
+    
+    if (containerAspectRatio > targetAspectRatio) {
+        // Container is wider, fit to height
+        canvasHeight = Math.min(containerHeight * 0.9, 600);
+        canvasWidth = canvasHeight * targetAspectRatio;
+    } else {
+        // Container is taller, fit to width
+        canvasWidth = Math.min(containerWidth * 0.9, 800);
+        canvasHeight = canvasWidth / targetAspectRatio;
+    }
+    
+    // Ensure minimum size for playability
+    const minWidth = 320;
+    const minHeight = minWidth / targetAspectRatio;
+    
+    if (canvasWidth < minWidth) {
+        canvasWidth = minWidth;
+        canvasHeight = minHeight;
+    }
+    
+    // Set canvas size
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
+    
+    // Set up canvas for high DPI displays
+    const dpr = window.devicePixelRatio || 1;
+    const ctx = canvas.getContext('2d');
+    
+    // Scale canvas for high DPI
+    canvas.width = canvasWidth * dpr;
+    canvas.height = canvasHeight * dpr;
+    ctx.scale(dpr, dpr);
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
+}
+
+// Handle window resize
+let resizeTimeout;
+function handleResize() {
+    // Debounce resize events to avoid excessive recalculations
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        if (game) {
+            setupCanvas();
+            // Update game dimensions
+            game.updateCanvasSize();
+        }
+    }, 100);
 }
 
 // Set up input event handlers

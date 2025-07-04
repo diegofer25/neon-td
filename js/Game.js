@@ -81,6 +81,38 @@ export class Game {
         this.gameState = 'playing';
     }
     
+    updateCanvasSize() {
+        // Update player position to maintain center position
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+        
+        if (this.player) {
+            this.player.x = centerX;
+            this.player.y = centerY;
+        }
+        
+        // Update enemy positions to maintain relative positions from center
+        this.enemies.forEach(enemy => {
+            const dx = enemy.x - centerX;
+            const dy = enemy.y - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // If enemy is off-screen due to resize, move it to visible area
+            const maxDistance = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
+            if (distance > maxDistance) {
+                const angle = Math.atan2(dy, dx);
+                enemy.x = centerX + Math.cos(angle) * maxDistance;
+                enemy.y = centerY + Math.sin(angle) * maxDistance;
+            }
+        });
+        
+        // Remove projectiles and particles that are now off-screen
+        this.projectiles = this.projectiles.filter(proj => {
+            return proj.x >= 0 && proj.x <= this.canvas.width && 
+                   proj.y >= 0 && proj.y <= this.canvas.height;
+        });
+    }
+    
     startWave() {
         this.waveComplete = false;
         this.enemiesSpawned = 0;
