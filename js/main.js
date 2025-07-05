@@ -101,6 +101,7 @@ function init() {
 
     // Listen for start button click to begin game
     document.getElementById('startBtn').addEventListener('click', startGame);
+    document.getElementById('restartBtn').addEventListener('click', restartGame);
 }
 
 /**
@@ -312,7 +313,7 @@ export function startGame() {
  * Restart the game after game over
  * Hides game over screen and restarts game loop
  */
-export function restartGame() {
+function restartGame() {
     document.getElementById('gameOver').classList.remove('show');
     game.restart();
     gameLoop();

@@ -45,23 +45,20 @@ export class WaveManager {
         this.waveStartTime = Date.now();
         this.isBossWave = this.currentWave > 0 && this.currentWave % 5 === 0;
 
-        if (this.isBossWave) {
-            this.enemiesToSpawn = 1;
-            this.spawnBoss();
-            this.enemiesSpawned = 1;
-            this.enemiesToSpawn = 0;
-        } else {
-            const enemyCount = GameConfig.DERIVED.getEnemyCountForWave(this.currentWave);
-            this.enemiesToSpawn = enemyCount;
-            this.enemySpawnInterval = GameConfig.DERIVED.getSpawnIntervalForWave(this.currentWave);
-            this.waveScaling = GameConfig.DERIVED.getScalingForWave(this.currentWave);
-            this.enemySpawnTimer = 0;
+        const enemyCount = GameConfig.DERIVED.getEnemyCountForWave(this.currentWave);
+        this.enemiesToSpawn = enemyCount;
+        this.enemySpawnInterval = GameConfig.DERIVED.getSpawnIntervalForWave(this.currentWave);
+        this.waveScaling = GameConfig.DERIVED.getScalingForWave(this.currentWave);
+        this.enemySpawnTimer = 0;
 
-            if (this.enemiesToSpawn > 0) {
-                this.spawnEnemy();
-                this.enemiesToSpawn--;
-                this.enemiesSpawned++;
-            }
+        if (this.isBossWave) {
+            this.spawnBoss();
+        }
+
+        if (this.enemiesToSpawn > 0) {
+            this.spawnEnemy();
+            this.enemiesToSpawn--;
+            this.enemiesSpawned++;
         }
     }
 
@@ -70,9 +67,7 @@ export class WaveManager {
      * @param {number} delta - Time elapsed since last frame
      */
     update(delta) {
-        if (!this.isBossWave) {
-            this._handleEnemySpawning(delta);
-        }
+        this._handleEnemySpawning(delta);
         this._checkWaveCompletion(delta);
     }
 
