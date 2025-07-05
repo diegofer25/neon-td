@@ -169,13 +169,13 @@ export class PerformanceManager {
      * that need to react to performance changes.
      * 
      * @returns {Object} Complete performance statistics
-     * @returns {number} returns.currentFps - Most recent FPS measurement
-     * @returns {number} returns.averageFps - Average FPS over recent history
-     * @returns {number} returns.frameTime - Current frame delta time in ms
-     * @returns {Object} returns.optimizations - Current optimization states
-     * @returns {boolean} returns.optimizations.particles - Particle optimization enabled
-     * @returns {boolean} returns.optimizations.trails - Trail optimization enabled
-     * @returns {boolean} returns.optimizations.reducedParticles - Particle count reduction enabled
+     * @property {number} returns.currentFps - Most recent FPS measurement
+     * @property {number} returns.averageFps - Average FPS over recent history
+     * @property {number} returns.frameTime - Current frame delta time in ms
+     * @property {Object} returns.optimizations - Current optimization states
+     * @property {boolean} returns.optimizations.particles - Particle optimization enabled
+     * @property {boolean} returns.optimizations.trails - Trail optimization enabled
+     * @property {boolean} returns.optimizations.reducedParticles - Particle count reduction enabled
      * 
      * @example
      * const stats = performanceManager.getStats();
