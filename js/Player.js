@@ -633,9 +633,9 @@ export class Player {
     applySlowField(enemies) {
         if (this.slowFieldStrength <= 0) return; // No slow field effect
         
-        // Calculate effective slow factor (0.5 = 50% slow, 0.3 = 70% slow)
-        // Each stack = 15% more slow, capped at 90% slow (6 stacks max)
-        const slowFactor = Math.max(0.1, 1 - (this.slowFieldStrength * 0.15)); 
+        // Calculate effective slow factor
+        // Each stack = 10% more slow, capped at 60% slow (6 stacks max)
+        const slowFactor = Math.max(0.1, 1 - (this.slowFieldStrength * 0.10));
         
         enemies.forEach(enemy => {
             const dx = enemy.x - this.x;
