@@ -1,5 +1,6 @@
 /* eslint-disable no-case-declarations */
 import { GameConfig } from "./config/GameConfig.js";
+import { playSFX } from "./main.js";
 
 /**
  * Base Boss class with common functionality for all boss types.
@@ -148,7 +149,7 @@ export class Boss {
         this.constrainToVisibleArea(game.canvas.width, game.canvas.height);
         
         // Update boss-specific behavior
-        this.updateSpecific(delta, player, game);
+        this.updateSpecific(delta);
         
         // Trigger attacks
         if (this.attackCooldown <= 0) {
@@ -265,27 +266,29 @@ export class Boss {
     
     /**
      * Update boss-specific behavior
+     * 
+     * @param {number} delta - Time since last update in milliseconds
      */
-    updateSpecific(delta, player, game) {
+    updateSpecific(delta) {
         switch (this.type) {
             case 'ORBITAL_COMMANDER':
-                this.updateOrbitals(delta, game);
+                this.updateOrbitals(delta);
                 break;
                 
             case 'PULSE_TITAN':
-                this.updatePulse(delta, game);
+                this.updatePulse(delta);
                 break;
                 
             case 'VOID_HUNTER':
-                this.updateVoidHunter(delta, player, game);
+                this.updateVoidHunter(delta);
                 break;
                 
             case 'STORM_BRINGER':
-                this.updateStorm(delta, player, game);
+                this.updateStorm(delta);
                 break;
                 
             case 'CRYSTAL_OVERLORD':
-                this.updateCrystal(delta, game);
+                this.updateCrystal(delta);
                 break;
         }
     }
@@ -308,7 +311,7 @@ export class Boss {
                 break;
                 
             case 'STORM_BRINGER':
-                this.attackStorm(player, game);
+                this.attackStorm(player);
                 break;
                 
             case 'CRYSTAL_OVERLORD':
@@ -550,7 +553,7 @@ export class Boss {
             this.deathTimer = 0;
             
             // Enhanced death visual feedback
-            if (window.playSFX) window.playSFX('boss_death');
+            playSFX('boss_death')
         }
     }
     
@@ -627,7 +630,7 @@ export class Boss {
         // Draw boss-specific effects
         this.drawEffects(ctx);
     }
-    
+
     /**
      * Draw enhanced health bar with better visibility
      */
@@ -706,6 +709,226 @@ export class Boss {
         
         ctx.setLineDash([]); // Reset line dash
         ctx.restore();
+    }
+    
+    /**
+     * Draw boss-specific visuals based on type
+     */
+    drawSpecific(ctx, drawColor) {
+        switch (this.type) {
+            case 'ORBITAL_COMMANDER':
+                this.drawOrbitalCommander(ctx, drawColor);
+                break;
+                
+            case 'PULSE_TITAN':
+                this.drawPulseTitan(ctx, drawColor);
+                break;
+                
+            case 'VOID_HUNTER':
+                this.drawVoidHunter(ctx, drawColor);
+                break;
+                
+            case 'STORM_BRINGER':
+                this.drawStormBringer(ctx, drawColor);
+                break;
+                
+            case 'CRYSTAL_OVERLORD':
+                this.drawCrystalOverlord(ctx, drawColor);
+                break;
+                
+            default:
+                // Default boss appearance
+                ctx.fillStyle = drawColor;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+        }
+    }
+    
+    /**
+     * Draw boss-specific effects
+     */
+    drawEffects(ctx) {
+        switch (this.type) {
+            case 'ORBITAL_COMMANDER':
+                this.drawOrbitalEffects(ctx);
+                break;
+                
+            case 'PULSE_TITAN':
+                this.drawPulseEffects(ctx);
+                break;
+                
+            case 'VOID_HUNTER':
+                this.drawVoidHunterEffects(ctx);
+                break;
+                
+            case 'STORM_BRINGER':
+                this.drawStormEffects(ctx);
+                break;
+                
+            case 'CRYSTAL_OVERLORD':
+                this.drawCrystalEffects(ctx);
+                break;
+        }
+    }
+    
+    // Boss-specific drawing methods
+    drawOrbitalCommander(ctx, drawColor) {
+        // Main body
+        ctx.fillStyle = drawColor;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Core detail
+        ctx.fillStyle = '#00ffff';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    drawPulseTitan(ctx, drawColor) {
+        // Main body
+        ctx.fillStyle = drawColor;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Pulse charging effect
+        if (this.isPulsing) {
+            ctx.strokeStyle = '#ff00ff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + 10, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+    
+    drawVoidHunter(ctx, drawColor) {
+        // Main body with angular shape
+        ctx.fillStyle = drawColor;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI * 2 / 6) * i;
+            const x = this.x + Math.cos(angle) * this.radius;
+            const y = this.y + Math.sin(angle) * this.radius;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        
+        // Charging effect
+        if (this.isCharging) {
+            ctx.strokeStyle = '#aa00ff';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+        }
+    }
+    
+    drawStormBringer(ctx, drawColor) {
+        // Main body
+        ctx.fillStyle = drawColor;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Storm aura
+        const time = Date.now() / 100;
+        for (let i = 0; i < 3; i++) {
+            const radius = this.radius + 10 + i * 8 + Math.sin(time + i) * 5;
+            ctx.strokeStyle = `rgba(255, 255, 0, ${0.3 - i * 0.1})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+    
+    drawCrystalOverlord(ctx, drawColor) {
+        // Main crystalline body
+        ctx.fillStyle = drawColor;
+        ctx.beginPath();
+        for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 / 8) * i;
+            const radius = i % 2 === 0 ? this.radius : this.radius * 0.7;
+            const x = this.x + Math.cos(angle) * radius;
+            const y = this.y + Math.sin(angle) * radius;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+    
+    // Boss-specific effect drawing methods
+    drawOrbitalEffects(ctx) {
+        // Draw orbitals
+        this.orbitals.forEach(orbital => {
+            ctx.fillStyle = '#00ffff';
+            ctx.shadowColor = '#00ffff';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(orbital.x, orbital.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
+    
+    drawPulseEffects(ctx) {
+        // Draw pulse wave
+        if (this.isPulsing && this.pulseRadius > 0) {
+            ctx.strokeStyle = `rgba(255, 0, 255, ${1 - this.pulseRadius / 200})`;
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.pulseRadius, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+    
+    drawVoidHunterEffects(ctx) {
+        // Draw charge trail
+        if (this.isCharging && this.chargeTarget) {
+            ctx.strokeStyle = 'rgba(170, 0, 255, 0.5)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.chargeTarget.x, this.chargeTarget.y);
+            ctx.stroke();
+        }
+    }
+    
+    drawStormEffects(ctx) {
+        // Draw lightning targets
+        this.lightningTargets.forEach(target => {
+            const alpha = target.life / 2000;
+            ctx.strokeStyle = `rgba(255, 255, 0, ${alpha})`;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(target.x, target.y);
+            ctx.stroke();
+            
+            // Lightning target indicator
+            ctx.fillStyle = `rgba(255, 255, 0, ${alpha * 0.5})`;
+            ctx.beginPath();
+            ctx.arc(target.x, target.y, 10, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
+    
+    drawCrystalEffects(ctx) {
+        // Draw crystal shards
+        this.crystalShards.forEach(shard => {
+            ctx.fillStyle = '#ffff00';
+            ctx.shadowColor = '#ffff00';
+            ctx.shadowBlur = 8;
+            ctx.save();
+            ctx.translate(shard.x, shard.y);
+            ctx.rotate(shard.angle);
+            ctx.fillRect(-6, -6, 12, 12);
+            ctx.restore();
+        });
     }
     
     /**
