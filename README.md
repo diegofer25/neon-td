@@ -106,11 +106,6 @@ npx live-server --port=8080
 - **Coin Magnet**: +50% coin rewards from enemy kills (stackable)
 - **Lucky Shots**: 10% chance for bullets to deal double damage (stackable chance up to 50%)
 - **Immolation Aura**: All nearby enemies take 1% of their max health as burn damage per second (stackable)
-- **Time Dilation**: Briefly slow down time when health drops below 25%
-- **Phantom Dash**: Become briefly invulnerable when taking damage
-- **Multishot**: +1 additional projectile fired (stackable)
-- **Chain Lightning**: Bullets can electrify nearby enemies (stackable chance/damage)
-- **Ricochet**: Bullets bounce off screen edges and gain damage (stackable multiplier)
 
 ## 🏗️ Architecture
 

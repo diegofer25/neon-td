@@ -36,10 +36,7 @@ export class PowerUp {
 		"Bigger Explosions",
 		"Coin Magnet",
 		"Lucky Shots",
-		"Immolation Aura",
-		"Multishot",
-		"Chain Lightning",
-		"Ricochet",
+		"Immolation Aura"
 	];
 
 	/**
@@ -283,84 +280,7 @@ export class PowerUp {
 				}
 				player.powerUpStacks["Immolation Aura"]++;
 			}
-		),
-
-		new PowerUp(
-			"Time Dilation",
-			"Briefly slow down time when health drops below 25%",
-			"⏰",
-			(player) => {
-				player.hasTimeDilation = true;
-			},
-			false
-		),
-
-		new PowerUp(
-			"Phantom Dash",
-			"Become briefly invulnerable when taking damage (8 second cooldown)",
-			"👻",
-			(player) => {
-				if (!player.phantomDash) {
-					player.phantomDash = {
-						active: true,
-						cooldown: 0,
-						maxCooldown: 8000,
-						invulnTime: 1000,
-					};
-				}
-			},
-			false
-		),
-
-		new PowerUp(
-			"Multishot",
-			"+1 additional projectile fired (separate from triple shot)",
-			"🎆",
-			(player) => {
-				if (!player.multishotCount) {
-					player.multishotCount = 0;
-				}
-				player.multishotCount += 1;
-				player.powerUpStacks["Multishot"]++;
-			}
-		),
-
-		new PowerUp(
-			"Chain Lightning",
-			"Enemies damaged by bullets have 30% chance to electrify nearby enemies",
-			"⚡",
-			(player) => {
-				if (!player.chainLightning) {
-					player.chainLightning = {
-						active: true,
-						chance: 0.3,
-						range: 80,
-						damage: 15,
-					};
-				} else {
-					player.chainLightning.chance = Math.min(
-						0.8,
-						player.chainLightning.chance + 0.2
-					);
-					player.chainLightning.damage += 10;
-				}
-				player.powerUpStacks["Chain Lightning"]++;
-			}
-		),
-
-		new PowerUp(
-			"Ricochet",
-			"Bullets bounce off screen edges and gain +25% damage per bounce",
-			"🏀",
-			(player) => {
-				if (!player.ricochet) {
-					player.ricochet = { active: true, damageMultiplier: 1.25 };
-				} else {
-					player.ricochet.damageMultiplier += 0.15; // Additional 15% per stack
-				}
-				player.powerUpStacks["Ricochet"]++;
-			}
-		),
+		)
 	];
 
 	/**
@@ -401,12 +321,7 @@ export class PowerUp {
 			"Slow Field",
 			"Coin Magnet",
 			"Lucky Shots",
-			"Immolation Aura",
-			"Time Dilation",
-			"Phantom Dash",
-			"Multishot",
-			"Chain Lightning",
-			"Ricochet",
+			"Immolation Aura"
 		],
 	};
 

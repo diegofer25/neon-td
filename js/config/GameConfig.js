@@ -271,12 +271,7 @@ export const GameConfig = {
         "Bigger Explosions": 35,
         "Coin Magnet": 20,
         "Lucky Shots": 30,
-        "Immolation Aura": 55,
-        "Time Dilation": 70,
-        "Phantom Dash": 60,
-        "Multishot": 45,
-        "Chain Lightning": 65,
-        "Ricochet": 35
+        "Immolation Aura": 55
     },
 
     /**
@@ -306,18 +301,13 @@ export const GameConfig = {
         "Regeneration": 10,    // Up to 50 HP/second
         "Shield Regen": 8,     // Up to 80 shield/second
         
-        // Other utility abilities
+        // Utility abilities
         "Speed Boost": 6,      // Up to 4.7x projectile speed
         "Bigger Explosions": 6, // Up to 11.4x explosion size
         "Slow Field": 6,       // Up to 90% enemy slow
-        
-        // New utility power-up limits
         "Coin Magnet": 8,      // Up to 5x coin rewards (1 + 8*0.5)
         "Lucky Shots": 5,      // Up to 50% crit chance
         "Immolation Aura": 10,   // Up to 10% max health burn damage
-        "Multishot": 4,        // Up to 4 additional projectiles
-        "Chain Lightning": 6,  // Up to 80% chance, 75 damage
-        "Ricochet": 8          // Up to 2.45x damage multiplier per bounce
     },
 
     // Audio configuration
