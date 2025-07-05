@@ -335,14 +335,28 @@ export class Game {
 		// Draw regular enemies first
 		this.enemies.filter(enemy => !enemy.isBoss).forEach((enemy) => enemy.draw(ctx));
 		
-		// Draw bosses on top with extra emphasis
+		// Draw bosses on top with maximum emphasis
 		const bosses = this.enemies.filter(enemy => enemy.isBoss);
 		bosses.forEach((boss) => {
-			// Add extra glow for bosses
+			// Multiple glow layers for maximum visibility
 			ctx.save();
+			
+			// Outer glow
 			ctx.shadowColor = boss.glowColor;
-			ctx.shadowBlur = 40;
+			ctx.shadowBlur = 60;
+			ctx.globalAlpha = 0.3;
 			boss.draw(ctx);
+			
+			// Middle glow
+			ctx.shadowBlur = 40;
+			ctx.globalAlpha = 0.5;
+			boss.draw(ctx);
+			
+			// Main boss with strong glow
+			ctx.shadowBlur = 80;
+			ctx.globalAlpha = 1.0;
+			boss.draw(ctx);
+			
 			ctx.restore();
 		});
 		
@@ -356,18 +370,25 @@ export class Game {
 		}
 
 		// Draw boss warning if boss wave and boss exists
-		if (this.wave % 5 === 0 && bosses.length > 0) {
-			this.drawBossWarning(ctx);
+		if (this.wave % 5 === 0 && bosses.length > 0 && !bosses[0].dying) {
+			this.drawEnhancedBossWarning(ctx, bosses[0]);
 		}
 
-		// Debug: Show boss count and position
+		// Enhanced debug info for bosses
 		if (bosses.length > 0) {
 			ctx.save();
 			ctx.fillStyle = '#ff0';
 			ctx.font = '12px Arial';
-			ctx.fillText(`Boss Health: ${Math.round(bosses[0].health)}/${bosses[0].maxHealth}`, 10, 50);
-			ctx.fillText(`Boss Pos: (${Math.round(bosses[0].x)}, ${Math.round(bosses[0].y)})`, 10, 70);
-			ctx.fillText(`Boss Dying: ${bosses[0].dying}`, 10, 90);
+			ctx.shadowColor = '#000';
+			ctx.shadowBlur = 3;
+			
+			const boss = bosses[0];
+			ctx.fillText(`Boss: ${boss.type}`, 10, 50);
+			ctx.fillText(`Health: ${Math.round(boss.health)}/${boss.maxHealth}`, 10, 70);
+			ctx.fillText(`Position: (${Math.round(boss.x)}, ${Math.round(boss.y)})`, 10, 90);
+			ctx.fillText(`Visible: ${boss.x > 0 && boss.x < this.canvas.width && boss.y > 0 && boss.y < this.canvas.height}`, 10, 110);
+			ctx.fillText(`Phase: ${boss.phase || 1}`, 10, 130);
+			
 			ctx.restore();
 		}
 
@@ -476,6 +497,66 @@ export class Game {
 		
 		ctx.font = '16px "Press Start 2P", monospace';
 		ctx.fillText(bossName, this.canvas.width / 2, 90);
+		
+		ctx.restore();
+	}
+
+	/**
+	 * Draw enhanced boss warning with better visibility
+	 */
+	drawEnhancedBossWarning(ctx, boss) {
+		const pulseIntensity = 0.5 + 0.5 * Math.sin(Date.now() / 120);
+		
+		ctx.save();
+		
+		// Background overlay
+		ctx.fillStyle = `rgba(255, 0, 0, ${pulseIntensity * 0.1})`;
+		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		
+		// Main warning text
+		ctx.fillStyle = `rgba(255, 255, 255, ${pulseIntensity})`;
+		ctx.font = '32px "Press Start 2P", monospace';
+		ctx.textAlign = "center";
+		ctx.shadowColor = "#f00";
+		ctx.shadowBlur = 20;
+		
+		ctx.fillText("⚠️ BOSS BATTLE ⚠️", this.canvas.width / 2, 80);
+		
+		// Boss name and health
+		ctx.font = '18px "Press Start 2P", monospace';
+		ctx.fillStyle = `rgba(255, 255, 0, ${pulseIntensity})`;
+		ctx.shadowColor = "#fa0";
+		
+		const bossName = this.waveManager.getBossName();
+		ctx.fillText(bossName, this.canvas.width / 2, 120);
+		
+		const healthPercent = Math.round((boss.health / boss.maxHealth) * 100);
+		ctx.fillText(`${healthPercent}% Health Remaining`, this.canvas.width / 2, 150);
+		
+		// Directional indicator to boss
+		const dx = boss.x - this.canvas.width / 2;
+		const dy = boss.y - this.canvas.height / 2;
+		const distance = Math.sqrt(dx * dx + dy * dy);
+		
+		if (distance > 50) { // Show arrow if boss is not in center
+			const angle = Math.atan2(dy, dx);
+			const arrowX = this.canvas.width / 2 + Math.cos(angle) * 60;
+			const arrowY = this.canvas.height / 2 + Math.sin(angle) * 60;
+			
+			ctx.save();
+			ctx.translate(arrowX, arrowY);
+			ctx.rotate(angle);
+			
+			ctx.fillStyle = `rgba(255, 255, 255, ${pulseIntensity})`;
+			ctx.beginPath();
+			ctx.moveTo(0, 0);
+			ctx.lineTo(-20, -10);
+			ctx.lineTo(-20, 10);
+			ctx.closePath();
+			ctx.fill();
+			
+			ctx.restore();
+		}
 		
 		ctx.restore();
 	}

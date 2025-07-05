@@ -56,9 +56,6 @@ export class CollisionSystem {
      */
     checkBossProjectilePlayerCollisions() {
         this.game.bossProjectiles.forEach((projectile, projectileIndex) => {
-            // Don't update projectile here - should be done in main game loop
-            // Just check collision with current position
-            
             // Remove if expired
             if (projectile.life <= 0) {
                 this.game.bossProjectiles.splice(projectileIndex, 1);
@@ -71,27 +68,34 @@ export class CollisionSystem {
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance < projectile.radius + this.game.player.radius) {
-                // Reduce boss projectile damage for first boss wave
+                // Reduce boss projectile damage for early boss waves
                 const actualDamage = this.game.waveManager.currentWave === 5 ? 
-                    Math.min(projectile.damage, 15) : projectile.damage;
+                    Math.min(projectile.damage, 12) : // Further reduced for first boss
+                    this.game.waveManager.currentWave <= 15 ? 
+                    Math.min(projectile.damage, 20) : // Progressive cap
+                    projectile.damage;
                 
-                // Player hit by boss projectile
+                // Enhanced visual feedback for boss hits
                 this.game.player.takeDamage(actualDamage);
-                this.game.addScreenShake(8, 200);
-                this.game.createExplosion(projectile.x, projectile.y, 5);
+                this.game.addScreenShake(12, 300); // Stronger screen shake
+                this.game.createExplosion(projectile.x, projectile.y, 8); // More particles
+                
+                // Additional visual effect for boss projectile hits
+                this.game.createExplosionRing(this.game.player.x, this.game.player.y, 30);
                 
                 // Remove projectile
                 this.game.bossProjectiles.splice(projectileIndex, 1);
                 
-                if (window.playSFX) window.playSFX('player_hit');
+                if (window.playSFX) window.playSFX('boss_hit_player');
+                if (window.screenFlash) window.screenFlash();
                 
-                console.log(`Boss projectile hit for ${actualDamage} damage`);
+                console.log(`Boss projectile hit for ${actualDamage} damage (reduced from ${projectile.damage})`);
             }
         });
     }
 
     /**
-     * Check boss special attack effects
+     * Check boss special attack effects with enhanced feedback
      */
     checkBossSpecialAttacks() {
         this.game.enemies.forEach(enemy => {
@@ -119,14 +123,21 @@ export class CollisionSystem {
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance <= boss.pulseRadius && boss.pulseRadius > 50) {
-                // Reduce pulse damage for early waves
-                const pulseDamage = this.game.waveManager.currentWave === 5 ? 
-                    Math.min(boss.damage * 0.5, 20) : boss.damage;
+                // Progressive damage reduction for early waves
+                let pulseDamage = boss.damage * 0.5;
+                if (this.game.waveManager.currentWave === 5) {
+                    pulseDamage = Math.min(pulseDamage, 15);
+                } else if (this.game.waveManager.currentWave <= 15) {
+                    pulseDamage = Math.min(pulseDamage, 25);
+                }
                 
-                // Player caught in pulse wave
+                // Enhanced visual feedback
                 this.game.player.takeDamage(pulseDamage);
-                this.game.addScreenShake(12, 400);
+                this.game.addScreenShake(15, 500);
+                this.game.createExplosionRing(boss.x, boss.y, boss.pulseRadius);
                 boss.isPulsing = false; // Prevent multiple hits
+                
+                if (window.playSFX) window.playSFX('boss_pulse_hit');
                 
                 console.log(`Pulse Titan pulse hit for ${pulseDamage} damage`);
             }

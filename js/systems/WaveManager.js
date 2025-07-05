@@ -75,7 +75,7 @@ export class WaveManager {
      * Spawn a boss for the current wave
      */
     spawnBoss() {
-        // Spawn boss at a visible position closer to center
+        // Ensure boss spawns in center of visible area
         const centerX = this.game.canvas.width / 2;
         const centerY = this.game.canvas.height / 2;
         
@@ -85,38 +85,43 @@ export class WaveManager {
             this.game.canvas.height
         );
         
-        // Ensure boss starts at center and is immediately visible
+        // Force boss to exact center for maximum visibility
         boss.x = centerX;
         boss.y = centerY;
         boss.targetX = centerX;
         boss.targetY = centerY;
         
-        // Force boss to stay within visible bounds
-        const margin = boss.radius + 20;
-        boss.x = Math.max(margin, Math.min(this.game.canvas.width - margin, boss.x));
-        boss.y = Math.max(margin, Math.min(this.game.canvas.height - margin, boss.y));
-        
         this.game.enemies.push(boss);
         
-        // Visual and audio feedback
-        this.game.addScreenShake(15, 1000);
+        // Enhanced visual and audio feedback
+        this.game.addScreenShake(20, 1500); // Stronger and longer screen shake
         if (window.playSFX) window.playSFX('boss_spawn');
         
-        // Show boss warning message
+        // Show boss warning message with extended duration
         this.showBossWarning();
         
+        // Create dramatic spawn effect
+        this.game.createExplosionRing(centerX, centerY, 100);
+        this.game.createExplosion(centerX, centerY, 20);
+        
         // Debug log to verify boss spawn
-        console.log(`Boss spawned at (${boss.x}, ${boss.y}) with health ${boss.health} and damage ${boss.damage}`);
+        console.log(`Boss spawned at exact center (${boss.x}, ${boss.y}) with health ${boss.health} and damage ${boss.damage}`);
         console.log(`Canvas size: ${this.game.canvas.width}x${this.game.canvas.height}`);
         console.log(`Boss radius: ${boss.radius}, Boss type: ${boss.type}`);
     }
 
     /**
-     * Show boss warning message
+     * Show boss warning message with enhanced visibility
      */
     showBossWarning() {
-        // This could trigger a UI message system
-        console.log(`BOSS WAVE ${this.currentWave}! ${this.getBossName()} has appeared!`);
+        // Extended warning display
+        const bossName = this.getBossName();
+        console.log(`🚨 BOSS WAVE ${this.currentWave}! ${bossName} has appeared! 🚨`);
+        
+        // Could trigger UI notification system here
+        if (window.showBossNotification) {
+            window.showBossNotification(bossName, this.currentWave);
+        }
     }
 
     /**

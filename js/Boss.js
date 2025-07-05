@@ -41,8 +41,46 @@ export class Boss {
         this.targetX = x;
         this.targetY = y;
         
+        // Enhanced visibility and positioning
+        this.combatRadius = 150; // Maximum distance from center for combat positioning
+        this.minDistanceFromEdge = 80; // Minimum distance from screen edges
+        this.isVisible = true;
+        this.visibilityTimer = 0;
+        
+        // Enhanced visual feedback
+        this.hitEffectTimer = 0;
+        this.scaleEffect = 1.0;
+        this.rotationEffect = 0;
+        
+        // Force initial positioning to center-ish area
+        this.constrainToVisibleArea(x, y);
+        
         // Initialize type-specific properties
         this.initializeSpecific();
+    }
+    
+    /**
+     * Constrain boss position to always remain visible
+     */
+    constrainToVisibleArea(canvasWidth, canvasHeight) {
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
+        const maxRadius = Math.min(canvasWidth, canvasHeight) / 4; // Stay in center quarter
+        
+        // If too far from center, move toward center
+        const dx = this.x - centerX;
+        const dy = this.y - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > maxRadius) {
+            const angle = Math.atan2(dy, dx);
+            this.x = centerX + Math.cos(angle) * maxRadius;
+            this.y = centerY + Math.sin(angle) * maxRadius;
+        }
+        
+        // Ensure minimum distance from edges
+        this.x = Math.max(this.minDistanceFromEdge, Math.min(canvasWidth - this.minDistanceFromEdge, this.x));
+        this.y = Math.max(this.minDistanceFromEdge, Math.min(canvasHeight - this.minDistanceFromEdge, this.y));
     }
     
     /**
@@ -89,8 +127,8 @@ export class Boss {
     update(delta, player, game) {
         if (this.dying) {
             this.deathTimer += delta;
-            // Extended death animation for bosses (1 second)
-            if (this.deathTimer >= 1000) {
+            // Extended death animation for bosses (2 seconds for better visibility)
+            if (this.deathTimer >= 2000) {
                 this.health = -1; // Force negative health to trigger removal
             }
             return;
@@ -98,11 +136,16 @@ export class Boss {
         
         // Update timers
         this.flashTimer = Math.max(0, this.flashTimer - delta);
+        this.hitEffectTimer = Math.max(0, this.hitEffectTimer - delta);
         this.attackCooldown = Math.max(0, this.attackCooldown - delta);
         this.moveTimer += delta;
+        this.visibilityTimer += delta;
         
-        // Update movement
+        // Update movement with enhanced constraints
         this.updateMovement(delta, player, game);
+        
+        // Ensure boss stays visible
+        this.constrainToVisibleArea(game.canvas.width, game.canvas.height);
         
         // Update boss-specific behavior
         this.updateSpecific(delta, player, game);
@@ -115,83 +158,108 @@ export class Boss {
         
         // Phase transitions
         this.checkPhaseTransition();
+        
+        // Update visual effects
+        this.updateVisualEffects(delta);
     }
     
     /**
-     * Update movement based on movement pattern
+     * Update visual effects for better feedback
+     */
+    updateVisualEffects(delta) {
+        // Scale effect when hit
+        if (this.hitEffectTimer > 0) {
+            this.scaleEffect = 1.0 + 0.2 * (this.hitEffectTimer / 200);
+        } else {
+            this.scaleEffect = 1.0;
+        }
+        
+        // Gentle rotation for visual interest
+        this.rotationEffect += delta * 0.001;
+    }
+    
+    /**
+     * Update movement based on movement pattern with enhanced visibility constraints
      */
     updateMovement(delta, player, game) {
         const centerX = game.canvas.width / 2;
         const centerY = game.canvas.height / 2;
+        const maxCombatRadius = Math.min(game.canvas.width, game.canvas.height) / 3;
         
         switch (this.movePattern) {
             case 'ORBITAL':
-                // Stay closer to center with smaller orbit
+                // Tighter orbit around center
                 this.orbitAngle += this.orbitSpeed * delta;
-                this.targetX = centerX + Math.cos(this.orbitAngle) * Math.min(this.orbitRadius, 80);
-                this.targetY = centerY + Math.sin(this.orbitAngle) * Math.min(this.orbitRadius, 60);
+                this.targetX = centerX + Math.cos(this.orbitAngle) * Math.min(60, maxCombatRadius * 0.4);
+                this.targetY = centerY + Math.sin(this.orbitAngle) * Math.min(45, maxCombatRadius * 0.3);
                 break;
                 
             case 'HUNTER': {
-                // Move toward player but maintain distance
+                // More aggressive movement toward player but stay visible
                 const dx = player.x - this.x;
                 const dy = player.y - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance > 120) { // Reduced minimum distance to stay more visible
-                    this.targetX = player.x;
-                    this.targetY = player.y;
+                if (distance > 90) {
+                    // Move toward player but bias toward center
+                    const toCenterX = centerX - this.x;
+                    const toCenterY = centerY - this.y;
+                    
+                    this.targetX = player.x + toCenterX * 0.3;
+                    this.targetY = player.y + toCenterY * 0.3;
                 } else {
-                    // Circle around player at safer distance
-                    const angle = Math.atan2(dy, dx) + Math.PI / 2;
-                    this.targetX = player.x + Math.cos(angle) * 120;
-                    this.targetY = player.y + Math.sin(angle) * 120;
+                    // Circle around player
+                    const angle = Math.atan2(dy, dx) + Math.PI / 3;
+                    this.targetX = player.x + Math.cos(angle) * 90;
+                    this.targetY = player.y + Math.sin(angle) * 90;
                 }
                 break;
             }
                 
             case 'STATIONARY':
-                // Stay in center
-                this.targetX = centerX;
-                this.targetY = centerY;
+                // Stay near center with slight movement
+                this.targetX = centerX + Math.sin(this.moveTimer * 0.001) * 30;
+                this.targetY = centerY + Math.cos(this.moveTimer * 0.0008) * 20;
                 break;
                 
             case 'AGGRESSIVE':
-                // Move toward player but not too close
+                // Move toward player but maintain distance and stay visible
                 const dx = player.x - this.x;
                 const dy = player.y - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance > 80) { // Reduced distance to stay closer
-                    this.targetX = player.x;
-                    this.targetY = player.y;
+                if (distance > 100) {
+                    this.targetX = player.x * 0.7 + centerX * 0.3;
+                    this.targetY = player.y * 0.7 + centerY * 0.3;
                 } else {
-                    // Maintain distance
-                    this.targetX = this.x;
-                    this.targetY = this.y;
+                    // Maintain distance but stay in combat area
+                    this.targetX = centerX + (this.x - centerX) * 0.8;
+                    this.targetY = centerY + (this.y - centerY) * 0.8;
                 }
                 break;
         }
         
-        // Move toward target
+        // Constrain target to visible combat area
+        const maxTargetRadius = maxCombatRadius * 0.8;
+        const targetDx = this.targetX - centerX;
+        const targetDy = this.targetY - centerY;
+        const targetDistance = Math.sqrt(targetDx * targetDx + targetDy * targetDy);
+        
+        if (targetDistance > maxTargetRadius) {
+            const angle = Math.atan2(targetDy, targetDx);
+            this.targetX = centerX + Math.cos(angle) * maxTargetRadius;
+            this.targetY = centerY + Math.sin(angle) * maxTargetRadius;
+        }
+        
+        // Move toward target with smoother movement
         const toTargetX = this.targetX - this.x;
         const toTargetY = this.targetY - this.y;
         const toTargetDist = Math.sqrt(toTargetX * toTargetX + toTargetY * toTargetY);
         
-        if (toTargetDist > 5) {
-            const moveSpeed = this.speed * (delta / 1000);
+        if (toTargetDist > 3) {
+            const moveSpeed = this.speed * (delta / 1000) * 0.8; // Slightly slower for better tracking
             this.x += (toTargetX / toTargetDist) * moveSpeed;
             this.y += (toTargetY / toTargetDist) * moveSpeed;
-        }
-        
-        // Keep boss within canvas bounds with smaller margin to ensure visibility
-        const margin = this.radius + 10;
-        this.x = Math.max(margin, Math.min(game.canvas.width - margin, this.x));
-        this.y = Math.max(margin, Math.min(game.canvas.height - margin, this.y));
-        
-        // Debug log position occasionally
-        if (Math.random() < 0.01) { // 1% chance per frame
-            console.log(`Boss position: (${Math.round(this.x)}, ${Math.round(this.y)}), Target: (${Math.round(this.targetX)}, ${Math.round(this.targetY)})`);
         }
     }
     
@@ -470,24 +538,28 @@ export class Boss {
     }
     
     /**
-     * Take damage and handle death
+     * Take damage and handle death with enhanced visual feedback
      */
     takeDamage(amount) {
         this.health -= amount;
-        this.flashTimer = 100;
+        this.flashTimer = 150; // Longer flash for better visibility
+        this.hitEffectTimer = 200; // Hit effect timer
         
         if (this.health <= 0) {
             this.dying = true;
             this.deathTimer = 0;
+            
+            // Enhanced death visual feedback
+            if (window.playSFX) window.playSFX('boss_death');
         }
     }
     
     /**
-     * Draw the boss with all visual effects
+     * Draw the boss with enhanced visual effects and better visibility
      */
     draw(ctx) {
         const healthPercent = this.health / this.maxHealth;
-        const intensity = 0.5 + (healthPercent * 0.5);
+        let intensity = 0.7 + (healthPercent * 0.3); // Higher base intensity
         
         // Flash effect when hit
         let drawColor = this.color;
@@ -497,253 +569,174 @@ export class Boss {
         
         ctx.save();
         
-        // Death animation
-        if (this.dying) {
-            const deathProgress = Math.min(this.deathTimer / 1000, 1); // 1 second death animation
-            const scale = 1 - deathProgress * 0.5; // Don't scale down completely
-            const alpha = 1 - deathProgress;
-            
-            ctx.globalAlpha = alpha;
-            ctx.translate(this.x, this.y);
-            ctx.scale(scale, scale);
-            ctx.translate(-this.x, -this.y);
-            
-            // Add spinning effect during death
-            ctx.translate(this.x, this.y);
-            ctx.rotate(deathProgress * Math.PI * 4); // Spin 4 times during death
-            ctx.translate(-this.x, -this.y);
+        // Enhanced visual presence
+        ctx.translate(this.x, this.y);
+        
+        // Scale effect when hit
+        if (this.scaleEffect !== 1.0) {
+            ctx.scale(this.scaleEffect, this.scaleEffect);
         }
         
-        // Stronger glow effect for better visibility
+        // Gentle rotation for visual interest
+        ctx.rotate(this.rotationEffect);
+        
+        // Death animation with more dramatic effect
+        if (this.dying) {
+            const deathProgress = Math.min(this.deathTimer / 2000, 1); // 2 second death animation
+            const scale = 1 - deathProgress * 0.3; // Don't scale down too much
+            const alpha = Math.max(0.3, 1 - deathProgress * 0.7); // Stay visible longer
+            
+            ctx.globalAlpha = alpha;
+            ctx.scale(scale, scale);
+            
+            // Add dramatic spinning effect during death
+            ctx.rotate(deathProgress * Math.PI * 6); // Spin 6 times during death
+            
+            // Pulsing glow effect
+            const pulseIntensity = 1 + Math.sin(deathProgress * Math.PI * 10) * 0.5;
+            intensity *= pulseIntensity;
+        }
+        
+        // Much stronger glow effect for maximum visibility
         ctx.shadowColor = this.glowColor;
-        ctx.shadowBlur = 30 * intensity; // Increased glow
+        ctx.shadowBlur = 40 * intensity; // Increased glow significantly
+        
+        // Additional outer glow layer
+        ctx.save();
+        ctx.shadowBlur = 60 * intensity;
+        ctx.globalAlpha = 0.3;
         
         // Draw boss-specific visuals
+        ctx.translate(-this.x, -this.y);
         this.drawSpecific(ctx, drawColor);
         
-        // Draw health bar
+        ctx.restore();
+        
+        // Main boss body
+        ctx.translate(-this.x, -this.y);
+        this.drawSpecific(ctx, drawColor);
+        
+        ctx.restore();
+        
+        // Draw persistent elements without transforms
         if (!this.dying) {
-            this.drawHealthBar(ctx);
+            this.drawHealthBarEnhanced(ctx);
+            this.drawBossIndicator(ctx);
         }
         
         // Draw boss-specific effects
         this.drawEffects(ctx);
+    }
+    
+    /**
+     * Draw enhanced health bar with better visibility
+     */
+    drawHealthBarEnhanced(ctx) {
+        const barWidth = this.radius * 4; // Wider health bar
+        const barHeight = 12; // Taller health bar
+        const barY = this.y - this.radius - 30;
+        const healthPercent = this.health / this.maxHealth;
+        
+        ctx.save();
+        
+        // Background with border
+        ctx.fillStyle = '#000';
+        ctx.fillRect(this.x - barWidth/2 - 2, barY - 2, barWidth + 4, barHeight + 4);
+        
+        ctx.fillStyle = '#333';
+        ctx.fillRect(this.x - barWidth/2, barY, barWidth, barHeight);
+        
+        // Health bar with gradient effect
+        const gradient = ctx.createLinearGradient(this.x - barWidth/2, barY, this.x + barWidth/2, barY);
+        if (healthPercent > 0.5) {
+            gradient.addColorStop(0, '#0f0');
+            gradient.addColorStop(1, '#8f0');
+        } else if (healthPercent > 0.25) {
+            gradient.addColorStop(0, '#f80');
+            gradient.addColorStop(1, '#fa0');
+        } else {
+            gradient.addColorStop(0, '#f00');
+            gradient.addColorStop(1, '#f88');
+        }
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(this.x - barWidth/2, barY, barWidth * healthPercent, barHeight);
+        
+        // Border with glow
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#fff';
+        ctx.shadowBlur = 5;
+        ctx.strokeRect(this.x - barWidth/2, barY, barWidth, barHeight);
+        
+        // Health text
+        ctx.fillStyle = '#fff';
+        ctx.font = '10px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#000';
+        ctx.shadowBlur = 3;
+        ctx.fillText(`${Math.ceil(this.health)}/${this.maxHealth}`, this.x, barY + barHeight + 15);
         
         ctx.restore();
     }
     
     /**
-     * Draw boss-specific visual elements
+     * Draw boss indicator for better visibility
      */
-    drawSpecific(ctx, color) {
-        switch (this.type) {
-            case 'ORBITAL_COMMANDER':
-                this.drawOrbitalCommander(ctx, color);
-                break;
-            case 'PULSE_TITAN':
-                this.drawPulseTitan(ctx, color);
-                break;
-            case 'VOID_HUNTER':
-                this.drawVoidHunter(ctx, color);
-                break;
-            case 'STORM_BRINGER':
-                this.drawStormBringer(ctx, color);
-                break;
-            case 'CRYSTAL_OVERLORD':
-                this.drawCrystalOverlord(ctx, color);
-                break;
-        }
-    }
-    
-    drawOrbitalCommander(ctx, color) {
-        // Main body - octagon
-        ctx.fillStyle = color;
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 3;
+    drawBossIndicator(ctx) {
+        const pulseIntensity = 0.5 + 0.5 * Math.sin(Date.now() / 300);
         
-        ctx.beginPath();
-        for (let i = 0; i < 8; i++) {
-            const angle = (Math.PI * 2 / 8) * i;
-            const x = this.x + Math.cos(angle) * this.radius;
-            const y = this.y + Math.sin(angle) * this.radius;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
+        ctx.save();
         
-        // Draw orbitals
-        this.orbitals.forEach(orbital => {
-            ctx.fillStyle = '#0ff';
-            ctx.beginPath();
-            ctx.arc(orbital.x, orbital.y, 10, 0, Math.PI * 2);
-            ctx.fill();
-        });
-    }
-    
-    drawPulseTitan(ctx, color) {
-        // Main body - large circle
-        ctx.fillStyle = color;
-        ctx.strokeStyle = '#fff';
+        // Outer warning ring
+        ctx.strokeStyle = `rgba(255, 0, 0, ${pulseIntensity * 0.8})`;
         ctx.lineWidth = 4;
-        
+        ctx.setLineDash([10, 5]);
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.arc(this.x, this.y, this.radius + 20 + pulseIntensity * 10, 0, Math.PI * 2);
         ctx.stroke();
         
-        // Pulse effect
-        if (this.isPulsing) {
-            ctx.strokeStyle = '#f80';
-            ctx.lineWidth = 6;
-            ctx.globalAlpha = 1 - (this.pulseRadius / 200);
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.pulseRadius, 0, Math.PI * 2);
-            ctx.stroke();
-        }
-    }
-    
-    drawVoidHunter(ctx, color) {
-        // Main body - diamond shape
-        ctx.fillStyle = color;
-        ctx.strokeStyle = '#fff';
+        // Inner targeting ring
+        ctx.strokeStyle = `rgba(255, 255, 255, ${pulseIntensity})`;
         ctx.lineWidth = 2;
-        
+        ctx.setLineDash([5, 5]);
         ctx.beginPath();
-        ctx.moveTo(this.x, this.y - this.radius);
-        ctx.lineTo(this.x + this.radius, this.y);
-        ctx.lineTo(this.x, this.y + this.radius);
-        ctx.lineTo(this.x - this.radius, this.y);
-        ctx.closePath();
-        ctx.fill();
+        ctx.arc(this.x, this.y, this.radius + 35, 0, Math.PI * 2);
         ctx.stroke();
         
-        // Charging effect
-        if (this.isCharging) {
-            ctx.strokeStyle = '#f0f';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius + 10, 0, Math.PI * 2);
-            ctx.stroke();
-        }
-    }
-    
-    drawStormBringer(ctx, color) {
-        // Main body - star shape
-        ctx.fillStyle = color;
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        
-        ctx.beginPath();
-        for (let i = 0; i < 10; i++) {
-            const angle = (Math.PI * 2 / 10) * i;
-            const radius = i % 2 === 0 ? this.radius : this.radius * 0.5;
-            const x = this.x + Math.cos(angle) * radius;
-            const y = this.y + Math.sin(angle) * radius;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-    }
-    
-    drawCrystalOverlord(ctx, color) {
-        // Main body - hexagon
-        ctx.fillStyle = color;
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 3;
-        
-        ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-            const angle = (Math.PI * 2 / 6) * i;
-            const x = this.x + Math.cos(angle) * this.radius;
-            const y = this.y + Math.sin(angle) * this.radius;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        
-        // Draw crystal shards
-        this.crystalShards.forEach(shard => {
-            ctx.fillStyle = '#ff0';
-            ctx.beginPath();
-            ctx.arc(shard.x, shard.y, 6, 0, Math.PI * 2);
-            ctx.fill();
-        });
-    }
-    
-    drawHealthBar(ctx) {
-        const barWidth = this.radius * 3;
-        const barHeight = 8;
-        const barY = this.y - this.radius - 20;
-        const healthPercent = this.health / this.maxHealth;
-        
-        // Background
-        ctx.fillStyle = '#333';
-        ctx.fillRect(this.x - barWidth/2, barY, barWidth, barHeight);
-        
-        // Health bar
-        ctx.fillStyle = healthPercent > 0.5 ? '#0f0' : healthPercent > 0.25 ? '#f80' : '#f00';
-        ctx.fillRect(this.x - barWidth/2, barY, barWidth * healthPercent, barHeight);
-        
-        // Border
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(this.x - barWidth/2, barY, barWidth, barHeight);
-    }
-    
-    drawEffects(ctx) {
-        // Draw lightning targets for Storm Bringer
-        if (this.type === 'STORM_BRINGER') {
-            this.lightningTargets.forEach(target => {
-                const alpha = target.life / 2000;
-                ctx.strokeStyle = `rgba(255, 255, 0, ${alpha})`;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y);
-                ctx.lineTo(target.x, target.y);
-                ctx.stroke();
-                
-                // Lightning bolt effect
-                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-                ctx.beginPath();
-                ctx.arc(target.x, target.y, 15, 0, Math.PI * 2);
-                ctx.fill();
-            });
-        }
+        ctx.setLineDash([]); // Reset line dash
+        ctx.restore();
     }
     
     /**
-     * Factory method to create bosses based on wave number
+     * Factory method to create bosses with enhanced positioning
      */
     static createBossForWave(wave, canvasWidth, canvasHeight) {
         const bossWave = Math.floor((wave - 1) / 5) + 1;
         const bossTypes = Object.keys(GameConfig.BOSS.TYPES);
         const bossType = bossTypes[(bossWave - 1) % bossTypes.length];
         
-        // Spawn at center
-        const x = canvasWidth / 2;
-        const y = canvasHeight / 2;
+        // Spawn at center with guaranteed visibility
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
         
-        const boss = new Boss(x, y, bossType);
+        const boss = new Boss(centerX, centerY, bossType);
         
         // Apply wave scaling but cap damage for early boss waves
         const scaling = GameConfig.DERIVED.getScalingForWave(wave);
-        boss.health *= scaling.health * 1.5; // Reduced health scaling multiplier
+        boss.health *= scaling.health * 1.2; // Slightly reduced health scaling
         boss.maxHealth = boss.health;
         
-        // Cap damage for first boss wave to prevent instant kills
+        // More aggressive damage scaling but capped for early waves
         if (wave === 5) {
-            boss.damage = Math.min(boss.damage * scaling.damage, 20); // Cap at 20 damage for wave 5
+            boss.damage = Math.min(boss.damage * scaling.damage, 15); // Lower cap for wave 5
+        } else if (wave <= 15) {
+            boss.damage = Math.min(boss.damage * scaling.damage, 25); // Progressive cap
         } else {
             boss.damage *= scaling.damage;
         }
         
-        console.log(`Created ${bossType} boss for wave ${wave}: HP=${boss.health}, Damage=${boss.damage}`);
+        console.log(`Created ${bossType} boss for wave ${wave}: HP=${boss.health}, Damage=${boss.damage}, Position=(${boss.x}, ${boss.y})`);
         
         return boss;
     }
