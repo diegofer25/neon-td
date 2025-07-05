@@ -91,6 +91,11 @@ export class WaveManager {
         boss.targetX = centerX;
         boss.targetY = centerY;
         
+        // Force boss to stay within visible bounds
+        const margin = boss.radius + 20;
+        boss.x = Math.max(margin, Math.min(this.game.canvas.width - margin, boss.x));
+        boss.y = Math.max(margin, Math.min(this.game.canvas.height - margin, boss.y));
+        
         this.game.enemies.push(boss);
         
         // Visual and audio feedback
@@ -102,6 +107,8 @@ export class WaveManager {
         
         // Debug log to verify boss spawn
         console.log(`Boss spawned at (${boss.x}, ${boss.y}) with health ${boss.health} and damage ${boss.damage}`);
+        console.log(`Canvas size: ${this.game.canvas.width}x${this.game.canvas.height}`);
+        console.log(`Boss radius: ${boss.radius}, Boss type: ${boss.type}`);
     }
 
     /**

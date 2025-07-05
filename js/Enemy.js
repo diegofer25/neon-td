@@ -46,9 +46,13 @@ export class Enemy {
      * @param {Object} game - Optional game instance (used by bosses)
      */
     update(delta, player) {
-        // Skip movement updates if dying
+        // Handle death animation
         if (this.dying) {
             this.deathTimer += delta;
+            // Mark for removal after death animation completes (500ms instead of 200ms)
+            if (this.deathTimer >= 500) {
+                this.health = -1; // Force negative health to trigger removal
+            }
             return;
         }
         

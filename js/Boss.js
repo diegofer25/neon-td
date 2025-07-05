@@ -89,6 +89,10 @@ export class Boss {
     update(delta, player, game) {
         if (this.dying) {
             this.deathTimer += delta;
+            // Extended death animation for bosses (1 second)
+            if (this.deathTimer >= 1000) {
+                this.health = -1; // Force negative health to trigger removal
+            }
             return;
         }
         
@@ -124,8 +128,8 @@ export class Boss {
             case 'ORBITAL':
                 // Stay closer to center with smaller orbit
                 this.orbitAngle += this.orbitSpeed * delta;
-                this.targetX = centerX + Math.cos(this.orbitAngle) * Math.min(this.orbitRadius, 100);
-                this.targetY = centerY + Math.sin(this.orbitAngle) * Math.min(this.orbitRadius, 80);
+                this.targetX = centerX + Math.cos(this.orbitAngle) * Math.min(this.orbitRadius, 80);
+                this.targetY = centerY + Math.sin(this.orbitAngle) * Math.min(this.orbitRadius, 60);
                 break;
                 
             case 'HUNTER': {
@@ -134,14 +138,14 @@ export class Boss {
                 const dy = player.y - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance > 150) { // Increased minimum distance
+                if (distance > 120) { // Reduced minimum distance to stay more visible
                     this.targetX = player.x;
                     this.targetY = player.y;
                 } else {
                     // Circle around player at safer distance
                     const angle = Math.atan2(dy, dx) + Math.PI / 2;
-                    this.targetX = player.x + Math.cos(angle) * 150;
-                    this.targetY = player.y + Math.sin(angle) * 150;
+                    this.targetX = player.x + Math.cos(angle) * 120;
+                    this.targetY = player.y + Math.sin(angle) * 120;
                 }
                 break;
             }
@@ -158,7 +162,7 @@ export class Boss {
                 const dy = player.y - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance > 100) {
+                if (distance > 80) { // Reduced distance to stay closer
                     this.targetX = player.x;
                     this.targetY = player.y;
                 } else {
@@ -180,9 +184,15 @@ export class Boss {
             this.y += (toTargetY / toTargetDist) * moveSpeed;
         }
         
-        // Keep boss within canvas bounds with margin
-        this.x = Math.max(this.radius + 20, Math.min(game.canvas.width - this.radius - 20, this.x));
-        this.y = Math.max(this.radius + 20, Math.min(game.canvas.height - this.radius - 20, this.y));
+        // Keep boss within canvas bounds with smaller margin to ensure visibility
+        const margin = this.radius + 10;
+        this.x = Math.max(margin, Math.min(game.canvas.width - margin, this.x));
+        this.y = Math.max(margin, Math.min(game.canvas.height - margin, this.y));
+        
+        // Debug log position occasionally
+        if (Math.random() < 0.01) { // 1% chance per frame
+            console.log(`Boss position: (${Math.round(this.x)}, ${Math.round(this.y)}), Target: (${Math.round(this.targetX)}, ${Math.round(this.targetY)})`);
+        }
     }
     
     /**
@@ -489,19 +499,24 @@ export class Boss {
         
         // Death animation
         if (this.dying) {
-            const deathProgress = Math.min(this.deathTimer / 1000, 1);
-            const scale = 1 - deathProgress;
+            const deathProgress = Math.min(this.deathTimer / 1000, 1); // 1 second death animation
+            const scale = 1 - deathProgress * 0.5; // Don't scale down completely
             const alpha = 1 - deathProgress;
             
             ctx.globalAlpha = alpha;
             ctx.translate(this.x, this.y);
             ctx.scale(scale, scale);
             ctx.translate(-this.x, -this.y);
+            
+            // Add spinning effect during death
+            ctx.translate(this.x, this.y);
+            ctx.rotate(deathProgress * Math.PI * 4); // Spin 4 times during death
+            ctx.translate(-this.x, -this.y);
         }
         
-        // Glow effect
+        // Stronger glow effect for better visibility
         ctx.shadowColor = this.glowColor;
-        ctx.shadowBlur = 20 * intensity;
+        ctx.shadowBlur = 30 * intensity; // Increased glow
         
         // Draw boss-specific visuals
         this.drawSpecific(ctx, drawColor);

@@ -131,7 +131,7 @@ export class PowerUp {
 				if (player.slowFieldStrength < player.maxSlowFieldStacks) {
 					player.hasSlowField = true;
 					player.slowFieldStrength += 1; // Each stack increases strength
-					player.slowFieldRadius += 25; // Each stack increases radius by 25
+					player.slowFieldRadius += 15; // Each stack increases radius by 15
 				}
 			}
 		),
@@ -280,7 +280,7 @@ export class PowerUp {
 					};
 				} else {
 					player.immolationAura.damagePercent += 0.01; // Increase burn damage by 1% per stack
-					player.immolationAura.range += 25; // Increase aura radius by 25
+					player.immolationAura.range += 20; // Increase aura radius by 20
 				}
 				player.powerUpStacks["Immolation Aura"]++;
 			}

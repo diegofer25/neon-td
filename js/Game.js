@@ -329,9 +329,23 @@ export class Game {
 
 		this.drawBackground();
 
-		// Draw entities
+		// Draw entities (enemies first so bosses are on top)
 		this.particles.forEach((particle) => particle.draw(ctx));
-		this.enemies.forEach((enemy) => enemy.draw(ctx));
+		
+		// Draw regular enemies first
+		this.enemies.filter(enemy => !enemy.isBoss).forEach((enemy) => enemy.draw(ctx));
+		
+		// Draw bosses on top with extra emphasis
+		const bosses = this.enemies.filter(enemy => enemy.isBoss);
+		bosses.forEach((boss) => {
+			// Add extra glow for bosses
+			ctx.save();
+			ctx.shadowColor = boss.glowColor;
+			ctx.shadowBlur = 40;
+			boss.draw(ctx);
+			ctx.restore();
+		});
+		
 		this.projectiles.forEach((projectile) => projectile.draw(ctx));
 		this.bossProjectiles.forEach((projectile) => this.drawBossProjectile(ctx, projectile));
 		this.player.draw(ctx);
@@ -341,9 +355,20 @@ export class Game {
 			this.drawSpawnWarning(ctx);
 		}
 
-		// Draw boss warning if boss wave
-		if (this.wave % 5 === 0 && this.enemies.some(e => e.isBoss)) {
+		// Draw boss warning if boss wave and boss exists
+		if (this.wave % 5 === 0 && bosses.length > 0) {
 			this.drawBossWarning(ctx);
+		}
+
+		// Debug: Show boss count and position
+		if (bosses.length > 0) {
+			ctx.save();
+			ctx.fillStyle = '#ff0';
+			ctx.font = '12px Arial';
+			ctx.fillText(`Boss Health: ${Math.round(bosses[0].health)}/${bosses[0].maxHealth}`, 10, 50);
+			ctx.fillText(`Boss Pos: (${Math.round(bosses[0].x)}, ${Math.round(bosses[0].y)})`, 10, 70);
+			ctx.fillText(`Boss Dying: ${bosses[0].dying}`, 10, 90);
+			ctx.restore();
 		}
 
 		ctx.restore();
