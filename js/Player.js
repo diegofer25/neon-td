@@ -452,13 +452,26 @@ export class Player {
      * @param {number} damage - Base damage per projectile
      */
     _fireTripleShot(game, damage) {
-        const spreadAngle = 0.3; // radians (~17 degrees)
-        
-        for (let i = -1; i <= 1; i++) {
-            const angle = this.angle + (i * spreadAngle);
-            const projectile = this._createProjectile(angle, damage);
-            game.projectiles.push(projectile);
-        }
+        const spreadAngle = Math.PI / 12; // 15 degrees spread
+
+        // Calculate damage for side projectiles
+        const tripleShotStacks = this.powerUpStacks["Triple Shot"] || 1;
+        const damageModifier = Math.min(0.2 + (tripleShotStacks - 1) * 0.1, 1.0);
+
+        // Main projectile (center)
+        this._fireSingleShot(game, damage);
+
+        // Side projectiles
+        const leftAngle = this.angle - spreadAngle;
+        const rightAngle = this.angle + spreadAngle;
+
+        const leftProjectile = this._createProjectile(leftAngle, damage * damageModifier);
+        leftProjectile.isExtra = true;
+        game.projectiles.push(leftProjectile);
+
+        const rightProjectile = this._createProjectile(rightAngle, damage * damageModifier);
+        rightProjectile.isExtra = true;
+        game.projectiles.push(rightProjectile);
     }
     
     /**

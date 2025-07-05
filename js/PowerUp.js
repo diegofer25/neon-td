@@ -27,6 +27,7 @@ export class PowerUp {
 		"Fire Rate",
 		"Speed Boost",
 		"Turn Speed",
+		"Triple Shot",
 		"Double Damage",
 		"Rapid Fire",
 		"Max Health",
@@ -99,12 +100,16 @@ export class PowerUp {
 
 		new PowerUp(
 			"Triple Shot",
-			"Fire 3 bullets in a spread",
+			"Fire 3 bullets in a spread. Extra shots start at 20% damage, +10% per stack.",
 			"🔱",
 			(player) => {
 				player.hasTripleShot = true;
-			},
-			false
+				if (Object.prototype.hasOwnProperty.call(player.powerUpStacks, "Triple Shot")) {
+					player.powerUpStacks["Triple Shot"]++;
+				} else {
+					player.powerUpStacks["Triple Shot"] = 1;
+				}
+			}
 		),
 
 		new PowerUp(

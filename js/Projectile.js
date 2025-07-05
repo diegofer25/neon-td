@@ -40,7 +40,9 @@ export class Projectile {
         this.speed = this.baseSpeed * speedMod;
         this.vx = Math.cos(angle) * this.speed; // Velocity X component
         this.vy = Math.sin(angle) * this.speed; // Velocity Y component
-        
+
+        this.isExtra = false;
+
         // Special behavior properties
         this.piercing = false;          // Can pass through multiple enemies
         this.piercingCount = 0;         // Number of enemies this projectile can pierce
