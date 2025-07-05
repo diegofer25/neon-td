@@ -145,8 +145,10 @@ export class Boss {
         // Update movement with enhanced constraints
         this.updateMovement(delta, player, game);
         
-        // Ensure boss stays visible
-        this.constrainToVisibleArea(game.canvas.width, game.canvas.height);
+        // Ensure boss stays visible - use logical canvas dimensions
+        const logicalWidth = parseInt(game.canvas.style.width) || game.canvas.width;
+        const logicalHeight = parseInt(game.canvas.style.height) || game.canvas.height;
+        this.constrainToVisibleArea(logicalWidth, logicalHeight);
         
         // Update boss-specific behavior
         this.updateSpecific(delta);
@@ -183,9 +185,13 @@ export class Boss {
      * Update movement based on movement pattern with enhanced visibility constraints
      */
     updateMovement(delta, player, game) {
-        const centerX = game.canvas.width / 2;
-        const centerY = game.canvas.height / 2;
-        const maxCombatRadius = Math.min(game.canvas.width, game.canvas.height) / 3;
+        // Get logical canvas dimensions (not scaled by device pixel ratio)
+        const logicalWidth = parseInt(game.canvas.style.width) || game.canvas.width;
+        const logicalHeight = parseInt(game.canvas.style.height) || game.canvas.height;
+        
+        const centerX = logicalWidth / 2;
+        const centerY = logicalHeight / 2;
+        const maxCombatRadius = Math.min(logicalWidth, logicalHeight) / 3;
         
         switch (this.movePattern) {
             case 'ORBITAL':
@@ -427,9 +433,11 @@ export class Boss {
             this.x = player.x + Math.cos(angle) * distance;
             this.y = player.y + Math.sin(angle) * distance;
             
-            // Clamp to canvas bounds
-            this.x = Math.max(50, Math.min(game.canvas.width - 50, this.x));
-            this.y = Math.max(50, Math.min(game.canvas.height - 50, this.y));
+            // Clamp to canvas bounds - use logical dimensions
+            const logicalWidth = parseInt(game.canvas.style.width) || game.canvas.width;
+            const logicalHeight = parseInt(game.canvas.style.height) || game.canvas.height;
+            this.x = Math.max(50, Math.min(logicalWidth - 50, this.x));
+            this.y = Math.max(50, Math.min(logicalHeight - 50, this.y));
             
             this.teleportCooldown = 3000;
             

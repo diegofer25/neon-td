@@ -122,12 +122,14 @@ function setupCanvas() {
     
     // Calculate optimal canvas size based on container aspect ratio
     if (containerAspectRatio > targetAspectRatio) {
-        // Container is wider, fit to height
-        canvasHeight = Math.min(containerHeight * 0.9, 600);
+        // Container is wider, fit to height with more generous scaling for mobile
+        const mobileScale = containerWidth <= 480 ? 0.98 : 0.95;
+        canvasHeight = Math.min(containerHeight * mobileScale, 600);
         canvasWidth = canvasHeight * targetAspectRatio;
     } else {
-        // Container is taller, fit to width
-        canvasWidth = Math.min(containerWidth * 0.9, 800);
+        // Container is taller, fit to width with more generous scaling for mobile
+        const mobileScale = containerWidth <= 480 ? 0.98 : 0.95;
+        canvasWidth = Math.min(containerWidth * mobileScale, 800);
         canvasHeight = canvasWidth / targetAspectRatio;
     }
     
@@ -156,6 +158,10 @@ function setupCanvas() {
     ctx.scale(dpr, dpr);
     canvas.style.width = Math.round(canvasWidth) + 'px';
     canvas.style.height = Math.round(canvasHeight) + 'px';
+    
+    // Store logical dimensions for easy access
+    canvas.logicalWidth = Math.round(canvasWidth);
+    canvas.logicalHeight = Math.round(canvasHeight);
 }
 
 /**

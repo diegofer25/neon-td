@@ -132,8 +132,18 @@ export class Game {
 	 * Initialize the game world and create the player.
 	 */
 	init() {
-		const centerX = this.canvas.width / 2;
-		const centerY = this.canvas.height / 2;
+		// Get logical canvas dimensions with fallback chain for better reliability
+		const logicalWidth = this.canvas.logicalWidth || 
+			parseInt(this.canvas.style.width) || 
+			this.canvas.clientWidth || 
+			this.canvas.width;
+		const logicalHeight = this.canvas.logicalHeight || 
+			parseInt(this.canvas.style.height) || 
+			this.canvas.clientHeight || 
+			this.canvas.height;
+		
+		const centerX = logicalWidth / 2;
+		const centerY = logicalHeight / 2;
 		this.player = new Player(centerX, centerY);
 	}
 
@@ -185,8 +195,18 @@ export class Game {
 	 * Update canvas-dependent positions when canvas size changes.
 	 */
 	updateCanvasSize() {
-		const centerX = this.canvas.width / 2;
-		const centerY = this.canvas.height / 2;
+		// Get logical canvas dimensions with fallback chain for better reliability
+		const logicalWidth = this.canvas.logicalWidth || 
+			parseInt(this.canvas.style.width) || 
+			this.canvas.clientWidth || 
+			this.canvas.width;
+		const logicalHeight = this.canvas.logicalHeight || 
+			parseInt(this.canvas.style.height) || 
+			this.canvas.clientHeight || 
+			this.canvas.height;
+		
+		const centerX = logicalWidth / 2;
+		const centerY = logicalHeight / 2;
 
 		if (this.player) {
 			this.player.x = centerX;
@@ -201,7 +221,7 @@ export class Game {
 
 			// If enemy is off-screen due to resize, move it to visible area
 			const maxDistance =
-				Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
+				Math.max(logicalWidth, logicalHeight) / 2 + 50;
 			if (distance > maxDistance) {
 				const angle = Math.atan2(dy, dx);
 				enemy.x = centerX + Math.cos(angle) * maxDistance;
@@ -213,18 +233,23 @@ export class Game {
 		this.projectiles = this.projectiles.filter((proj) => {
 			return (
 				proj.x >= 0 &&
-				proj.x <= this.canvas.width &&
+				proj.x <= logicalWidth &&
 				proj.y >= 0 &&
-				proj.y <= this.canvas.height
+				proj.y <= logicalHeight
 			);
 		});
 
-		this.bossProjectiles = this.bossProjectiles.filter((proj) => {
+		this.bossProjectiles = this.bossProjectiles.filter(
+			/**
+			 * @param {Object} proj - The projectile to check
+			 * @returns {boolean} - True if the projectile is within bounds
+			 */
+			(proj) => {
 			return (
 				proj.x >= 0 &&
-				proj.x <= this.canvas.width &&
+				proj.x <= logicalWidth &&
 				proj.y >= 0 &&
-				proj.y <= this.canvas.height
+				proj.y <= logicalHeight
 			);
 		});
 	}

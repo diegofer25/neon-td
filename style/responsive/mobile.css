@@ -9,9 +9,13 @@
     --spacing-xxl: 20px;
   }
   
+  #gameContainer {
+    padding: 4px;
+  }
+  
   #gameCanvas {
-    max-width: 95vw;
-    max-height: 85vh;
+    max-width: 98vw;
+    max-height: 95vh;
     border: 1px solid var(--color-primary-neon);
   }
   
@@ -73,10 +77,10 @@
   }
   
   #hud {
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
   }
   
   .healthbar {
@@ -101,9 +105,13 @@
     --spacing-xxl: 15px;
   }
   
+  #gameContainer {
+    padding: 2px;
+  }
+  
   #gameCanvas {
-    max-width: 98vw;
-    max-height: 80vh;
+    max-width: 99vw;
+    max-height: 98vh;
     border: 1px solid var(--color-primary-neon);
   }
   
