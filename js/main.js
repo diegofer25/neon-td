@@ -420,8 +420,15 @@ function updateStatsDisplay() {
     
     // Display attack speed multiplier with rotation status (formatted to 1 decimal)
     const currentSpeed = game.player.fireRateMod.toFixed(1);
-    const rotationStatus = game.player.isRotating ? ' (Aiming)' : '';
-    updateStatValue('speedValue', `${currentSpeed}x${rotationStatus}`);
+    updateStatValue('speedValue', `${currentSpeed}x`);
+
+    // Update health regeneration rate (formatted to 1 decimal)
+    const regenRate = game.player.hpRegen.toFixed(1);
+    updateStatValue('regenValue', regenRate);
+
+    // Update health per second (HPS) value
+    const hpsValue = (game.player.hpRegen * game.player.powerUpStacks['Regeneration']).toFixed(1);
+    updateStatValue('hpsValue', hpsValue);
 }
 
 /**

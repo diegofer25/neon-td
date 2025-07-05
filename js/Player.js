@@ -95,50 +95,50 @@ export class Player {
      */
     _initializePowerUps() {
         // Boolean power-up flags
-        /** @type {boolean} Whether projectiles pierce through enemies */
-        this.hasPiercing = false;
-        /** @type {boolean} Whether player fires three projectiles per shot */
-        this.hasTripleShot = false;
-        /** @type {boolean} Whether player heals when killing enemies */
-        this.hasLifeSteal = false;
-        /** @type {boolean} Whether slow field is active */
-        this.hasSlowField = false;
-        /** @type {boolean} Whether shield protection is active */
-        this.hasShield = false;
-        /** @type {boolean} Whether projectiles explode on impact */
-        this.explosiveShots = false;
-        
-        // Numeric power-up properties
-        /** @type {number} Current shield health points */
-        this.shieldHp = 0;
-        /** @type {number} Maximum shield health points */
-        this.maxShieldHp = 0;
-        /** @type {number} Health regeneration per second */
-        this.hpRegen = 0;
-        /** @type {number} Shield regeneration per second */
-        this.shieldRegen = 0;
-        /** @type {number} Explosion radius for explosive shots */
-        this.explosionRadius = 50;
-        /** @type {number} Explosion damage for explosive shots */
-        this.explosionDamage = 20;
-        /** @type {number} Coin reward multiplier (1.0 = normal rewards) */
-        this.coinMagnetMultiplier = 1.0;
-        
-        // Lucky Shots power-up configuration
-        /** @type {Object|null} Lucky shots configuration object */
-        this.luckyShots = null;
-        
-        // Slow field configuration
-        /** @type {number} Radius of slow field effect */
-        this.slowFieldRadius = GameConfig.PLAYER.SLOW_FIELD_BASE_RADIUS;
-        /** @type {number} Current slow field strength (stack count) */
-        this.slowFieldStrength = 0;
-        /** @type {number} Maximum allowed slow field stacks */
-        this.maxSlowFieldStacks = GameConfig.PLAYER.MAX_SLOW_FIELD_STACKS;
-        
-        // Immolation Aura configuration
-        /** @type {Object|null} Immolation Aura configuration object */
-        this.immolationAura = null;
+		/** @type {number} The number of enemies projectiles can pierce. 0 = no piercing. */
+		this.piercingLevel = 0;
+		/** @type {boolean} Whether player fires three projectiles per shot */
+		this.hasTripleShot = false;
+		/** @type {boolean} Whether player heals when killing enemies */
+		this.hasLifeSteal = false;
+		/** @type {boolean} Whether slow field is active */
+		this.hasSlowField = false;
+		/** @type {boolean} Whether shield protection is active */
+		this.hasShield = false;
+		/** @type {boolean} Whether projectiles explode on impact */
+		this.explosiveShots = false;
+		
+		// Numeric power-up properties
+		/** @type {number} Current shield health points */
+		this.shieldHp = 0;
+		/** @type {number} Maximum shield health points */
+		this.maxShieldHp = 0;
+		/** @type {number} Health regeneration per second */
+		this.hpRegen = 0;
+		/** @type {number} Shield regeneration per second */
+		this.shieldRegen = 0;
+		/** @type {number} Explosion radius for explosive shots */
+		this.explosionRadius = 50;
+		/** @type {number} Explosion damage for explosive shots */
+		this.explosionDamage = 20;
+		/** @type {number} Coin reward multiplier (1.0 = normal rewards) */
+		this.coinMagnetMultiplier = 1.0;
+		
+		// Lucky Shots power-up configuration
+		/** @type {Object|null} Lucky shots configuration object */
+		this.luckyShots = null;
+		
+		// Slow field configuration
+		/** @type {number} Radius of slow field effect */
+		this.slowFieldRadius = GameConfig.PLAYER.SLOW_FIELD_BASE_RADIUS;
+		/** @type {number} Current slow field strength (stack count) */
+		this.slowFieldStrength = 0;
+		/** @type {number} Maximum allowed slow field stacks */
+		this.maxSlowFieldStacks = GameConfig.PLAYER.MAX_SLOW_FIELD_STACKS;
+		
+		// Immolation Aura configuration
+		/** @type {Object|null} Immolation Aura configuration object */
+		this.immolationAura = null;
     }
     
     /**
@@ -177,7 +177,7 @@ export class Player {
         this.projectileSpeedMod = 1;
         this.rotationSpeedMod = 1;
         
-        this.hasPiercing = false;
+        this.piercingLevel = 0;
         this.hasTripleShot = false;
         this.hasLifeSteal = false;
         this.hasSlowField = false;
@@ -497,9 +497,9 @@ export class Player {
      * @param {Projectile} projectile - Projectile to modify
      */
     _applyProjectileModifications(projectile) {
-        if (this.hasPiercing) {
+        if (this.piercingLevel > 0) {
             projectile.piercing = true;
-            projectile.piercingCount = GameConfig.PLAYER.PIERCING_COUNT;
+            projectile.piercingCount = this.piercingLevel;
             projectile.originalDamage = projectile.damage; // Store original damage for reduction calculation
             projectile.enemiesHit = 0; // Track how many enemies this projectile has hit
         }
@@ -599,16 +599,6 @@ export class Player {
         }
         
         this.hp = Math.min(this.maxHp, this.hp + amount);
-        
-        // Create floating text effect if UI system is available
-        const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gameCanvas'));
-        const rect = canvas.getBoundingClientRect();
-        createFloatingText(
-            `+${amount.toFixed(1)} health`,
-            this.x * (rect.width / canvas.width) + rect.left,
-            this.y * (rect.height / canvas.height) + rect.top,
-            'heal'
-        );
     }
     
     /**
@@ -707,12 +697,11 @@ export class Player {
      * 
      * @example
      * const owned = player.getNonStackablePowerUps();
-     * // Returns: ["Piercing Shots", "Triple Shot"] if player has those
+     * // Returns: ["Triple Shot"] if player has those
      */
     getNonStackablePowerUps() {
         const owned = [];
         
-        if (this.hasPiercing) owned.push("Piercing Shots");
         if (this.hasTripleShot) owned.push("Triple Shot");
         if (this.hasLifeSteal) owned.push("Life Steal");
         if (this.explosiveShots) owned.push("Explosive Shots");

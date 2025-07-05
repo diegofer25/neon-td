@@ -86,19 +86,18 @@ export class PowerUp {
 			"+10% rotation speed for faster targeting",
 			"🌀",
 			(player) => {
-				player.rotationSpeedMod *= 1.1;
-				player.powerUpStacks["Turn Speed"]++;
+				player.turnSpeed *= 1.1;
+				player.powerUpStacks["Turn Speed"] = (player.powerUpStacks["Turn Speed"] || 0) + 1;
 			}
 		),
 
 		new PowerUp(
 			"Piercing Shots",
-			"Bullets pierce through enemies (-25% damage per enemy hit)",
+			"Projectiles pierce +1 enemy. Damage reduced by 25% for each pierce.",
 			"🎯",
 			(player) => {
-				player.hasPiercing = true;
-			},
-			false
+				player.piercingLevel = (player.piercingLevel || 0) + 1;
+			}
 		),
 
 		new PowerUp(
