@@ -1,6 +1,7 @@
 import { PowerUp } from './PowerUp.js';
 import { Projectile } from './Projectile.js';
 import { GameConfig } from './config/GameConfig.js';
+import { createFloatingText, playSFX } from './main.js';
 import { MathUtils } from './utils/MathUtils.js';
 
 /**
@@ -214,10 +215,7 @@ export class Player {
      * 
      * @param {number} delta - Time elapsed since last frame (milliseconds)
      * @param {Object} input - Input state object (currently unused)
-     * @param {Object} game - Game instance containing enemies, projectiles, particles
-     * @param {Array} game.enemies - Array of enemy objects to target
-     * @param {Array} game.projectiles - Array to add new projectiles to
-     * @param {Array} game.particles - Array to add visual effect particles to
+     * @param {import('./Game.js').Game} game - Game instance containing enemies, projectiles, particles
      */
     update(delta, input, game) {
         // Skip all updates if game is not in playing state
@@ -229,7 +227,7 @@ export class Player {
         if (nearestEnemy) {
             this._updateTargeting(nearestEnemy, delta);
             this._updateRotation(delta);
-            this._updateFiring(game, delta);
+            this._updateFiring(game);
         } else {
             // No enemies - stop rotating and clear target
             this.isRotating = false;
@@ -330,7 +328,6 @@ export class Player {
      * 
      * @private
      * @param {Object} game - Game instance
-     * @param {number} delta - Time elapsed since last frame
      */
     _updateFiring(game) {
         // Fire if we have a target, are off cooldown, and are reasonably aimed
@@ -350,12 +347,7 @@ export class Player {
      * Prioritizes enemies based on distance and health remaining
      * Only targets enemies within the visible game area
      * 
-     * @param {Array<Object>} enemies - Array of enemy objects to evaluate
-     * @param {number} enemies[].x - Enemy x position
-     * @param {number} enemies[].y - Enemy y position  
-     * @param {number} enemies[].health - Enemy current health
-     * @param {number} enemies[].maxHealth - Enemy maximum health
-     * @param {boolean} enemies[].dying - Whether enemy is in death animation
+     * @param {Array<import('./Enemy.js').Enemy>} enemies - Array of enemy objects to evaluate
      * @returns {Object|null} Best target enemy or null if none available
      * 
      * @example
@@ -370,7 +362,7 @@ export class Player {
         }
         
         // Get canvas dimensions for boundary checking
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gameCanvas'));
         if (!canvas) return null;
         
         const targetingMargin = 10; // Don't target enemies too close to edge
@@ -435,9 +427,7 @@ export class Player {
      * Fire projectile(s) based on current power-up configuration
      * Handles single shots, triple shots, and all projectile modifications
      * 
-     * @param {Object} game - Game instance for adding projectiles and effects
-     * @param {Array} game.projectiles - Array to add new projectiles to
-     * @param {Array} game.particles - Array to add muzzle flash particles to
+     * @param {import('./Game.js').Game} game - Game instance for adding projectiles and effects
      */
     fireProjectile(game) {
         const damage = GameConfig.PLAYER.BASE_DAMAGE * this.damageMod;
@@ -451,9 +441,7 @@ export class Player {
         this.createMuzzleFlash(game);
         
         // Play shoot sound effect if available
-        if (window.playSFX) {
-            window.playSFX('shoot');
-        }
+        playSFX('shoot');
     }
     
     /**
@@ -540,8 +528,7 @@ export class Player {
      * Create visual muzzle flash effect when firing
      * Spawns particles at the gun barrel tip
      * 
-     * @param {Object} game - Game instance for adding particles
-     * @param {Array} game.particles - Array to add new particles to
+     * @param {import('./Game.js').Game} game - Game instance for adding particles
      */
     createMuzzleFlash(game) {
         // Calculate position at gun barrel tip
@@ -614,16 +601,14 @@ export class Player {
         this.hp = Math.min(this.maxHp, this.hp + amount);
         
         // Create floating text effect if UI system is available
-        if (window.createFloatingText) {
-            const canvas = document.getElementById('gameCanvas');
-            const rect = canvas.getBoundingClientRect();
-            window.createFloatingText(
-                `+${amount.toFixed(1)} health`,
-                this.x * (rect.width / canvas.width) + rect.left,
-                this.y * (rect.height / canvas.height) + rect.top,
-                'heal'
-            );
-        }
+        const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gameCanvas'));
+        const rect = canvas.getBoundingClientRect();
+        createFloatingText(
+            `+${amount.toFixed(1)} health`,
+            this.x * (rect.width / canvas.width) + rect.left,
+            this.y * (rect.height / canvas.height) + rect.top,
+            'heal'
+        );
     }
     
     /**
@@ -643,10 +628,7 @@ export class Player {
      * Apply slow field effect to all enemies within range
      * Slows enemy movement based on stack count (15% per stack, max 90%)
      * 
-     * @param {Array<Object>} enemies - Array of enemy objects to affect
-     * @param {number} enemies[].x - Enemy x position
-     * @param {number} enemies[].y - Enemy y position
-     * @param {number} enemies[].slowFactor - Enemy's current slow multiplier
+     * @param {Array<import('./Enemy.js').Enemy>} enemies - Array of enemy objects to affect
      */
     applySlowField(enemies) {
         if (this.slowFieldStrength <= 0) return; // No slow field effect
@@ -768,16 +750,14 @@ export class Player {
         this.coins += amount;
         
         // Create floating text effect if UI system is available
-        if (window.createFloatingText) {
-            const canvas = document.getElementById('gameCanvas');
-            const rect = canvas.getBoundingClientRect();
-            window.createFloatingText(
-                `+${amount} coins`,
-                this.x * (rect.width / canvas.width) + rect.left,
-                (this.y - 40) * (rect.height / canvas.height) + rect.top,
-                'coins'
-            );
-        }
+        const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gameCanvas'));
+        const rect = canvas.getBoundingClientRect();
+        createFloatingText(
+            `+${amount} coins`,
+            this.x * (rect.width / canvas.width) + rect.left,
+            (this.y - 40) * (rect.height / canvas.height) + rect.top,
+            'coins'
+        );
     }
 
     /**

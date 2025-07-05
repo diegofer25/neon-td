@@ -11,7 +11,7 @@ import { Game } from './Game.js';
 //=============================================================================
 
 /** @type {Game|null} Global game instance */
-let game = null;
+export let game = null;
 
 /** @type {number} Previous frame timestamp for delta calculation */
 let lastTime = 0;
@@ -47,7 +47,7 @@ const audio = {
  * @property {Object} keys - Keyboard key states (keyCode -> boolean)
  * @property {HTMLCanvasElement|null} canvas - Reference to game canvas
  */
-const input = {
+export const input = {
     mouseX: 0,
     mouseY: 0,
     mouseDown: false,
@@ -64,7 +64,7 @@ const input = {
  * Sets up canvas, game instance, input handlers, audio, and UI
  */
 function init() {
-    const canvas = document.getElementById('gameCanvas');
+    const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gameCanvas'));
     const ctx = canvas.getContext('2d');
     input.canvas = canvas;
 
@@ -246,7 +246,7 @@ function loadAudio() {
  * Play a sound effect by name
  * @param {string} soundName - Name of the sound effect to play
  */
-function playSFX(soundName) {
+export function playSFX(soundName) {
     if (!audio.enabled || !audio.sfx[soundName]) return;
     
     try {
@@ -262,7 +262,7 @@ function playSFX(soundName) {
  * Toggle audio mute state and update UI
  * Saves preference to localStorage for persistence
  */
-function toggleMute() {
+export function toggleMute() {
     audio.enabled = !audio.enabled;
     const muteBtn = document.getElementById('muteBtn');
     
@@ -275,7 +275,7 @@ function toggleMute() {
     }
     
     // Persist mute preference
-    localStorage.setItem('mute', !audio.enabled);
+    localStorage.setItem('mute', JSON.stringify(!audio.enabled));
 }
 
 //=============================================================================
@@ -286,7 +286,7 @@ function toggleMute() {
  * Start a new game session
  * Hides start screen, starts audio, and begins game loop
  */
-function startGame() {
+export function startGame() {
     document.getElementById('startScreen').classList.remove('show');
     
     // Start background music if audio is enabled
@@ -303,7 +303,7 @@ function startGame() {
  * Restart the game after game over
  * Hides game over screen and restarts game loop
  */
-function restartGame() {
+export function restartGame() {
     document.getElementById('gameOver').classList.remove('show');
     game.restart();
     gameLoop();
@@ -313,7 +313,7 @@ function restartGame() {
  * Toggle game pause state
  * Manages pause screen visibility and game loop execution
  */
-function togglePause() {
+export function togglePause() {
     if (game.gameState === 'playing') {
         game.pause();
         document.getElementById('pauseScreen').classList.add('show');
@@ -378,7 +378,7 @@ function updateHUD() {
     document.getElementById('healthText').textContent = `${Math.max(0, Math.floor(game.player.hp))}/${game.player.maxHp}`;
     
     // Update currency display (rounded to whole number)
-    document.getElementById('coinAmount').textContent = Math.round(game.player.coins);
+    document.getElementById('coinAmount').textContent = Math.round(game.player.coins).toString();
     
     // Update wave progress with enemy count using wave manager data
     const waveProgress = game.getWaveProgress();
@@ -425,7 +425,7 @@ function updateStatValue(elementId, newValue) {
     
     // Only animate if value actually changed
     if (oldValue !== newValue.toString()) {
-        element.textContent = newValue;
+        element.textContent = newValue.toString();
         
         // Apply highlight effect for stat increases
         element.style.color = '#0f0';
@@ -452,7 +452,7 @@ function updatePerformanceStats() {
     
     // Update FPS with color coding (rounded to whole number)
     const fpsElement = document.getElementById('fpsValue');
-    fpsElement.textContent = Math.round(stats.currentFps);
+    fpsElement.textContent = Math.round(stats.currentFps).toString();
     fpsElement.className = 'perf-value';
     if (stats.currentFps < 30) {
         fpsElement.className += ' warning';
@@ -466,7 +466,7 @@ function updatePerformanceStats() {
     
     // Update average FPS (rounded to whole number)
     const avgFpsElement = document.getElementById('avgFpsValue');
-    avgFpsElement.textContent = Math.round(stats.averageFps);
+    avgFpsElement.textContent = Math.round(stats.averageFps).toString();
     avgFpsElement.className = 'perf-value';
     if (stats.averageFps < 30) {
         avgFpsElement.className += ' warning';
@@ -490,7 +490,7 @@ function updatePerformanceStats() {
  * Stops background music and shows final wave reached
  */
 function showGameOver() {
-    document.getElementById('finalWave').textContent = game.wave;
+    document.getElementById('finalWave').textContent = game.wave.toString();
     document.getElementById('gameOver').classList.add('show');
     
     // Stop and reset background music
@@ -511,7 +511,7 @@ function showGameOver() {
  * @param {number} y - Y coordinate for text position
  * @param {string} className - CSS class for styling (default: 'damage')
  */
-function createFloatingText(text, x, y, className = 'damage') {
+export function createFloatingText(text, x, y, className = 'damage') {
     const textElement = document.createElement('div');
     textElement.className = `floating-text ${className}`;
     textElement.textContent = text;
@@ -532,7 +532,7 @@ function createFloatingText(text, x, y, className = 'damage') {
  * Create screen flash effect for dramatic moments
  * Adds a brief white flash overlay to the game container
  */
-function screenFlash() {
+export function screenFlash() {
     const flash = document.createElement('div');
     flash.className = 'screen-flash';
     document.getElementById('gameContainer').appendChild(flash);
@@ -544,21 +544,6 @@ function screenFlash() {
         }
     }, 200);
 }
-
-//=============================================================================
-// GLOBAL EXPORTS AND INITIALIZATION
-//=============================================================================
-
-// Export functions for global access from HTML and other modules
-window.startGame = startGame;
-window.restartGame = restartGame;
-window.togglePause = togglePause;
-window.toggleMute = toggleMute;
-window.playSFX = playSFX;
-window.createFloatingText = createFloatingText;
-window.screenFlash = screenFlash;
-window.game = () => game;
-window.input = input;
 
 // Initialize application when DOM content is fully loaded
 document.addEventListener('DOMContentLoaded', init);

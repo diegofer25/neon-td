@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ES6",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "checkJs": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["js/*"],
+      "@config/*": ["js/config/*"],
+      "@entities/*": ["js/entities/*"],
+      "@systems/*": ["js/systems/*"],
+      "@utils/*": ["js/utils/*"],
+      "@ui/*": ["js/ui/*"]
+    }
+  },
+  "include": [
+    "js/**/*",
+    "*.js",
+    "*.mjs"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "*.min.js"
+  ],
+  "typeAcquisition": {
+    "enable": true,
+    "include": [
+      "jest",
+      "node"
+    ]
+  }
+}

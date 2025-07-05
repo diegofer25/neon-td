@@ -8,6 +8,7 @@ import { CollisionSystem } from "./systems/CollisionSystem.js";
 import { WaveManager } from "./systems/WaveManager.js";
 import { EffectsManager } from "./systems/EffectsManager.js";
 import { EntityManager } from "./systems/EntityManager.js";
+import { playSFX } from "./main.js";
 
 /**
  * Main game class - now focused on coordination between systems rather than direct management.
@@ -282,7 +283,7 @@ export class Game {
 	purchasePowerUp(powerUp, price) {
 		if (this.player.spendCoins(price)) {
 			powerUp.apply(this.player);
-			if (window.playSFX) window.playSFX("powerup");
+			playSFX("powerup")
 		}
 	}
 
