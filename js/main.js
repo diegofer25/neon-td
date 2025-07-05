@@ -98,6 +98,9 @@ function init() {
 
     // Display initial start screen
     document.getElementById('startScreen').classList.add('show');
+
+    // Listen for start button click to begin game
+    document.getElementById('startBtn').addEventListener('click', startGame);
 }
 
 /**
