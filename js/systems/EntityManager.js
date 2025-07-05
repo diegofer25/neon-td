@@ -1,4 +1,4 @@
-import { playSFX } from "@/main";
+import { playSFX } from "./../main.js";
 
 /**
  * Manages all game entities including players, enemies, and projectiles.

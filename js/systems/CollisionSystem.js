@@ -1,6 +1,6 @@
 import { MathUtils } from '../utils/MathUtils.js';
 import { GameConfig } from '../config/GameConfig.js';
-import { createFloatingText, playSFX, screenFlash } from '@/main.js';
+import { createFloatingText, playSFX, screenFlash } from './../main.js';
 
 /**
  * Handles all collision detection and resolution in the game.

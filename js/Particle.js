@@ -1,4 +1,4 @@
-import { game } from "./main";
+import { game } from "./main.js";
 
 /**
  * Represents a visual particle for game effects like explosions, sparks, trails, and healing effects.

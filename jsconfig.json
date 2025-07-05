@@ -10,16 +10,7 @@
     "checkJs": true,
     "allowJs": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["js/*"],
-      "@config/*": ["js/config/*"],
-      "@entities/*": ["js/entities/*"],
-      "@systems/*": ["js/systems/*"],
-      "@utils/*": ["js/utils/*"],
-      "@ui/*": ["js/ui/*"]
-    }
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "js/**/*",

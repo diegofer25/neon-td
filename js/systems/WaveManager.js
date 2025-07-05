@@ -1,7 +1,7 @@
 import { Enemy } from '../Enemy.js';
 import { Boss } from '../Boss.js';
 import { GameConfig } from '../config/GameConfig.js';
-import { playSFX } from '@/main.js';
+import { playSFX } from './../main.js';
 
 /**
  * Manages wave progression, enemy spawning, boss encounters, and wave completion logic.
