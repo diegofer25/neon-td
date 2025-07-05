@@ -163,6 +163,36 @@ export const GameConfig = {
     },
 
     /**
+     * Boss configuration and behavior
+     * 
+     * Base stats and attack parameters for the boss enemy.
+     * The boss has significantly higher stats and unique attack patterns
+     * compared to regular enemies, and appears at the end of certain waves.
+     */
+    BOSS: {
+        /** @type {number} Base health points for the boss */
+        BASE_HEALTH: 500,
+        
+        /** @type {number} Base damage dealt by the boss */
+        BASE_DAMAGE: 25,
+        
+        /** @type {number} Boss movement speed in pixels per second */
+        SPEED: 20,
+        
+        /** @type {number} Boss collision radius in pixels */
+        RADIUS: 50,
+        
+        /** @type {number} Attack cooldown in milliseconds */
+        ATTACK_COOLDOWN: 2000,
+        
+        /** @type {number} Minion spawn cooldown in milliseconds */
+        MINION_SPAWN_COOLDOWN: 5000,
+        
+        /** @type {number} Base projectile speed for boss attacks */
+        PROJECTILE_SPEED: 200
+    },
+
+    /**
      * Wave progression and difficulty scaling
      * 
      * Controls how the game becomes more challenging over time.

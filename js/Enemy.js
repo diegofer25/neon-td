@@ -6,6 +6,7 @@ import { GameConfig } from "./config/GameConfig.js";
  * Supports different enemy types with varying stats and behaviors.
  */
 export class Enemy {
+    static nextId = 0;
     /**
      * Creates a new Enemy instance.
      * @param {number} x - Initial X coordinate
@@ -15,6 +16,7 @@ export class Enemy {
      * @param {number} damage - Damage dealt to player on contact
      */
     constructor(x, y, speed, health, damage) {
+        this.id = Enemy.nextId++;
         // Position properties
         this.x = x;
         this.y = y;

@@ -57,8 +57,14 @@ export class CollisionSystem {
      * @param {number} projectileIndex - Index of projectile in array
      */
     _handleProjectileHit(projectile, enemy, projectileIndex) {
+        // If projectile has already hit this enemy, ignore
+        if (projectile.hitEnemyIds.includes(enemy.id)) {
+            return;
+        }
+
         // Damage enemy
         enemy.takeDamage(projectile.damage);
+        projectile.hitEnemyIds.push(enemy.id); // Record hit
         
         // Create visual effects
         this.game.effectsManager.createHitEffect(enemy.x, enemy.y);
