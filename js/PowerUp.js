@@ -261,7 +261,7 @@ export class PowerUp {
 				if (!player.luckyShots) {
 					player.luckyShots = { chance: 0, active: true };
 				}
-				player.luckyShots.chance += 0.1; // 10% chance per stack
+				player.luckyShots.chance += 0.02; // Increase chance by 2% per stack
 				player.powerUpStacks["Lucky Shots"]++;
 			}
 		),
