@@ -58,7 +58,6 @@ export class Game {
 		this.enemies = [];
 		this.projectiles = [];
 		this.particles = [];
-		this.bossProjectiles = [];
 	}
 
 	/**
@@ -157,7 +156,6 @@ export class Game {
 		this.enemies = [];
 		this.projectiles = [];
 		this.particles = [];
-		this.bossProjectiles = [];
 
 		this.player.reset();
 		this.waveManager.reset();
@@ -179,7 +177,6 @@ export class Game {
 		this.gameState = "paused";
 		// Clear particles to prevent visual artifacts when resuming
 		this.particles = [];
-		this.bossProjectiles = [];
 		// Clear any pooled particles
 		this.particlePool.clear();
 	}
@@ -231,20 +228,6 @@ export class Game {
 
 		// Remove projectiles and particles that are now off-screen
 		this.projectiles = this.projectiles.filter((proj) => {
-			return (
-				proj.x >= 0 &&
-				proj.x <= logicalWidth &&
-				proj.y >= 0 &&
-				proj.y <= logicalHeight
-			);
-		});
-
-		this.bossProjectiles = this.bossProjectiles.filter(
-			/**
-			 * @param {Object} proj - The projectile to check
-			 * @returns {boolean} - True if the projectile is within bounds
-			 */
-			(proj) => {
 			return (
 				proj.x >= 0 &&
 				proj.x <= logicalWidth &&
@@ -355,67 +338,19 @@ export class Game {
 
 		this.drawBackground();
 
-		// Draw entities (enemies first so bosses are on top)
+		// Draw entities
 		this.particles.forEach((particle) => particle.draw(ctx));
 		
 		// Draw regular enemies first
-		this.enemies.filter(enemy => !enemy.isBoss).forEach((enemy) => enemy.draw(ctx));
-		
-		// Draw bosses on top with maximum emphasis
-		const bosses = this.enemies.filter(enemy => enemy.isBoss);
-		bosses.forEach((boss) => {
-			// Multiple glow layers for maximum visibility
-			ctx.save();
-			
-			// Outer glow
-			ctx.shadowColor = boss.glowColor;
-			ctx.shadowBlur = 60;
-			ctx.globalAlpha = 0.3;
-			boss.draw(ctx);
-			
-			// Middle glow
-			ctx.shadowBlur = 40;
-			ctx.globalAlpha = 0.5;
-			boss.draw(ctx);
-			
-			// Main boss with strong glow
-			ctx.shadowBlur = 80;
-			ctx.globalAlpha = 1.0;
-			boss.draw(ctx);
-			
-			ctx.restore();
-		});
+		this.enemies.forEach((enemy) => enemy.draw(ctx));
+	
 		
 		this.projectiles.forEach((projectile) => projectile.draw(ctx));
-		this.bossProjectiles.forEach((projectile) => this.drawBossProjectile(ctx, projectile));
 		this.player.draw(ctx);
 
 		// Draw spawn warning if enemies are incoming
 		if (this.waveManager.enemiesToSpawn > 0) {
 			this.drawSpawnWarning(ctx);
-		}
-
-		// Draw boss warning if boss wave and boss exists
-		if (this.wave % 5 === 0 && bosses.length > 0 && !bosses[0].dying) {
-			this.drawEnhancedBossWarning(ctx, bosses[0]);
-		}
-
-		// Enhanced debug info for bosses
-		if (bosses.length > 0) {
-			ctx.save();
-			ctx.fillStyle = '#ff0';
-			ctx.font = '12px Arial';
-			ctx.shadowColor = '#000';
-			ctx.shadowBlur = 3;
-			
-			const boss = bosses[0];
-			ctx.fillText(`Boss: ${boss.type}`, 10, 50);
-			ctx.fillText(`Health: ${Math.round(boss.health)}/${boss.maxHealth}`, 10, 70);
-			ctx.fillText(`Position: (${Math.round(boss.x)}, ${Math.round(boss.y)})`, 10, 90);
-			ctx.fillText(`Visible: ${boss.x > 0 && boss.x < this.canvas.width && boss.y > 0 && boss.y < this.canvas.height}`, 10, 110);
-			ctx.fillText(`Phase: ${boss.phase || 1}`, 10, 130);
-			
-			ctx.restore();
 		}
 
 		ctx.restore();
@@ -485,106 +420,6 @@ export class Game {
 		// Reset text properties
 		ctx.textAlign = "left";
 		ctx.shadowBlur = 0;
-	}
-
-	/**
-	 * Draw boss projectile
-	 */
-	drawBossProjectile(ctx, projectile) {
-		ctx.save();
-		ctx.shadowColor = projectile.color;
-		ctx.shadowBlur = 10;
-		ctx.fillStyle = projectile.color;
-		ctx.strokeStyle = '#fff';
-		ctx.lineWidth = 2;
-		
-		ctx.beginPath();
-		ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI * 2);
-		ctx.fill();
-		ctx.stroke();
-		ctx.restore();
-	}
-
-	/**
-	 * Draw boss warning indicator
-	 */
-	drawBossWarning(ctx) {
-		const pulseIntensity = 0.5 + 0.5 * Math.sin(Date.now() / 150);
-		
-		ctx.save();
-		ctx.fillStyle = `rgba(255, 0, 0, ${pulseIntensity * 0.5})`;
-		ctx.font = '24px "Press Start 2P", monospace';
-		ctx.textAlign = "center";
-		ctx.shadowColor = "#f00";
-		ctx.shadowBlur = 15;
-		
-		const bossName = this.waveManager.getBossName();
-		ctx.fillText("BOSS BATTLE", this.canvas.width / 2, 60);
-		
-		ctx.font = '16px "Press Start 2P", monospace';
-		ctx.fillText(bossName, this.canvas.width / 2, 90);
-		
-		ctx.restore();
-	}
-
-	/**
-	 * Draw enhanced boss warning with better visibility
-	 */
-	drawEnhancedBossWarning(ctx, boss) {
-		const pulseIntensity = 0.5 + 0.5 * Math.sin(Date.now() / 120);
-		
-		ctx.save();
-		
-		// Background overlay
-		ctx.fillStyle = `rgba(255, 0, 0, ${pulseIntensity * 0.1})`;
-		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-		
-		// Main warning text
-		ctx.fillStyle = `rgba(255, 255, 255, ${pulseIntensity})`;
-		ctx.font = '32px "Press Start 2P", monospace';
-		ctx.textAlign = "center";
-		ctx.shadowColor = "#f00";
-		ctx.shadowBlur = 20;
-		
-		ctx.fillText("⚠️ BOSS BATTLE ⚠️", this.canvas.width / 2, 80);
-		
-		// Boss name and health
-		ctx.font = '18px "Press Start 2P", monospace';
-		ctx.fillStyle = `rgba(255, 255, 0, ${pulseIntensity})`;
-		ctx.shadowColor = "#fa0";
-		
-		const bossName = this.waveManager.getBossName();
-		ctx.fillText(bossName, this.canvas.width / 2, 120);
-		
-		const healthPercent = Math.round((boss.health / boss.maxHealth) * 100);
-		ctx.fillText(`${healthPercent}% Health Remaining`, this.canvas.width / 2, 150);
-		
-		// Directional indicator to boss
-		const dx = boss.x - this.canvas.width / 2;
-		const dy = boss.y - this.canvas.height / 2;
-		const distance = Math.sqrt(dx * dx + dy * dy);
-		
-		if (distance > 50) { // Show arrow if boss is not in center
-			const angle = Math.atan2(dy, dx);
-			const arrowX = this.canvas.width / 2 + Math.cos(angle) * 60;
-			const arrowY = this.canvas.height / 2 + Math.sin(angle) * 60;
-			
-			ctx.save();
-			ctx.translate(arrowX, arrowY);
-			ctx.rotate(angle);
-			
-			ctx.fillStyle = `rgba(255, 255, 255, ${pulseIntensity})`;
-			ctx.beginPath();
-			ctx.moveTo(0, 0);
-			ctx.lineTo(-20, -10);
-			ctx.lineTo(-20, 10);
-			ctx.closePath();
-			ctx.fill();
-			
-			ctx.restore();
-		}
-		
-		ctx.restore();
 	}
 
 	/**
