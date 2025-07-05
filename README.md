@@ -2,8 +2,6 @@
 
 A browser-based 2D tower defense game with infinite wave survival, auto-targeting mechanics, and vibrant neon aesthetics. Built with vanilla JavaScript and HTML5 Canvas for smooth 60fps gameplay.
 
-![Game Screenshot](https://via.placeholder.com/800x400/000000/00ffff?text=Neon+Tower+Defense+Shooter)
-
 ## ✨ Features
 
 ### 🎯 Core Gameplay
@@ -84,16 +82,16 @@ npx live-server --port=8080
 ### Power-Up Categories
 
 #### ⚔️ Offense
-- **Damage Boost**: +50% bullet damage (stackable)
-- **Fire Rate**: +25% attack speed (stackable)
-- **Turn Speed**: +20% rotation speed for faster target acquisition (stackable)
+- **Damage Boost**: +25% bullet damage (stackable, exponential pricing)
+- **Fire Rate**: +12.5% attack speed (stackable, exponential pricing)
+- **Turn Speed**: +10% rotation speed for faster target acquisition (stackable, exponential pricing)
 - **Triple Shot**: Fire 3 bullets in a spread
 - **Piercing Shots**: Bullets pierce through enemies
 - **Explosive Shots**: Bullets explode on impact
-- **Speed Boost**: +30% projectile speed (stackable)
-- **Double Damage**: +100% bullet damage (stackable)
-- **Rapid Fire**: +50% attack speed (stackable)
-- **Bigger Explosions**: +50% explosion radius and damage (stackable)
+- **Speed Boost**: +15% projectile speed (stackable, exponential pricing)
+- **Double Damage**: +50% bullet damage (stackable, exponential pricing)
+- **Rapid Fire**: +25% attack speed (stackable, exponential pricing)
+- **Bigger Explosions**: +25% explosion radius and damage (stackable, exponential pricing)
 
 #### 🛡️ Defense
 - **Max Health**: +20% health and full heal (stackable)

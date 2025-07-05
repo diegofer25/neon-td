@@ -363,8 +363,14 @@ export const GameConfig = {
         /** @type {number} Divisor for performance bonus calculation */
         PERFORMANCE_BONUS_DIVISOR: 5,
         
-        /** @type {number} Price increase multiplier per stack of power-ups */
-        SHOP_STACK_PRICE_MULTIPLIER: 0.5
+        /** @type {number} Linear price increase multiplier per stack of power-ups (deprecated) */
+        SHOP_STACK_PRICE_MULTIPLIER: 0.5,
+        
+        /** @type {number} Exponential price scaling base multiplier for stackable power-ups */
+        EXPONENTIAL_PRICE_BASE: 1.5,
+        
+        /** @type {number} Price scaling factor based on initial price (higher base price = higher scaling) */
+        PRICE_BASED_SCALING_FACTOR: 0.02
     },
 
     /**

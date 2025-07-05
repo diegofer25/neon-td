@@ -37,7 +37,8 @@ export class Shop {
 
     /**
      * Calculates the current price for a power-up based on existing stacks.
-     * Implements exponential pricing to balance game economy.
+     * Implements exponential pricing based on initial price to balance game economy.
+     * Higher base price power-ups have steeper exponential curves.
      * 
      * @param {string} powerUpName - Name of the power-up to price
      * @param {number} [currentStacks=0] - Number of existing stacks player has
@@ -45,10 +46,12 @@ export class Shop {
      * 
      * @example
      * // Base price for first purchase
-     * shop.getPowerUpPrice("Damage Boost", 0); // Returns base price
+     * shop.getPowerUpPrice("Damage Boost", 0); // Returns 15 (base price)
      * 
-     * // Increased price for stacked purchase
-     * shop.getPowerUpPrice("Damage Boost", 3); // Returns higher price
+     * // Exponential scaling for stacked purchases
+     * shop.getPowerUpPrice("Damage Boost", 1); // Returns ~23 coins
+     * shop.getPowerUpPrice("Damage Boost", 3); // Returns ~52 coins
+     * shop.getPowerUpPrice("Double Damage", 2); // Returns ~180 coins (higher base price = steeper curve)
      */
     getPowerUpPrice(powerUpName, currentStacks = 0) {
         const basePrice = this.powerUpPrices[powerUpName] || 20;
@@ -56,11 +59,20 @@ export class Shop {
         // Ensure stacks is not negative (safety check)
         const validStacks = Math.max(0, currentStacks);
         
-        // Apply exponential price scaling based on current stacks
-        // Each stack increases cost by the configured multiplier percentage
-        const stackMultiplier = 1 + (validStacks * GameConfig.ECONOMY.SHOP_STACK_PRICE_MULTIPLIER);
+        // For first purchase (stack 0), return base price
+        if (validStacks === 0) {
+            return basePrice;
+        }
         
-        return Math.max(1, Math.floor(basePrice * stackMultiplier)); // Minimum price of 1 coin
+        // Calculate exponential scaling based on base price
+        // Higher base price power-ups get steeper exponential curves
+        const priceBasedScaling = 1 + (basePrice * GameConfig.ECONOMY.PRICE_BASED_SCALING_FACTOR);
+        const exponentialBase = GameConfig.ECONOMY.EXPONENTIAL_PRICE_BASE * priceBasedScaling;
+        
+        // Apply exponential scaling: basePrice * (exponentialBase ^ stacks)
+        const scaledPrice = basePrice * Math.pow(exponentialBase, validStacks);
+        
+        return Math.max(1, Math.floor(scaledPrice)); // Minimum price of 1 coin
     }
 
     /**
