@@ -753,7 +753,7 @@ export class Player {
         const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gameCanvas'));
         const rect = canvas.getBoundingClientRect();
         createFloatingText(
-            `+${amount} coins`,
+            `+${amount.toFixed(1)} coins`,
             this.x * (rect.width / canvas.width) + rect.left,
             (this.y - 40) * (rect.height / canvas.height) + rect.top,
             'coins'

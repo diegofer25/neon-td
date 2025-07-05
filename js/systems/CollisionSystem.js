@@ -240,7 +240,7 @@ export class CollisionSystem {
     _showDamageText(enemy, damage) {
         const rect = this.game.canvas.getBoundingClientRect();
        createFloatingText(
-            `-${damage}`,
+            `-${damage.toFixed(1)}`,
             enemy.x * (rect.width / this.game.canvas.width) + rect.left,
             enemy.y * (rect.height / this.game.canvas.height) + rect.top,
             'damage'
@@ -255,7 +255,7 @@ export class CollisionSystem {
     _showPlayerDamageText(damage) {
         const rect = this.game.canvas.getBoundingClientRect();
         createFloatingText(
-            `-${damage}`,
+            `-${damage.toFixed(1)}`,
             this.game.player.x * (rect.width / this.game.canvas.width) + rect.left,
             this.game.player.y * (rect.height / this.game.canvas.height) + rect.top,
             'player-damage'

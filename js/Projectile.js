@@ -143,12 +143,12 @@ export class Projectile {
             if (distance <= this.explosionRadius) {
                 // Calculate damage falloff based on distance from explosion center
                 const damage = this.explosionDamage * (1 - distance / this.explosionRadius);
-                enemy.takeDamage(Math.floor(damage));
+                enemy.takeDamage(damage);
                 
                 // Display damage number floating text
                 const rect = game.canvas.getBoundingClientRect();
                 createFloatingText(
-                    `-${Math.floor(damage)}`,
+                    `-${damage.toFixed(1)}`,
                     enemy.x * (rect.width / game.canvas.width) + rect.left,
                     enemy.y * (rect.height / game.canvas.height) + rect.top,
                     'damage'
