@@ -368,6 +368,87 @@ export const GameConfig = {
     },
 
     /**
+     * Boss system configuration
+     * 
+     * Controls boss behavior, stats, and abilities for epic encounters
+     * every 5 waves. Each boss type has unique mechanics and strategies.
+     */
+    BOSS: {
+        /** @type {number} Extra coin bonus for completing boss waves */
+        COMPLETION_BONUS: 50,
+        
+        /**
+         * Boss type definitions with stats and behaviors
+         */
+        TYPES: {
+            ORBITAL_COMMANDER: {
+                name: "Orbital Commander",
+                health: 300,
+                speed: 30,
+                damage: 15, // Reduced from 25
+                radius: 40,
+                color: '#0ff',
+                glowColor: '#0ff',
+                attackInterval: 3000, // Increased from 2500
+                movePattern: 'ORBITAL',
+                description: "Spawns orbital drones and fires spreading projectiles"
+            },
+            
+            PULSE_TITAN: {
+                name: "Pulse Titan",
+                health: 500,
+                speed: 20,
+                damage: 20, // Reduced from 35
+                radius: 50,
+                color: '#f80',
+                glowColor: '#f80',
+                attackInterval: 4000, // Increased from 3000
+                movePattern: 'STATIONARY',
+                description: "Creates devastating pulse waves that damage the entire screen"
+            },
+            
+            VOID_HUNTER: {
+                name: "Void Hunter",
+                health: 250,
+                speed: 50, // Reduced from 60
+                damage: 20, // Reduced from 30
+                radius: 35,
+                color: '#a0f',
+                glowColor: '#a0f',
+                attackInterval: 2500, // Increased from 1800
+                movePattern: 'HUNTER',
+                description: "Teleports around the battlefield and charges at the player"
+            },
+            
+            STORM_BRINGER: {
+                name: "Storm Bringer",
+                health: 400,
+                speed: 35, // Reduced from 40
+                damage: 15, // Reduced from 20
+                radius: 45,
+                color: '#ff0',
+                glowColor: '#ff0',
+                attackInterval: 2500, // Increased from 2000
+                movePattern: 'AGGRESSIVE',
+                description: "Summons chain lightning that strikes multiple locations"
+            },
+            
+            CRYSTAL_OVERLORD: {
+                name: "Crystal Overlord",
+                health: 450,
+                speed: 25,
+                damage: 25, // Reduced from 40
+                radius: 42,
+                color: '#f0f',
+                glowColor: '#f0f',
+                attackInterval: 3200, // Increased from 2800
+                movePattern: 'ORBITAL',
+                description: "Creates spinning crystal shards and launches them at enemies"
+            }
+        }
+    },
+
+    /**
      * High-level balance constraints
      * 
      * These limits prevent runaway scaling and maintain game balance

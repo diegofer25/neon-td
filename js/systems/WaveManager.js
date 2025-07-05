@@ -1,8 +1,9 @@
 import { Enemy } from '../Enemy.js';
+import { Boss } from '../Boss.js';
 import { GameConfig } from '../config/GameConfig.js';
 
 /**
- * Manages wave progression, enemy spawning, and wave completion logic.
+ * Manages wave progression, enemy spawning, boss encounters, and wave completion logic.
  */
 export class WaveManager {
     /**
@@ -42,21 +43,83 @@ export class WaveManager {
         this.waveCompletionTimer = 0;
         this.waveStartTime = Date.now();
         
-        // Calculate wave parameters using configuration
-        const enemyCount = GameConfig.DERIVED.getEnemyCountForWave(this.currentWave);
-        this.waveScaling = GameConfig.DERIVED.getScalingForWave(this.currentWave);
-        this.enemySpawnInterval = GameConfig.DERIVED.getSpawnIntervalForWave(this.currentWave);
+        // Check if this is a boss wave (every 5 waves)
+        const isBossWave = this.currentWave % 5 === 0;
         
-        // Set up incremental spawning
-        this.enemiesToSpawn = enemyCount;
+        if (isBossWave) {
+            // Boss wave - spawn boss and fewer enemies
+            this.spawnBoss();
+            const enemyCount = Math.floor(GameConfig.DERIVED.getEnemyCountForWave(this.currentWave) * 0.5);
+            this.enemiesToSpawn = enemyCount;
+            this.enemySpawnInterval = GameConfig.DERIVED.getSpawnIntervalForWave(this.currentWave) * 1.5;
+        } else {
+            // Regular wave
+            const enemyCount = GameConfig.DERIVED.getEnemyCountForWave(this.currentWave);
+            this.enemiesToSpawn = enemyCount;
+            this.enemySpawnInterval = GameConfig.DERIVED.getSpawnIntervalForWave(this.currentWave);
+        }
+        
+        // Calculate wave scaling
+        this.waveScaling = GameConfig.DERIVED.getScalingForWave(this.currentWave);
         this.enemySpawnTimer = 0;
         
-        // Spawn first enemy immediately
+        // Spawn first enemy immediately if any to spawn
         if (this.enemiesToSpawn > 0) {
             this.spawnEnemy();
             this.enemiesToSpawn--;
             this.enemiesSpawned++;
         }
+    }
+
+    /**
+     * Spawn a boss for the current wave
+     */
+    spawnBoss() {
+        // Spawn boss at a visible position closer to center
+        const centerX = this.game.canvas.width / 2;
+        const centerY = this.game.canvas.height / 2;
+        
+        const boss = Boss.createBossForWave(
+            this.currentWave, 
+            this.game.canvas.width, 
+            this.game.canvas.height
+        );
+        
+        // Ensure boss starts at center and is immediately visible
+        boss.x = centerX;
+        boss.y = centerY;
+        boss.targetX = centerX;
+        boss.targetY = centerY;
+        
+        this.game.enemies.push(boss);
+        
+        // Visual and audio feedback
+        this.game.addScreenShake(15, 1000);
+        if (window.playSFX) window.playSFX('boss_spawn');
+        
+        // Show boss warning message
+        this.showBossWarning();
+        
+        // Debug log to verify boss spawn
+        console.log(`Boss spawned at (${boss.x}, ${boss.y}) with health ${boss.health} and damage ${boss.damage}`);
+    }
+
+    /**
+     * Show boss warning message
+     */
+    showBossWarning() {
+        // This could trigger a UI message system
+        console.log(`BOSS WAVE ${this.currentWave}! ${this.getBossName()} has appeared!`);
+    }
+
+    /**
+     * Get boss name for current wave
+     */
+    getBossName() {
+        const bossWave = Math.floor((this.currentWave - 1) / 5) + 1;
+        const bossTypes = Object.keys(GameConfig.BOSS.TYPES);
+        const bossType = bossTypes[(bossWave - 1) % bossTypes.length];
+        return GameConfig.BOSS.TYPES[bossType].name;
     }
 
     /**
@@ -126,7 +189,9 @@ export class WaveManager {
      * @returns {boolean} True if wave is complete
      */
     isWaveComplete() {
-        return this.enemiesToSpawn === 0 && this.game.enemies.length === 0;
+        return this.enemiesToSpawn === 0 && 
+               this.game.enemies.length === 0 && 
+               this.game.bossProjectiles.length === 0;
     }
 
     /**
@@ -137,11 +202,15 @@ export class WaveManager {
         const baseReward = GameConfig.ECONOMY.WAVE_COMPLETION_BASE_COINS;
         const waveBonus = Math.floor(this.currentWave * GameConfig.ECONOMY.WAVE_COMPLETION_WAVE_BONUS);
         
+        // Boss wave bonus
+        const isBossWave = this.currentWave % 5 === 0;
+        const bossBonus = isBossWave ? GameConfig.BOSS.COMPLETION_BONUS : 0;
+        
         // Time bonus for quick completion (first 30 seconds)
         const completionTime = Date.now() - this.waveStartTime;
         const timeBonus = completionTime < 30000 ? 3 : 0;
         
-        return baseReward + waveBonus + timeBonus;
+        return baseReward + waveBonus + bossBonus + timeBonus;
     }
 
     /**

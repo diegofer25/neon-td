@@ -87,7 +87,7 @@ export class EntityManager {
      */
     _updateEnemies(delta) {
         this.game.enemies.forEach((enemy, index) => {
-            enemy.update(delta, this.game.player);
+            enemy.update(delta, this.game.player, this.game);
             
             if (enemy.health <= 0) {
                 this.onEnemyDeath(enemy, index);

@@ -21,6 +21,8 @@ export class CollisionSystem {
     checkAllCollisions() {
         this._checkProjectileEnemyCollisions();
         this._checkPlayerEnemyCollisions();
+        this.checkBossProjectilePlayerCollisions();
+        this.checkBossSpecialAttacks();
     }
 
     /**
@@ -47,6 +49,123 @@ export class CollisionSystem {
                 this._handlePlayerHit(enemy, index);
             }
         });
+    }
+
+    /**
+     * Check collisions between boss projectiles and player
+     */
+    checkBossProjectilePlayerCollisions() {
+        this.game.bossProjectiles.forEach((projectile, projectileIndex) => {
+            // Don't update projectile here - should be done in main game loop
+            // Just check collision with current position
+            
+            // Remove if expired
+            if (projectile.life <= 0) {
+                this.game.bossProjectiles.splice(projectileIndex, 1);
+                return;
+            }
+            
+            // Check collision with player
+            const dx = projectile.x - this.game.player.x;
+            const dy = projectile.y - this.game.player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < projectile.radius + this.game.player.radius) {
+                // Reduce boss projectile damage for first boss wave
+                const actualDamage = this.game.waveManager.currentWave === 5 ? 
+                    Math.min(projectile.damage, 15) : projectile.damage;
+                
+                // Player hit by boss projectile
+                this.game.player.takeDamage(actualDamage);
+                this.game.addScreenShake(8, 200);
+                this.game.createExplosion(projectile.x, projectile.y, 5);
+                
+                // Remove projectile
+                this.game.bossProjectiles.splice(projectileIndex, 1);
+                
+                if (window.playSFX) window.playSFX('player_hit');
+                
+                console.log(`Boss projectile hit for ${actualDamage} damage`);
+            }
+        });
+    }
+
+    /**
+     * Check boss special attack effects
+     */
+    checkBossSpecialAttacks() {
+        this.game.enemies.forEach(enemy => {
+            if (!enemy.isBoss) return;
+            
+            // Handle boss-specific collision effects
+            switch (enemy.type) {
+                case 'PULSE_TITAN':
+                    this.checkPulseTitanAttack(enemy);
+                    break;
+                case 'STORM_BRINGER':
+                    this.checkStormBringerLightning(enemy);
+                    break;
+                case 'VOID_HUNTER':
+                    this.checkVoidHunterCharge(enemy);
+                    break;
+            }
+        });
+    }
+
+    checkPulseTitanAttack(boss) {
+        if (boss.isPulsing) {
+            const dx = this.game.player.x - boss.x;
+            const dy = this.game.player.y - boss.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance <= boss.pulseRadius && boss.pulseRadius > 50) {
+                // Reduce pulse damage for early waves
+                const pulseDamage = this.game.waveManager.currentWave === 5 ? 
+                    Math.min(boss.damage * 0.5, 20) : boss.damage;
+                
+                // Player caught in pulse wave
+                this.game.player.takeDamage(pulseDamage);
+                this.game.addScreenShake(12, 400);
+                boss.isPulsing = false; // Prevent multiple hits
+                
+                console.log(`Pulse Titan pulse hit for ${pulseDamage} damage`);
+            }
+        }
+    }
+
+    checkStormBringerLightning(boss) {
+        boss.lightningTargets.forEach(target => {
+            const dx = this.game.player.x - target.x;
+            const dy = this.game.player.y - target.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance <= 20) {
+                this.game.player.takeDamage(target.damage);
+                this.game.addScreenShake(6, 200);
+                target.life = 0; // Remove target
+            }
+        });
+    }
+
+    checkVoidHunterCharge(boss) {
+        if (boss.isCharging) {
+            const dx = this.game.player.x - boss.x;
+            const dy = this.game.player.y - boss.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance <= boss.radius + this.game.player.radius + 10) {
+                // Reduce charge damage for early waves
+                const chargeDamage = this.game.waveManager.currentWave === 5 ? 
+                    Math.min(boss.damage, 25) : boss.damage * 1.5;
+                
+                this.game.player.takeDamage(chargeDamage);
+                this.game.addScreenShake(15, 500);
+                boss.isCharging = false;
+                boss.chargeTarget = null;
+                
+                console.log(`Void Hunter charge hit for ${chargeDamage} damage`);
+            }
+        }
     }
 
     /**

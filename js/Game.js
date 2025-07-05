@@ -57,6 +57,7 @@ export class Game {
 		this.enemies = [];
 		this.projectiles = [];
 		this.particles = [];
+		this.bossProjectiles = [];
 	}
 
 	/**
@@ -145,6 +146,7 @@ export class Game {
 		this.enemies = [];
 		this.projectiles = [];
 		this.particles = [];
+		this.bossProjectiles = [];
 
 		this.player.reset();
 		this.waveManager.reset();
@@ -166,6 +168,7 @@ export class Game {
 		this.gameState = "paused";
 		// Clear particles to prevent visual artifacts when resuming
 		this.particles = [];
+		this.bossProjectiles = [];
 		// Clear any pooled particles
 		this.particlePool.clear();
 	}
@@ -207,6 +210,15 @@ export class Game {
 
 		// Remove projectiles and particles that are now off-screen
 		this.projectiles = this.projectiles.filter((proj) => {
+			return (
+				proj.x >= 0 &&
+				proj.x <= this.canvas.width &&
+				proj.y >= 0 &&
+				proj.y <= this.canvas.height
+			);
+		});
+
+		this.bossProjectiles = this.bossProjectiles.filter((proj) => {
 			return (
 				proj.x >= 0 &&
 				proj.x <= this.canvas.width &&
@@ -321,11 +333,17 @@ export class Game {
 		this.particles.forEach((particle) => particle.draw(ctx));
 		this.enemies.forEach((enemy) => enemy.draw(ctx));
 		this.projectiles.forEach((projectile) => projectile.draw(ctx));
+		this.bossProjectiles.forEach((projectile) => this.drawBossProjectile(ctx, projectile));
 		this.player.draw(ctx);
 
 		// Draw spawn warning if enemies are incoming
 		if (this.waveManager.enemiesToSpawn > 0) {
 			this.drawSpawnWarning(ctx);
+		}
+
+		// Draw boss warning if boss wave
+		if (this.wave % 5 === 0 && this.enemies.some(e => e.isBoss)) {
+			this.drawBossWarning(ctx);
 		}
 
 		ctx.restore();
@@ -395,6 +413,46 @@ export class Game {
 		// Reset text properties
 		ctx.textAlign = "left";
 		ctx.shadowBlur = 0;
+	}
+
+	/**
+	 * Draw boss projectile
+	 */
+	drawBossProjectile(ctx, projectile) {
+		ctx.save();
+		ctx.shadowColor = projectile.color;
+		ctx.shadowBlur = 10;
+		ctx.fillStyle = projectile.color;
+		ctx.strokeStyle = '#fff';
+		ctx.lineWidth = 2;
+		
+		ctx.beginPath();
+		ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI * 2);
+		ctx.fill();
+		ctx.stroke();
+		ctx.restore();
+	}
+
+	/**
+	 * Draw boss warning indicator
+	 */
+	drawBossWarning(ctx) {
+		const pulseIntensity = 0.5 + 0.5 * Math.sin(Date.now() / 150);
+		
+		ctx.save();
+		ctx.fillStyle = `rgba(255, 0, 0, ${pulseIntensity * 0.5})`;
+		ctx.font = '24px "Press Start 2P", monospace';
+		ctx.textAlign = "center";
+		ctx.shadowColor = "#f00";
+		ctx.shadowBlur = 15;
+		
+		const bossName = this.waveManager.getBossName();
+		ctx.fillText("BOSS BATTLE", this.canvas.width / 2, 60);
+		
+		ctx.font = '16px "Press Start 2P", monospace';
+		ctx.fillText(bossName, this.canvas.width / 2, 90);
+		
+		ctx.restore();
 	}
 
 	/**

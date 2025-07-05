@@ -43,6 +43,7 @@ export class Enemy {
      * Updates the enemy's position, status effects, and handles player collision.
      * @param {number} delta - Time elapsed since last update in milliseconds
      * @param {Object} player - Player object with x, y, and radius properties
+     * @param {Object} game - Optional game instance (used by bosses)
      */
     update(delta, player) {
         // Skip movement updates if dying
