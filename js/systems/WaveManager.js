@@ -1,6 +1,7 @@
 import { Enemy } from '../Enemy.js';
 import { Boss } from '../Boss.js';
 import { GameConfig } from '../config/GameConfig.js';
+import { playSFX } from '@/main.js';
 
 /**
  * Manages wave progression, enemy spawning, boss encounters, and wave completion logic.
@@ -8,7 +9,7 @@ import { GameConfig } from '../config/GameConfig.js';
 export class WaveManager {
     /**
      * Creates a new wave manager instance.
-     * @param {Game} game - Reference to the main game instance
+     * @param {import('./../Game.js').Game} game - Reference to the main game instance
      */
     constructor(game) {
         this.game = game;
@@ -95,10 +96,7 @@ export class WaveManager {
         
         // Enhanced visual and audio feedback
         this.game.addScreenShake(20, 1500); // Stronger and longer screen shake
-        if (window.playSFX) window.playSFX('boss_spawn');
-        
-        // Show boss warning message with extended duration
-        this.showBossWarning();
+        playSFX('boss_spawn');
         
         // Create dramatic spawn effect
         this.game.createExplosionRing(centerX, centerY, 100);
@@ -108,20 +106,6 @@ export class WaveManager {
         console.log(`Boss spawned at exact center (${boss.x}, ${boss.y}) with health ${boss.health} and damage ${boss.damage}`);
         console.log(`Canvas size: ${this.game.canvas.width}x${this.game.canvas.height}`);
         console.log(`Boss radius: ${boss.radius}, Boss type: ${boss.type}`);
-    }
-
-    /**
-     * Show boss warning message with enhanced visibility
-     */
-    showBossWarning() {
-        // Extended warning display
-        const bossName = this.getBossName();
-        console.log(`🚨 BOSS WAVE ${this.currentWave}! ${bossName} has appeared! 🚨`);
-        
-        // Could trigger UI notification system here
-        if (window.showBossNotification) {
-            window.showBossNotification(bossName, this.currentWave);
-        }
     }
 
     /**

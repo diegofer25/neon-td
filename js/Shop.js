@@ -28,7 +28,7 @@ export class Shop {
         /** @type {string} Currently active shop tab ('offense'|'defense'|'utility') */
         this.currentTab = 'offense';
         
-        /** @type {Player|null} Reference to current player for state management */
+        /** @type {import('./Player.js').Player | null} Reference to current player for state management */
         this.currentPlayer = null;
         
         /** @type {Function|null} Callback function executed on power-up purchase */
@@ -92,7 +92,7 @@ export class Shop {
      * Uses modern stack tracking when available, falls back to legacy calculation.
      * 
      * @param {string} powerUpName - Name of the power-up to check
-     * @param {Player} player - Player object to check stacks for
+     * @param {import('./Player.js').Player} player - Player object to check stacks for
      * @returns {number} Current number of stacks (0 if none)
      * 
      * @todo Migrate all power-ups to use the new stack tracking system
@@ -144,7 +144,7 @@ export class Shop {
      * Displays the shop modal interface with current player state.
      * Initializes tabs, updates coin display, and sets up event handlers.
      * 
-     * @param {Player} player - Current player object
+     * @param {import('./Player.js').Player} player - Current player object
      * @param {number} coins - Player's available coins
      * @param {Function} onPurchase - Callback executed when power-up is purchased
      * @param {Function} onContinue - Callback executed when shop is closed
@@ -194,7 +194,7 @@ export class Shop {
      * Handles tab switching and visual state updates.
      * 
      * @private
-     * @param {Player} player - Current player object
+     * @param {import('./Player.js').Player} player - Current player object
      * @param {number} coins - Player's available coins
      * @param {Function} onPurchase - Purchase callback function
      */
@@ -242,7 +242,7 @@ export class Shop {
      * 
      * @private
      * @param {string} tabName - Tab identifier ('offense'|'defense'|'utility')
-     * @param {Player} player - Current player object
+     * @param {import('./Player.js').Player} player - Current player object
      * @param {number} coins - Player's available coins
      * @param {Function} onPurchase - Purchase callback function
      */
@@ -291,7 +291,7 @@ export class Shop {
      * 
      * @private
      * @param {string} category - Category to filter by ('OFFENSE'|'DEFENSE'|'UTILITY')
-     * @param {Player} player - Player object to check power-up states
+     * @param {import('./Player.js').Player} player - Player object to check power-up states
      * @returns {PowerUp[]} Array of available power-ups for the category
      */
     getPowerUpsByCategory(category, player) {
@@ -329,7 +329,7 @@ export class Shop {
      * 
      * @private
      * @param {string} powerUpName - Name of power-up to check requirements for
-     * @param {Player} player - Player object to check current state
+     * @param {import('./Player.js').Player} player - Player object to check current state
      * @returns {boolean} True if all requirements are met
      */
     areRequirementsMet(powerUpName, player) {
@@ -458,22 +458,13 @@ export class Shop {
     closeShop() {
         document.getElementById('powerUpModal').classList.remove('show');
     }
-    
-    /**
-     * Check if slow field power-up is at maximum stack count
-     * 
-     * @returns {boolean} True if slow field cannot be upgraded further
-     */
-    isSlowFieldMaxed() {
-        return this.slowFieldStrength >= this.maxSlowFieldStacks;
-    }
 
     /**
      * Determines if a power-up has reached its maximum stack limit.
      * Checks both stackable power-ups against their limits and non-stackable power-ups.
      * 
      * @param {string} powerUpName - Name of the power-up to check
-     * @param {Player} player - Player object to check current state
+     * @param {import('./Player.js').Player} player - Player object to check current state
      * @returns {boolean} True if power-up is at maximum level or already owned (non-stackable)
      */
     isPowerUpMaxed(powerUpName, player) {
@@ -496,40 +487,5 @@ export class Shop {
         
         // For power-ups without limits (like Full Heal), never maxed
         return false;
-    }
-
-    /**
-     * Add coins to the player's total with visual feedback
-     * Creates floating text showing coin gain
-     * 
-     * @param {number} amount - Number of coins to add (must be positive)
-     * @throws {Error} If amount is negative or not a number
-     * 
-     * @example
-     * player.addCoins(10); // Adds 10 coins, shows "+10 coins" text
-     */
-    addCoins(amount) {
-        if (typeof amount !== 'number' || amount <= 0) {
-            throw new Error('Invalid coin amount');
-        }
-        
-        this.coins += amount;
-        
-        // Create floating text effect
-        const floatingText = document.createElement('div');
-        floatingText.className = 'floating-coins';
-        floatingText.textContent = `+${amount} coins`;
-        
-        document.getElementById('gameCanvas').appendChild(floatingText);
-        
-        // Animate floating text
-        setTimeout(() => {
-            floatingText.style.transform = 'translateY(-30px)';
-            floatingText.style.opacity = '0';
-        }, 50);
-        
-        setTimeout(() => {
-            floatingText.remove();
-        }, 1000);
     }
 }

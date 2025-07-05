@@ -3,6 +3,8 @@
  * Handles different types of projectiles including standard, piercing, and explosive bullets.
  */
 
+import { createFloatingText, game } from './main.js';
+
 /**
  * Represents a projectile fired by towers in the game.
  * Supports multiple projectile types with different behaviors and visual effects.
@@ -78,8 +80,6 @@ export class Projectile {
      */
     update(delta) {
         // Skip position updates if game is not playing
-        // Note: game reference needs to be passed to projectile or accessed globally
-        const game = window.game?.();
         if (game && game.gameState !== 'playing') return;
         
         // Update position using velocity and frame time
@@ -123,7 +123,7 @@ export class Projectile {
      * Triggers explosion effect if this is an explosive projectile.
      * Damages all enemies within explosion radius and creates visual effects.
      * 
-     * @param {Game} game - The main game instance for accessing enemies and effects
+     * @param {import('./Game.js').Game} game - The main game instance for accessing enemies and effects
      */
     explode(game) {
         if (!this.explosive) return;
@@ -146,15 +146,13 @@ export class Projectile {
                 enemy.takeDamage(Math.floor(damage));
                 
                 // Display damage number floating text
-                if (window.createFloatingText) {
-                    const rect = game.canvas.getBoundingClientRect();
-                    window.createFloatingText(
-                        `-${Math.floor(damage)}`,
-                        enemy.x * (rect.width / game.canvas.width) + rect.left,
-                        enemy.y * (rect.height / game.canvas.height) + rect.top,
-                        'damage'
-                    );
-                }
+                const rect = game.canvas.getBoundingClientRect();
+                createFloatingText(
+                    `-${Math.floor(damage)}`,
+                    enemy.x * (rect.width / game.canvas.width) + rect.left,
+                    enemy.y * (rect.height / game.canvas.height) + rect.top,
+                    'damage'
+                );
             }
         });
         

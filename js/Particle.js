@@ -1,8 +1,117 @@
+import { game } from "./main";
+
 /**
  * Represents a visual particle for game effects like explosions, sparks, trails, and healing effects.
  * Particles have position, velocity, lifecycle, and visual properties that animate over time.
  */
 export class Particle {
+    /**
+     * Particle position in pixels.
+     * @type {number}
+     */
+    x;
+    /**
+     * Particle position in pixels.
+     * @type {number}
+     */
+    y;
+    /**
+     * Particle velocity in pixels per second.
+     * @type {number}
+     */
+    vx;
+    /**
+     * Particle velocity in pixels per second.
+     * @type {number}
+     */
+    vy;
+    /**
+     * Maximum lifetime of the particle in milliseconds.
+     * @type {number}
+     */
+    maxLife;
+    /**
+     * Remaining lifetime of the particle in milliseconds.
+     * @type {number}
+     */
+    life;
+    /**
+     * Particle color in CSS format (e.g., '#fff', 'rgba(255, 0, 0, 0.5)').
+     * @type {string}
+     */
+    color;
+    /**
+     * Color used for glow effects.
+     * @type {string}
+     */
+    glowColor;
+    /**
+     * Particle radius in pixels.
+     * @type {number}
+     */
+    radius;
+    /**
+     * Particle alpha transparency (0 to 1).
+     * @type {number}
+     */
+    alpha;
+    /**
+     * Scale factor for particle size.
+     * @type {number}
+     */
+    scale;
+    /**
+     * Gravity effect on the particle (pixels per second squared).
+     * @type {number}
+     */
+    gravity;
+    /**
+     * Friction applied to particle velocity (0 to 1).
+     * Reduces speed over time.
+     * @type {number}
+     */
+    friction;
+    /**
+     * Scale animation start value.
+     * @type {number}
+     */
+    scaleStart;
+    /**
+     * Scale animation end value.
+     * @type {number}
+     */
+    scaleEnd;
+    /**
+     * Alpha animation start value.
+     * @type {number}
+     */
+    alphaStart;
+    /**
+     * Alpha animation end value.
+     * @type {number}
+     */
+    alphaEnd;
+    /**
+     * Line width for explosion rings.
+     * @type {number}
+     */
+    lineWidth;
+    /**
+     * Current radius for explosion rings.
+     * @type {number}
+     */
+    currentRadius;
+    /**
+     * Maximum radius for explosion rings.
+     * @type {number}
+     */
+    maxRadius;
+    /**
+     * Indicates if this particle is a ring (used for explosion rings).
+     * @type {boolean}
+     */
+    isRing;
+
     /**
      * Creates a new particle instance.
      * @param {number} x - Initial X position in pixels
@@ -41,7 +150,6 @@ export class Particle {
      */
     update(delta) {
         // Skip position updates if game is not playing
-        const game = window.game?.();
         if (game && game.gameState !== 'playing') return;
         
         // Update position (convert from pixels per second to pixels per frame)
@@ -272,7 +380,7 @@ export class Particle {
      */
     static createExplosionRing(x, y, maxRadius, color = '#f80') {
         const particle = new Particle(x, y, 0, 0, 600, color);
-        
+
         // Custom properties for ring rendering
         particle.isRing = true;
         particle.currentRadius = 5;
@@ -281,28 +389,28 @@ export class Particle {
         
         // Override update method for ring expansion
         particle.update = function(delta) {
-            this.life -= delta;
+            particle.life -= delta;
             
             // Expand ring over time
-            const lifePercent = this.life / this.maxLife;
-            this.currentRadius = this.maxRadius * (1 - lifePercent);
-            this.alpha = lifePercent * 0.8; // Fade out as it expands
-            this.lineWidth = 6 * lifePercent; // Thicker at start
+            const lifePercent = particle.life / particle.maxLife;
+            particle.currentRadius = particle.maxRadius * (1 - lifePercent);
+            particle.alpha = lifePercent * 0.8; // Fade out as it expands
+            particle.lineWidth = 6 * lifePercent; // Thicker at start
         };
         
         // Override draw method for ring rendering
         particle.draw = function(ctx) {
-            if (this.isDead()) return;
+            if (particle.isDead()) return;
             
             ctx.save();
-            ctx.globalAlpha = this.alpha;
-            ctx.strokeStyle = this.color;
-            ctx.lineWidth = this.lineWidth;
-            ctx.shadowColor = this.color;
+            ctx.globalAlpha = particle.alpha;
+            ctx.strokeStyle = particle.color;
+            ctx.lineWidth = particle.lineWidth;
+            ctx.shadowColor = particle.color;
             ctx.shadowBlur = 15;
             
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.currentRadius, 0, Math.PI * 2);
+            ctx.arc(particle.x, particle.y, particle.currentRadius, 0, Math.PI * 2);
             ctx.stroke();
             
             ctx.restore();

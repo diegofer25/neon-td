@@ -8,7 +8,7 @@ import { GameConfig } from '../config/GameConfig.js';
 export class EffectsManager {
     /**
      * Creates a new effects manager instance.
-     * @param {Game} game - Reference to the main game instance
+     * @param {import('./../Game.js').Game} game - Reference to the main game instance
      */
     constructor(game) {
         this.game = game;

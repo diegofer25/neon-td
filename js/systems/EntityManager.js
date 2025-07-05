@@ -1,3 +1,5 @@
+import { playSFX } from "@/main";
+
 /**
  * Manages all game entities including players, enemies, and projectiles.
  * Handles entity updates, lifecycle management, and cleanup.
@@ -5,7 +7,7 @@
 export class EntityManager {
     /**
      * Creates a new entity manager instance.
-     * @param {Game} game - Reference to the main game instance
+     * @param {import('./../Game.js').Game} game - Reference to the main game instance
      */
     constructor(game) {
         this.game = game;
@@ -27,7 +29,7 @@ export class EntityManager {
 
     /**
      * Handle enemy death and rewards.
-     * @param {Enemy} enemy - The enemy that died
+     * @param {import('./../Enemy.js').Enemy} enemy - The enemy that died
      * @param {number} index - Index of enemy in array
      */
     onEnemyDeath(enemy, index) {
@@ -52,7 +54,7 @@ export class EntityManager {
         this.game.score += 10;
         
         // Audio feedback
-        if (window.playSFX) window.playSFX('explode');
+        playSFX('explode');
     }
 
     /**
