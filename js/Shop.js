@@ -121,6 +121,11 @@ export class Shop {
             case "Bigger Explosions":
                 // Logarithmic calculation for explosion radius stacks
                 return Math.round(Math.log(player.explosionRadius / 50) / Math.log(1.5));
+            case "Piercing Shots":
+                // Use piercingLevel as the stack count
+                return player.piercingLevel || 0;
+            case "Triple Shot":
+                return player.powerUpStacks && player.powerUpStacks["Triple Shot"] ? player.powerUpStacks["Triple Shot"] : 0;
             case "Full Heal":
                 // Always available at base price (consumable)
                 return 0;

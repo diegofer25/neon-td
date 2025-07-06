@@ -710,12 +710,11 @@ export class Player {
      * 
      * @example
      * const owned = player.getNonStackablePowerUps();
-     * // Returns: ["Triple Shot"] if player has those
+     * // Returns: ["Life Steal", "Explosive Shots"] if player has those
      */
     getNonStackablePowerUps() {
         const owned = [];
         
-        if (this.hasTripleShot) owned.push("Triple Shot");
         if (this.hasLifeSteal) owned.push("Life Steal");
         if (this.explosiveShots) owned.push("Explosive Shots");
         

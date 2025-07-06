@@ -135,10 +135,10 @@ export const GameConfig = {
      */
     ENEMY: {
         /** @type {number} Base health points for standard enemies */
-        BASE_HEALTH: 10,
+        BASE_HEALTH: 11,
         
         /** @type {number} Base movement speed in pixels per second */
-        BASE_SPEED: 40,
+        BASE_SPEED: 35,
         
         /** @type {number} Base damage dealt to player on contact */
         BASE_DAMAGE: 10,
@@ -292,6 +292,9 @@ export const GameConfig = {
         
         // Movement and aiming (multiplicative effects)
         "Turn Speed": 8,       // Up to 4.3x rotation speed (1.2^8)
+        
+        // Projectile abilities
+        "Piercing Shots": 6,   // Up to 6 additional pierces per projectile
         
         // Health and defense (additive effects)
         "Max Health": 10,      // Up to 300% base health

@@ -27,6 +27,7 @@ export class PowerUp {
 		"Fire Rate",
 		"Speed Boost",
 		"Turn Speed",
+		"Piercing Shots",
 		"Triple Shot",
 		"Double Damage",
 		"Rapid Fire",
@@ -89,14 +90,15 @@ export class PowerUp {
 			}
 		),
 
-		new PowerUp(
-			"Piercing Shots",
-			"Projectiles pierce +1 enemy. Damage reduced by 25% for each pierce.",
-			"🎯",
-			(player) => {
-				player.piercingLevel = (player.piercingLevel || 0) + 1;
-			}
-		),
+	new PowerUp(
+		"Piercing Shots",
+		"Projectiles pierce +1 enemy. Damage reduced by 25% for each pierce.",
+		"🎯",
+		(player) => {
+			player.piercingLevel = (player.piercingLevel || 0) + 1;
+			player.powerUpStacks["Piercing Shots"]++;
+		}
+	),
 
 		new PowerUp(
 			"Triple Shot",
