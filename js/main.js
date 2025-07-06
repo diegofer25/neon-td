@@ -411,12 +411,12 @@ function updateHUD() {
 function updateStatsDisplay() {
     // Calculate current attack damage with modifiers
     const baseDamage = 10;
-    const currentAttack = Math.floor(baseDamage * game.player.damageMod);
-    updateStatValue('attackValue', currentAttack);
+    const currentAttack = baseDamage * game.player.damageMod;
+    updateStatValue('attackValue', currentAttack.toFixed(1));
     
     // Calculate total defense including shield
-    const currentDefense = game.player.maxHp + (game.player.hasShield ? game.player.maxShieldHp : 0);
-    updateStatValue('defenseValue', currentDefense);
+    const currentDefense = game.player.shieldHp + (game.player.hasShield ? game.player.maxShieldHp : 0);
+    updateStatValue('defenseValue', currentDefense.toFixed(1));
     
     // Display attack speed multiplier with rotation status (formatted to 1 decimal)
     const currentSpeed = game.player.fireRateMod.toFixed(1);
@@ -427,8 +427,8 @@ function updateStatsDisplay() {
     updateStatValue('regenValue', regenRate);
 
     // Update health per second (HPS) value
-    const hpsValue = (game.player.hpRegen * game.player.powerUpStacks['Regeneration']).toFixed(1);
-    updateStatValue('hpsValue', hpsValue);
+    const hpsValue = game.player.hpRegen * game.player.powerUpStacks['Regeneration'];
+    updateStatValue('hpsValue', hpsValue.toFixed(1));
 }
 
 /**

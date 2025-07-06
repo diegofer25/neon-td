@@ -26,12 +26,26 @@ export class Boss extends Enemy {
         const dy = player.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
+        // Store previous position for velocity calculation
+        this.prevX = this.x;
+        this.prevY = this.y;
+
         if (distance > 200) { // Keep some distance
             const normalizedDx = dx / distance;
             const normalizedDy = dy / distance;
             const actualSpeed = this.speed * (delta / 1000);
             this.x += normalizedDx * actualSpeed;
             this.y += normalizedDy * actualSpeed;
+        }
+        
+        // Calculate velocity in pixels per second for predictive targeting
+        const deltaSeconds = delta / 1000;
+        if (deltaSeconds > 0) {
+            this.vx = (this.x - this.prevX) / deltaSeconds;
+            this.vy = (this.y - this.prevY) / deltaSeconds;
+        } else {
+            this.vx = 0;
+            this.vy = 0;
         }
 
 

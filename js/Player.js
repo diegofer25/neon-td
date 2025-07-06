@@ -281,9 +281,9 @@ export class Player {
             this.rotationTime = 0;
         }
         
-        // Continuously update target angle to track moving enemies
+        // Update target angle with predictive aiming for moving enemies
         if (this.currentTarget) {
-            this.targetAngle = MathUtils.angleBetween(this.x, this.y, this.currentTarget.x, this.currentTarget.y);
+            this.targetAngle = this._calculatePredictiveAngle(this.currentTarget);
         }
         
         // Update rotation timer if currently rotating
@@ -333,11 +333,15 @@ export class Player {
         // Fire if we have a target, are off cooldown, and are reasonably aimed
         const hasValidTarget = this.currentTarget && this.currentTarget.health > 0;
         const isOffCooldown = this.fireCooldown <= 0;
-        const isReasonablyAimed = this.targetAngle !== null && 
-            MathUtils.isAngleWithinTolerance(this.angle, this.targetAngle, GameConfig.PLAYER.FIRING_TOLERANCE);
+        
+        // Use current predictive angle for firing check to ensure accuracy
+        const currentPredictiveAngle = this._calculatePredictiveAngle(this.currentTarget);
+        const isReasonablyAimed = currentPredictiveAngle !== null && 
+            MathUtils.isAngleWithinTolerance(this.angle, currentPredictiveAngle, GameConfig.PLAYER.FIRING_TOLERANCE);
         
         if (hasValidTarget && isOffCooldown && isReasonablyAimed) {
-            this.fireProjectile(game);
+            // Use the predictive angle for firing to ensure we hit moving targets
+            this.fireProjectile(game, currentPredictiveAngle);
             this.fireCooldown = this.getFireInterval();
         }
     }
@@ -412,6 +416,37 @@ export class Player {
     }
     
     /**
+     * Calculate predictive angle to lead moving targets
+     * 
+     * @private
+     * @param {Object} target - Target enemy with position and velocity
+     * @returns {number} Predicted angle to intercept the target
+     */
+    _calculatePredictiveAngle(target) {
+        if (!target) return null;
+        
+        // Calculate basic angle to current position
+        const basicAngle = MathUtils.angleBetween(this.x, this.y, target.x, target.y);
+        
+        // If target has no velocity data or is not moving, use basic angle
+        if (!target.vx || !target.vy || (Math.abs(target.vx) < 0.1 && Math.abs(target.vy) < 0.1)) {
+            return basicAngle;
+        }
+        
+        // Calculate time for projectile to reach target
+        const distance = this._calculateDistanceTo(target);
+        const projectileSpeed = GameConfig.PLAYER.BASE_PROJECTILE_SPEED * this.projectileSpeedMod;
+        const timeToTarget = distance / projectileSpeed;
+        
+        // Predict where target will be when projectile arrives
+        const predictedX = target.x + (target.vx * timeToTarget);
+        const predictedY = target.y + (target.vy * timeToTarget);
+        
+        // Return angle to predicted position
+        return MathUtils.angleBetween(this.x, this.y, predictedX, predictedY);
+    }
+    
+    /**
      * Calculate effective fire interval based on current fire rate modifier
      * 
      * @returns {number} Time between shots in milliseconds
@@ -428,14 +463,16 @@ export class Player {
      * Handles single shots, triple shots, and all projectile modifications
      * 
      * @param {import('./Game.js').Game} game - Game instance for adding projectiles and effects
+     * @param {number} [overrideAngle] - Optional angle override for predictive firing
      */
-    fireProjectile(game) {
+    fireProjectile(game, overrideAngle = null) {
         const damage = GameConfig.PLAYER.BASE_DAMAGE * this.damageMod;
+        const firingAngle = overrideAngle !== null ? overrideAngle : this.angle;
         
         if (this.hasTripleShot) {
-            this._fireTripleShot(game, damage);
+            this._fireTripleShot(game, damage, firingAngle);
         } else {
-            this._fireSingleShot(game, damage);
+            this._fireSingleShot(game, damage, firingAngle);
         }
         
         this.createMuzzleFlash(game);
@@ -450,8 +487,9 @@ export class Player {
      * @private
      * @param {Object} game - Game instance
      * @param {number} damage - Base damage per projectile
+     * @param {number} centerAngle - Center angle for the triple shot
      */
-    _fireTripleShot(game, damage) {
+    _fireTripleShot(game, damage, centerAngle) {
         const spreadAngle = Math.PI / 12; // 15 degrees spread
 
         // Calculate damage for side projectiles
@@ -459,11 +497,11 @@ export class Player {
         const damageModifier = Math.min(0.2 + (tripleShotStacks - 1) * 0.1, 1.0);
 
         // Main projectile (center)
-        this._fireSingleShot(game, damage);
+        this._fireSingleShot(game, damage, centerAngle);
 
         // Side projectiles
-        const leftAngle = this.angle - spreadAngle;
-        const rightAngle = this.angle + spreadAngle;
+        const leftAngle = centerAngle - spreadAngle;
+        const rightAngle = centerAngle + spreadAngle;
 
         const leftProjectile = this._createProjectile(leftAngle, damage * damageModifier);
         leftProjectile.isExtra = true;
@@ -480,9 +518,10 @@ export class Player {
      * @private
      * @param {Object} game - Game instance
      * @param {number} damage - Projectile damage
+     * @param {number} angle - Firing angle
      */
-    _fireSingleShot(game, damage) {
-        const projectile = this._createProjectile(this.angle, damage);
+    _fireSingleShot(game, damage, angle) {
+        const projectile = this._createProjectile(angle, damage);
         game.projectiles.push(projectile);
     }
     

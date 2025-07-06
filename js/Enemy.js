@@ -28,6 +28,12 @@ export class Enemy {
         this.damage = damage;
         this.radius = 20; // Collision radius in pixels
         
+        // Velocity tracking for predictive targeting
+        this.vx = 0; // Velocity X component in pixels per second
+        this.vy = 0; // Velocity Y component in pixels per second
+        this.prevX = x; // Previous X position for velocity calculation
+        this.prevY = y; // Previous Y position for velocity calculation
+        
         // Visual properties
         this.color = '#0ff'; // Main body color (cyan)
         this.glowColor = '#0ff'; // Glow effect color
@@ -74,8 +80,23 @@ export class Enemy {
             
             // Convert speed from pixels per second to pixels per frame
             const actualSpeed = this.speed * this.slowFactor * (delta / 1000);
+            
+            // Store previous position for velocity calculation
+            this.prevX = this.x;
+            this.prevY = this.y;
+            
+            // Update position
             this.x += normalizedDx * actualSpeed;
             this.y += normalizedDy * actualSpeed;
+            
+            // Calculate velocity in pixels per second for predictive targeting
+            const deltaSeconds = delta / 1000;
+            this.vx = (this.x - this.prevX) / deltaSeconds;
+            this.vy = (this.y - this.prevY) / deltaSeconds;
+        } else {
+            // Enemy is very close or at player position - zero velocity
+            this.vx = 0;
+            this.vy = 0;
         }
         
         // Reset slow factor each frame (reapplied by slow towers if in range)
