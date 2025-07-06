@@ -29,3 +29,31 @@
   margin-left: 10px;
   vertical-align: top;
 }
+
+/* Defense Bar Container */
+.defensebar {
+  width: 200px;
+  height: var(--spacing-xl);
+  background: #222;
+  border: 2px solid var(--color-secondary-neon);
+  box-shadow: 0 0 10px var(--color-secondary-neon);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Defense Bar Fill */
+.defensefill {
+  height: 100%;
+  background: linear-gradient(90deg, #0080ff, #00ffff);
+  transition: width var(--transition-normal);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+/* Defense Text Display */
+#defenseText {
+  color: var(--color-secondary-neon);
+  text-shadow: 0 0 5px var(--color-secondary-neon);
+  font-size: 14px;
+  margin-left: 10px;
+  vertical-align: top;
+}

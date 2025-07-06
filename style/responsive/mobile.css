@@ -88,6 +88,19 @@
     height: var(--spacing-lg);
   }
   
+  .defensebar {
+    width: 150px;
+    height: var(--spacing-lg);
+  }
+  
+  .coin-display {
+    top: 35px; /* Adjusted for mobile - closer spacing */
+  }
+  
+  #defenseBar {
+    top: 30px; /* Adjusted for mobile - closer spacing */
+  }
+  
   .stat-item {
     margin-bottom: 2px;
     padding: 3px var(--spacing-md);

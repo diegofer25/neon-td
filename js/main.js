@@ -387,6 +387,41 @@ function updateHUD() {
     document.getElementById('healthFill').style.width = healthPercentage.toFixed(1) + '%';
     document.getElementById('healthText').textContent = `${Math.max(0, Math.floor(game.player.hp))}/${game.player.maxHp}`;
     
+    // Show/hide defense bar based on shield status
+    const defenseBarElement = document.getElementById('defenseBar');
+    const coinDisplayElement = document.getElementById('coinDisplay');
+    
+    if (game.player.hasShield) {
+        // Player has shield - show defense bar
+        defenseBarElement.style.display = 'block';
+        
+        // Update defense bar visualization
+        const currentDefense = game.player.shieldHp;
+        const maxDefense = game.player.maxShieldHp;
+        const defensePercentage = maxDefense > 0 ? Math.max(0, (currentDefense / maxDefense) * 100) : 0;
+        document.getElementById('defenseFill').style.width = defensePercentage.toFixed(1) + '%';
+        document.getElementById('defenseText').textContent = `${Math.max(0, Math.floor(currentDefense))}/${Math.floor(maxDefense)}`;
+        
+        // Adjust coin display position to be below defense bar
+        // Mobile responsive positioning is handled by CSS media queries
+        if (window.innerWidth <= 768) {
+            coinDisplayElement.style.top = '65px'; // Tablet/mobile positioning
+        } else {
+            coinDisplayElement.style.top = '85px'; // Desktop positioning
+        }
+    } else {
+        // Player doesn't have shield - hide defense bar
+        defenseBarElement.style.display = 'none';
+        
+        // Adjust coin display position to be below health bar only
+        // Mobile responsive positioning is handled by CSS media queries
+        if (window.innerWidth <= 768) {
+            coinDisplayElement.style.top = '35px'; // Tablet/mobile positioning
+        } else {
+            coinDisplayElement.style.top = '45px'; // Desktop positioning
+        }
+    }
+    
     // Update currency display (rounded to whole number)
     document.getElementById('coinAmount').textContent = Math.round(game.player.coins).toString();
     
@@ -413,10 +448,6 @@ function updateStatsDisplay() {
     const baseDamage = 10;
     const currentAttack = baseDamage * game.player.damageMod;
     updateStatValue('attackValue', currentAttack.toFixed(1));
-    
-    // Calculate total defense including shield
-    const currentDefense = game.player.shieldHp + (game.player.hasShield ? game.player.maxShieldHp : 0);
-    updateStatValue('defenseValue', currentDefense.toFixed(1));
     
     // Display attack speed multiplier with rotation status (formatted to 1 decimal)
     const currentSpeed = game.player.fireRateMod.toFixed(1);
