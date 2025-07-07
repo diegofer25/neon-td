@@ -155,10 +155,12 @@ export const GameConfig = {
          * Each variant applies these multipliers to base stats:
          * - FAST: Low health, high speed glass cannons
          * - TANK: High health, low speed bullet sponges
+         * - SPLITTER: Medium stats, splits into smaller enemies on death
          */
         VARIANTS: {
             FAST: { health: 0.5, speed: 2.0, damage: 1.5 },
-            TANK: { health: 3.0, speed: 0.5, damage: 2.5 }
+            TANK: { health: 3.0, speed: 0.5, damage: 2.5 },
+            SPLITTER: { health: 2.0, speed: 0.8, damage: 1.8 }
         }
     },
 

@@ -102,14 +102,27 @@ export class WaveManager {
             } else {
                 enemy = Enemy.createFastEnemy(x, y, 1);
             }
-        } else {
-            // Wave 21+: Basic (60%), Fast (30%), Tank (10%) enemies (after second boss)
-            if (random < 0.6) {
+        } else if (this.currentWave < 31) {
+            // Wave 21-30: Basic (50%), Fast (25%), Tank (15%), Splitter (10%) enemies
+            if (random < 0.5) {
                 enemy = Enemy.createBasicEnemy(x, y, 1);
-            } else if (random < 0.9) {
+            } else if (random < 0.75) {
                 enemy = Enemy.createFastEnemy(x, y, 1);
-            } else {
+            } else if (random < 0.9) {
                 enemy = Enemy.createTankEnemy(x, y, 1);
+            } else {
+                enemy = Enemy.createSplitterEnemy(x, y, 1);
+            }
+        } else {
+            // Wave 31+: Basic (40%), Fast (25%), Tank (20%), Splitter (15%) enemies
+            if (random < 0.4) {
+                enemy = Enemy.createBasicEnemy(x, y, 1);
+            } else if (random < 0.65) {
+                enemy = Enemy.createFastEnemy(x, y, 1);
+            } else if (random < 0.85) {
+                enemy = Enemy.createTankEnemy(x, y, 1);
+            } else {
+                enemy = Enemy.createSplitterEnemy(x, y, 1);
             }
         }
         
@@ -118,6 +131,9 @@ export class WaveManager {
         enemy.maxHealth *= this.waveScaling.health;
         enemy.speed *= this.waveScaling.speed;
         enemy.damage *= this.waveScaling.damage;
+        
+        // Set game reference for enemies that need it (like splitters)
+        enemy.setGameReference(this.game);
         
         this.game.enemies.push(enemy);
     }
@@ -131,10 +147,16 @@ export class WaveManager {
 
     /**
      * Check if current wave is complete.
+     * Wave is complete when all enemies to spawn have been spawned AND
+     * no enemies remain (including any splits from splitter enemies).
      * @returns {boolean} True if wave is complete
      */
     isWaveComplete() {
-        return this.enemiesToSpawn === 0 && this.game.enemies.length === 0;
+        // Wave is complete when no more enemies to spawn and no enemies on field
+        const noMoreSpawns = this.enemiesToSpawn === 0;
+        const noEnemiesLeft = this.game.enemies.length === 0;
+        
+        return noMoreSpawns && noEnemiesLeft;
     }
 
     /**
