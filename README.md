@@ -107,6 +107,35 @@ npx live-server --port=8080
 - **Lucky Shots**: 10% chance for bullets to deal double damage (stackable chance up to 50%)
 - **Immolation Aura**: All nearby enemies take 1% of their max health as burn damage per second (stackable)
 
+### 👾 Enemy Types
+
+#### Basic Enemy (Cyan)
+- **Appearance**: Waves 1-10
+- **Characteristics**: Balanced stats, hexagonal shape
+- **Strategy**: Standard threat, good for learning the game
+
+#### Fast Enemy (Magenta) 
+- **Appearance**: Waves 11+ (40% spawn rate)
+- **Characteristics**: 50% health, 200% speed, 150% damage
+- **Strategy**: Glass cannons that rush quickly but die easily
+
+#### Tank Enemy (Yellow)
+- **Appearance**: Waves 21+ (10-20% spawn rate)
+- **Characteristics**: 300% health, 50% speed, 250% damage
+- **Strategy**: Slow but heavily armored, requires sustained fire
+
+#### 🆕 Splitter Enemy (Orange)
+- **Appearance**: Waves 21+ (10-15% spawn rate)
+- **Characteristics**: 200% health, 80% speed, 180% damage
+- **Special Ability**: Splits into 2-3 smaller enemies when destroyed
+- **Generations**: Can split up to 3 times (Original → Split → Mini-Split)
+- **Visual Cues**: Pulsating orange glow, generation dots above health bar
+- **Strategy**: Prioritize early to prevent exponential enemy multiplication!
+
+#### Boss Enemies
+- **Classic Boss (Magenta)**: Waves 10, 30, 50... - Projectile bursts and charging attacks
+- **🆕 Shield Boss (Cyan)**: Waves 20, 40, 60... - Regenerating shields and laser attacks
+
 ## 🏗️ Architecture
 
 ### Core Systems
