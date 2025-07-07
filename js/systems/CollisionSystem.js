@@ -21,6 +21,7 @@ export class CollisionSystem {
     checkAllCollisions() {
         this._checkProjectileEnemyCollisions();
         this._checkPlayerEnemyCollisions();
+        this._checkEnemyProjectilePlayerCollisions();
     }
 
     /**
@@ -29,6 +30,9 @@ export class CollisionSystem {
      */
     _checkProjectileEnemyCollisions() {
         this.game.projectiles.forEach((projectile, pIndex) => {
+            // Skip enemy projectiles
+            if (projectile.isEnemyProjectile) return;
+            
             this.game.enemies.forEach((enemy) => {
                 if (MathUtils.circleCollision(projectile, enemy)) {
                     this._handleProjectileHit(projectile, enemy, pIndex);
@@ -142,5 +146,45 @@ export class CollisionSystem {
             this.game.player.y * (rect.height / this.game.canvas.height) + rect.top,
             'player-damage'
         );
+    }
+    
+    /**
+     * Handle enemy projectiles vs player collisions.
+     * @private
+     */
+    _checkEnemyProjectilePlayerCollisions() {
+        this.game.projectiles.forEach((projectile, pIndex) => {
+            // Only check enemy projectiles
+            if (!projectile.isEnemyProjectile) return;
+            
+            if (MathUtils.circleCollision(projectile, this.game.player)) {
+                this._handleEnemyProjectileHit(projectile, pIndex);
+            }
+        });
+    }
+    
+    /**
+     * Process enemy projectile hitting the player.
+     * @private
+     * @param {import('./../Projectile.js').Projectile} projectile - The projectile that hit
+     * @param {number} projectileIndex - Index of projectile in array
+     */
+    _handleEnemyProjectileHit(projectile, projectileIndex) {
+        // Damage player
+        this.game.player.takeDamage(projectile.damage);
+        
+        // Visual and audio feedback
+        this.game.effectsManager.addScreenShake(8, 200);
+        screenFlash();
+        playSFX('hurt');
+        
+        // Show damage text
+        this._showPlayerDamageText(projectile.damage);
+        
+        // Create hit effect
+        this.game.effectsManager.createHitEffect(this.game.player.x, this.game.player.y);
+        
+        // Remove projectile
+        this.game.projectiles.splice(projectileIndex, 1);
     }
 }

@@ -43,7 +43,7 @@ export class WaveManager {
         this.enemiesKilled = 0;
         this.waveCompletionTimer = 0;
         this.waveStartTime = Date.now();
-        this.isBossWave = this.currentWave > 0 && this.currentWave % 5 === 0;
+        this.isBossWave = this.currentWave > 0 && this.currentWave % 10 === 0;
 
         const enemyCount = GameConfig.DERIVED.getEnemyCountForWave(this.currentWave);
         this.enemiesToSpawn = enemyCount;
@@ -92,19 +92,19 @@ export class WaveManager {
         const random = Math.random();
         let enemy;
         
-        if (this.currentWave < 5) {
-            // Waves 1-4: Only basic enemies
+        if (this.currentWave < 11) {
+            // Waves 1-10: Only basic enemies (including boss wave 10)
             enemy = Enemy.createBasicEnemy(x, y, 1);
-        } else if (this.currentWave < 10) {
-            // Waves 5-9: Basic (80%) and Fast (20%) enemies
+        } else if (this.currentWave < 21) {
+            // Waves 11-20: Basic (60%) and Fast (40%) enemies (after first boss)
             if (random < 0.6) {
                 enemy = Enemy.createBasicEnemy(x, y, 1);
             } else {
                 enemy = Enemy.createFastEnemy(x, y, 1);
             }
         } else {
-            // Wave 10+: Basic (70%), Fast (20%), Tank (10%) enemies
-            if (random < 0.7) {
+            // Wave 21+: Basic (60%), Fast (30%), Tank (10%) enemies (after second boss)
+            if (random < 0.6) {
                 enemy = Enemy.createBasicEnemy(x, y, 1);
             } else if (random < 0.9) {
                 enemy = Enemy.createFastEnemy(x, y, 1);
