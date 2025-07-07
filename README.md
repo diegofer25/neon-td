@@ -324,7 +324,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [ ] **Audio System**: Add sound effects and background music
 - [x] **Enemy Varieties**: Multiple enemy types with unique behaviors  
-- [ ] **Boss Battles**: Special boss enemies every 5 waves with enhanced visibility and combat feedback
+- [x] **Boss Battles**: Special boss enemies every 10 waves with enhanced visibility and combat feedback
 - [ ] **Achievements**: Unlock system for milestone rewards
 - [ ] **Leaderboards**: High score tracking and sharing
 - [ ] **Mobile Controls**: Touch-friendly interface improvements
