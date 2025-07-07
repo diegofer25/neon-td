@@ -62,13 +62,19 @@ export class CollisionSystem {
             return;
         }
 
+        // Calculate damage based on piercing mechanics
+        const currentDamage = projectile.getCurrentDamage();
+        
         // Damage enemy
-        enemy.takeDamage(projectile.damage);
+        enemy.takeDamage(currentDamage);
         projectile.hitEnemyIds.push(enemy.id); // Record hit
+        
+        // Increment enemies hit count for piercing damage reduction
+        projectile.enemiesHit++;
         
         // Create visual effects
         this.game.effectsManager.createHitEffect(enemy.x, enemy.y);
-        this._showDamageText(enemy, projectile.damage);
+        this._showDamageText(enemy, currentDamage);
         
         // Handle explosive projectiles
         if (projectile.explosive) {

@@ -77,6 +77,25 @@ export class Projectile {
     }
     
     /**
+     * Calculates the current damage this projectile should deal based on piercing mechanics.
+     * For piercing projectiles, damage decreases by 25% for each enemy hit.
+     * First hit: 100% damage, Second hit: 75% damage, Third hit: 50% damage, etc.
+     *
+     * @returns {number} The current damage this projectile should deal
+     */
+    getCurrentDamage() {
+        if (!this.piercing) {
+            return this.originalDamage;
+        }
+
+        // Calculate damage reduction: 25% less damage for each enemy hit
+        const damageReduction = this.enemiesHit * 0.25;
+        const currentDamageMultiplier = Math.max(0, 1 - damageReduction);
+
+        return this.originalDamage * currentDamageMultiplier;
+    }
+    
+    /**
      * Updates the projectile's position, lifetime, and visual effects.
      * Called once per frame by the game loop.
      * 
