@@ -96,30 +96,28 @@ export class WaveManager {
             // Waves 1-10: Only basic enemies (including boss wave 10)
             enemy = Enemy.createBasicEnemy(x, y, 1);
         } else if (this.currentWave < 21) {
-            // Waves 11-20: Basic (60%) and Fast (40%) enemies (after first boss)
-            if (random < 0.6) {
+            // Waves 11-20: Basic (80%) and Fast (20%) enemies (after first boss)
+            if (random < 0.8) {
                 enemy = Enemy.createBasicEnemy(x, y, 1);
             } else {
                 enemy = Enemy.createFastEnemy(x, y, 1);
             }
         } else if (this.currentWave < 31) {
-            // Wave 21-30: Basic (50%), Fast (25%), Tank (15%), Splitter (10%) enemies
-            if (random < 0.5) {
+            // Wave 21-30: Basic (70%), Fast (15%), Tank (15%) enemies
+            if (random < 0.7) {
                 enemy = Enemy.createBasicEnemy(x, y, 1);
-            } else if (random < 0.75) {
+            } else if (random < 0.85) {
                 enemy = Enemy.createFastEnemy(x, y, 1);
-            } else if (random < 0.9) {
-                enemy = Enemy.createTankEnemy(x, y, 1);
             } else {
-                enemy = Enemy.createSplitterEnemy(x, y, 1);
+                enemy = Enemy.createTankEnemy(x, y, 1);
             }
         } else {
-            // Wave 31+: Basic (40%), Fast (25%), Tank (20%), Splitter (15%) enemies
-            if (random < 0.4) {
+            // Wave 31+: Basic (60%), Fast (10%), Tank (10%), Splitter (10%) enemies
+            if (random < 0.6) {
                 enemy = Enemy.createBasicEnemy(x, y, 1);
-            } else if (random < 0.65) {
+            } else if (random < 0.70) {
                 enemy = Enemy.createFastEnemy(x, y, 1);
-            } else if (random < 0.85) {
+            } else if (random < 0.80) {
                 enemy = Enemy.createTankEnemy(x, y, 1);
             } else {
                 enemy = Enemy.createSplitterEnemy(x, y, 1);
