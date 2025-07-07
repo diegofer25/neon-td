@@ -273,7 +273,14 @@ export const GameConfig = {
         "Bigger Explosions": 35,
         "Coin Magnet": 20,
         "Lucky Shots": 30,
-        "Immolation Aura": 55
+        "Immolation Aura": 55,
+        
+        // Shield Boss Counter abilities (premium pricing for specialized use)
+        "Shield Breaker": 70,
+        "Adaptive Targeting": 65,
+        "Barrier Phase": 80,
+        "Overcharge Burst": 75,
+        "Emergency Heal": 60
     },
 
     /**
@@ -313,6 +320,11 @@ export const GameConfig = {
         "Coin Magnet": 8,      // Up to 5x coin rewards (1 + 8*0.5)
         "Lucky Shots": 5,      // Up to 50% crit chance
         "Immolation Aura": 10,   // Up to 10% max health burn damage
+        
+        // Shield Boss Counter abilities
+        "Shield Breaker": 5,   // Up to 4.5x shield damage, 7s regen delay
+        "Overcharge Burst": 3, // Down to every 5th shot, 11x damage
+        "Emergency Heal": 3,   // Down to 20s cooldown, heal to 80%
     },
 
     // Audio configuration

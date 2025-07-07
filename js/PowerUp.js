@@ -38,7 +38,10 @@ export class PowerUp {
 		"Bigger Explosions",
 		"Coin Magnet",
 		"Lucky Shots",
-		"Immolation Aura"
+		"Immolation Aura",
+		"Shield Breaker",
+		"Overcharge Burst",
+		"Emergency Heal"
 	];
 
 	/**
@@ -270,24 +273,118 @@ export class PowerUp {
 			}
 		),
 
-		new PowerUp(
-			"Immolation Aura",
-			"All nearby enemies take 1% of their max health as burn damage per second",
-			"🔥",
-			(player) => {
-				if (!player.immolationAura) {
-					player.immolationAura = {
-						active: true,
-						damagePercent: 0.01, // 1% burn damage per second
-						range: 100, // Aura radius
-					};
-				} else {
-					player.immolationAura.damagePercent += 0.01; // Increase burn damage by 1% per stack
-					player.immolationAura.range += 20; // Increase aura radius by 20
-				}
-				player.powerUpStacks["Immolation Aura"]++;
+	new PowerUp(
+		"Immolation Aura",
+		"All nearby enemies take 1% of their max health as burn damage per second",
+		"🔥",
+		(player) => {
+			if (!player.immolationAura) {
+				player.immolationAura = {
+					active: true,
+					damagePercent: 0.01, // 1% burn damage per second
+					range: 100, // Aura radius
+				};
+			} else {
+				player.immolationAura.damagePercent += 0.01; // Increase burn damage by 1% per stack
+				player.immolationAura.range += 20; // Increase aura radius by 20
 			}
-		)
+			player.powerUpStacks["Immolation Aura"]++;
+		}
+	),
+
+	// Shield Boss Counter Power-ups
+	new PowerUp(
+		"Shield Breaker",
+		"Projectiles deal +100% damage to shields and prevent shield regeneration for 2s",
+		"🔨",
+		(player) => {
+			player.hasShieldBreaker = true;
+			if (!player.shieldBreakerStacks) {
+				player.shieldBreakerStacks = 1;
+				player.shieldBreakerDamage = 2.0; // 100% extra damage to shields
+				player.shieldRegenDelay = 2000; // 2 second regen delay
+			} else {
+				player.shieldBreakerStacks++;
+				player.shieldBreakerDamage += 0.5; // +50% more shield damage per stack
+				player.shieldRegenDelay += 1000; // +1 second delay per stack
+			}
+			player.powerUpStacks["Shield Breaker"] = player.shieldBreakerStacks;
+		},
+		true
+	),
+
+	new PowerUp(
+		"Adaptive Targeting",
+		"Greatly increased rotation speed and targeting range. Projectiles track moving enemies.",
+		"🎯",
+		(player) => {
+			player.hasAdaptiveTargeting = true;
+			player.turnSpeed *= 2.0; // Double rotation speed
+			player.targetingRange = 500; // Extended targeting range
+			player.hasHomingShots = true; // Projectiles slightly home in on targets
+			player.powerUpStacks["Adaptive Targeting"] = (player.powerUpStacks["Adaptive Targeting"] || 0) + 1;
+		},
+		false
+	),
+
+	new PowerUp(
+		"Barrier Phase",
+		"Become invulnerable for 3 seconds when health drops below 25%. 60s cooldown.",
+		"✨",
+		(player) => {
+			player.hasBarrierPhase = true;
+			player.barrierPhaseCooldown = 0;
+			player.barrierPhaseMaxCooldown = 60000; // 60 seconds
+			player.barrierPhaseDuration = 3000; // 3 seconds invulnerability
+			player.barrierPhaseActive = false;
+			player.barrierPhaseThreshold = 0.25; // Trigger at 25% health
+		},
+		false
+	),
+
+	new PowerUp(
+		"Overcharge Burst",
+		"Every 10th shot fires a powerful burst that pierces all shields and deals massive damage",
+		"⚡",
+		(player) => {
+			if (!player.overchargeBurst) {
+				player.overchargeBurst = {
+					active: true,
+					shotCounter: 0,
+					burstInterval: 10,
+					burstDamageMultiplier: 5.0,
+					ignoresShields: true
+				};
+			} else {
+				player.overchargeBurst.burstInterval = Math.max(5, player.overchargeBurst.burstInterval - 2);
+				player.overchargeBurst.burstDamageMultiplier += 2.0;
+			}
+			player.powerUpStacks["Overcharge Burst"] = (player.powerUpStacks["Overcharge Burst"] || 0) + 1;
+		},
+		true
+	),
+
+	new PowerUp(
+		"Emergency Heal",
+		"Automatically heal to 50% when health drops below 10%. 45s cooldown.",
+		"💉",
+		(player) => {
+			if (!player.emergencyHeal) {
+				player.emergencyHeal = {
+					active: true,
+					cooldown: 0,
+					maxCooldown: 45000, // 45 seconds
+					healThreshold: 0.10, // Trigger at 10% health
+					healTarget: 0.50 // Heal to 50%
+				};
+			} else {
+				player.emergencyHeal.maxCooldown = Math.max(20000, player.emergencyHeal.maxCooldown - 10000);
+				player.emergencyHeal.healTarget = Math.min(0.80, player.emergencyHeal.healTarget + 0.15);
+			}
+			player.powerUpStacks["Emergency Heal"] = (player.powerUpStacks["Emergency Heal"] || 0) + 1;
+		},
+		true
+	)
 	];
 
 	/**
@@ -315,6 +412,9 @@ export class PowerUp {
 			"Bigger Explosions",
 			"Double Damage",
 			"Rapid Fire",
+			"Shield Breaker",
+			"Adaptive Targeting",
+			"Overcharge Burst",
 		],
 		DEFENSE: [
 			"Max Health",
@@ -322,6 +422,8 @@ export class PowerUp {
 			"Regeneration",
 			"Shield Regen",
 			"Full Heal",
+			"Barrier Phase",
+			"Emergency Heal",
 		],
 		UTILITY: [
 			"Life Steal",

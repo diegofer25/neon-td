@@ -226,7 +226,7 @@ export class ShieldBoss extends Boss {
         this.updateShield(delta);
         
         // Override movement - shield boss moves in a circular pattern
-        this.circularMovement(delta, player);
+        this.circularMovement(delta);
         
         // Handle attack patterns
         this.updateAttacks(delta, player);
@@ -263,7 +263,11 @@ export class ShieldBoss extends Boss {
         }
     }
     
-    circularMovement(delta, player) {
+    /**
+     * Circular movement around the center of the screen
+     * @param {number} delta - Time since last update in milliseconds
+     */
+    circularMovement(delta) {
         const centerX = this.game.canvas.width / 2;
         const centerY = this.game.canvas.height / 2;
         const orbitRadius = 250;
@@ -307,7 +311,7 @@ export class ShieldBoss extends Boss {
         
         // Execute charged laser
         if (this.isChargingLaser && this.laserChargeTimer >= this.laserChargeDuration) {
-            this.fireLaser(player);
+            this.fireLaser();
             this.isChargingLaser = false;
             this.laserChargeTimer = 0;
         }
@@ -414,7 +418,7 @@ export class ShieldBoss extends Boss {
         this.laserTargetY = player.y;
     }
     
-    fireLaser(player) {
+    fireLaser() {
         // Fire a powerful laser beam
         const laserLength = 800;
         const angle = Math.atan2(this.laserTargetY - this.y, this.laserTargetX - this.x);
@@ -430,7 +434,7 @@ export class ShieldBoss extends Boss {
                 const projectile = new Projectile(x, y, angle, 20);
                 projectile.isEnemyProjectile = true;
                 projectile.speed = 0; // Stationary laser segments
-                projectile.life = 500; // Short duration
+                projectile.maxLifetime = 500; // Short duration
                 this.game.projectiles.push(projectile);
             }, i * 50); // Staggered appearance
         }
@@ -439,14 +443,36 @@ export class ShieldBoss extends Boss {
         this.game.addScreenShake(8, 300);
     }
     
-    takeDamage(damage) {
+    takeDamage(damage, projectile = null) {
         this.lastDamageTime = Date.now();
         
+        // Check for Overcharge Burst that ignores shields
+        if (projectile && projectile.ignoresShields) {
+            this.health = Math.max(0, this.health - damage);
+            return;
+        }
+        
         if (this.shieldActive && this.shield > 0) {
-            // Damage goes to shield first
-            const shieldDamage = Math.min(damage, this.shield);
-            this.shield -= shieldDamage;
-            damage -= shieldDamage;
+            // Calculate shield damage with Shield Breaker multiplier
+            let shieldDamageMultiplier = 1;
+            let regenDelayExtension = 0;
+            
+            if (projectile && projectile.hasShieldBreaker) {
+                shieldDamageMultiplier = projectile.shieldBreakerDamage;
+                regenDelayExtension = projectile.shieldRegenDelay;
+                
+                // Extend shield regeneration delay
+                this.lastDamageTime = Date.now() + regenDelayExtension;
+            }
+            
+            // Apply enhanced damage to shield
+            const enhancedShieldDamage = damage * shieldDamageMultiplier;
+            const actualShieldDamage = Math.min(enhancedShieldDamage, this.shield);
+            this.shield -= actualShieldDamage;
+            
+            // Calculate remaining damage after shield absorption
+            const remainingDamage = Math.max(0, damage - (actualShieldDamage / shieldDamageMultiplier));
+            damage = remainingDamage;
         }
         
         // Remaining damage goes to health

@@ -139,6 +139,42 @@ export class Player {
 		// Immolation Aura configuration
 		/** @type {Object|null} Immolation Aura configuration object */
 		this.immolationAura = null;
+		
+		// Shield Boss Counter Power-ups
+		/** @type {boolean} Whether Shield Breaker is active */
+		this.hasShieldBreaker = false;
+		/** @type {number} Shield damage multiplier */
+		this.shieldBreakerDamage = 1.0;
+		/** @type {number} Shield regeneration delay */
+		this.shieldRegenDelay = 0;
+		/** @type {number} Shield breaker stack count */
+		this.shieldBreakerStacks = 0;
+		
+		/** @type {boolean} Whether Adaptive Targeting is active */
+		this.hasAdaptiveTargeting = false;
+		/** @type {number} Extended targeting range */
+		this.targetingRange = 200;
+		/** @type {boolean} Whether projectiles have homing ability */
+		this.hasHomingShots = false;
+		
+		/** @type {boolean} Whether Barrier Phase is active */
+		this.hasBarrierPhase = false;
+		/** @type {number} Barrier Phase cooldown timer */
+		this.barrierPhaseCooldown = 0;
+		/** @type {number} Maximum cooldown for Barrier Phase */
+		this.barrierPhaseMaxCooldown = 60000;
+		/** @type {number} Duration of invulnerability */
+		this.barrierPhaseDuration = 3000;
+		/** @type {boolean} Whether currently invulnerable */
+		this.barrierPhaseActive = false;
+		/** @type {number} Health threshold to trigger barrier */
+		this.barrierPhaseThreshold = 0.25;
+		
+		/** @type {Object|null} Overcharge Burst configuration */
+		this.overchargeBurst = null;
+		
+		/** @type {Object|null} Emergency Heal configuration */
+		this.emergencyHeal = null;
     }
     
     /**
@@ -199,6 +235,29 @@ export class Player {
         // Reset Lucky Shots
         this.luckyShots = null;
         
+        // Reset Immolation Aura
+        this.immolationAura = null;
+        
+        // Reset Shield Boss Counter Power-ups
+        this.hasShieldBreaker = false;
+        this.shieldBreakerDamage = 1.0;
+        this.shieldRegenDelay = 0;
+        this.shieldBreakerStacks = 0;
+        
+        this.hasAdaptiveTargeting = false;
+        this.targetingRange = 200;
+        this.hasHomingShots = false;
+        
+        this.hasBarrierPhase = false;
+        this.barrierPhaseCooldown = 0;
+        this.barrierPhaseMaxCooldown = 60000;
+        this.barrierPhaseDuration = 3000;
+        this.barrierPhaseActive = false;
+        this.barrierPhaseThreshold = 0.25;
+        
+        this.overchargeBurst = null;
+        this.emergencyHeal = null;
+        
         // Reset coins
         this.coins = 0;
         
@@ -258,6 +317,38 @@ export class Player {
         // Apply Immolation Aura damage to nearby enemies
         if (this.immolationAura && this.immolationAura.active) {
             this.applyImmolationAura(game.enemies, delta);
+        }
+        
+        // Update Barrier Phase cooldown
+        if (this.hasBarrierPhase && this.barrierPhaseCooldown > 0) {
+            this.barrierPhaseCooldown -= delta;
+        }
+        
+        // Check for Barrier Phase activation
+        if (this.hasBarrierPhase && !this.barrierPhaseActive && 
+            this.hp / this.maxHp <= this.barrierPhaseThreshold && 
+            this.barrierPhaseCooldown <= 0) {
+            this.activateBarrierPhase();
+        }
+        
+        // Update Barrier Phase duration
+        if (this.barrierPhaseActive) {
+            this.barrierPhaseDuration -= delta;
+            if (this.barrierPhaseDuration <= 0) {
+                this.barrierPhaseActive = false;
+            }
+        }
+        
+        // Update Emergency Heal cooldown
+        if (this.emergencyHeal && this.emergencyHeal.cooldown > 0) {
+            this.emergencyHeal.cooldown -= delta;
+        }
+        
+        // Check for Emergency Heal activation
+        if (this.emergencyHeal && this.emergencyHeal.active && 
+            this.hp / this.maxHp <= this.emergencyHeal.healThreshold && 
+            this.emergencyHeal.cooldown <= 0) {
+            this.activateEmergencyHeal();
         }
     }
     
@@ -469,7 +560,19 @@ export class Player {
         const damage = GameConfig.PLAYER.BASE_DAMAGE * this.damageMod;
         const firingAngle = overrideAngle !== null ? overrideAngle : this.angle;
         
-        if (this.hasTripleShot) {
+        // Check for Overcharge Burst
+        let isOverchargeBurst = false;
+        if (this.overchargeBurst && this.overchargeBurst.active) {
+            this.overchargeBurst.shotCounter++;
+            if (this.overchargeBurst.shotCounter >= this.overchargeBurst.burstInterval) {
+                isOverchargeBurst = true;
+                this.overchargeBurst.shotCounter = 0;
+            }
+        }
+        
+        if (isOverchargeBurst) {
+            this._fireOverchargeBurst(game, damage, firingAngle);
+        } else if (this.hasTripleShot) {
             this._fireTripleShot(game, damage, firingAngle);
         } else {
             this._fireSingleShot(game, damage, firingAngle);
@@ -526,6 +629,29 @@ export class Player {
     }
     
     /**
+     * Fire an overcharged burst projectile with enhanced damage
+     * 
+     * @private
+     * @param {Object} game - Game instance
+     * @param {number} damage - Base projectile damage
+     * @param {number} angle - Firing angle
+     */
+    _fireOverchargeBurst(game, damage, angle) {
+        const burstDamage = damage * this.overchargeBurst.burstDamageMultiplier;
+        const projectile = this._createProjectile(angle, burstDamage);
+        
+        // Special properties for overcharge burst
+        projectile.isOverchargeBurst = true;
+        projectile.ignoresShields = this.overchargeBurst.ignoresShields;
+        projectile.glowColor = '#ffff00'; // Bright yellow for overcharge burst
+        projectile.size = 8; // Larger projectile
+        
+        game.projectiles.push(projectile);
+        
+        console.log('Overcharge Burst fired!');
+    }
+    
+    /**
      * Create a projectile with current power-up modifications applied
      * 
      * @private
@@ -560,6 +686,19 @@ export class Player {
             projectile.explosive = true;
             projectile.explosionRadius = this.explosionRadius;
             projectile.explosionDamage = this.explosionDamage;
+        }
+        
+        // Apply Shield Breaker effects
+        if (this.hasShieldBreaker) {
+            projectile.hasShieldBreaker = true;
+            projectile.shieldBreakerDamage = this.shieldBreakerDamage;
+            projectile.shieldRegenDelay = this.shieldRegenDelay;
+        }
+        
+        // Apply Adaptive Targeting homing effect
+        if (this.hasHomingShots) {
+            projectile.hasHoming = true;
+            projectile.homingStrength = 0.1; // Slight homing effect
         }
         
         // Apply Lucky Shots critical hit chance
@@ -622,6 +761,11 @@ export class Player {
             throw new Error('Damage amount cannot be negative');
         }
         
+        // Check if Barrier Phase is active (invulnerability)
+        if (this.barrierPhaseActive) {
+            return; // No damage taken during barrier phase
+        }
+        
         // Shield absorbs damage first
         if (this.hasShield && this.shieldHp > 0) {
             const shieldDamage = Math.min(amount, this.shieldHp);
@@ -664,6 +808,31 @@ export class Player {
         if (!this.hasShield) return false;
         this.shieldHp = Math.min(this.maxShieldHp, this.shieldHp + amount);
         return true;
+    }
+    
+    /**
+     * Activate Barrier Phase for temporary invulnerability
+     * Player becomes invulnerable for a short duration
+     */
+    activateBarrierPhase() {
+        this.barrierPhaseActive = true;
+        this.barrierPhaseCooldown = this.barrierPhaseMaxCooldown;
+        this.barrierPhaseDuration = 3000; // Reset duration to 3 seconds
+        
+        // Visual indicator - could add particle effects here
+        console.log('Barrier Phase activated! Invulnerable for 3 seconds!');
+    }
+    
+    /**
+     * Activate Emergency Heal to restore health
+     * Automatically heals player when health is critically low
+     */
+    activateEmergencyHeal() {
+        const healAmount = Math.floor(this.maxHp * this.emergencyHeal.healTarget);
+        this.hp = Math.min(this.maxHp, healAmount);
+        this.emergencyHeal.cooldown = this.emergencyHeal.maxCooldown;
+        
+        console.log(`Emergency Heal activated! Restored to ${Math.floor(this.emergencyHeal.healTarget * 100)}% health!`);
     }
     
     /**
@@ -756,6 +925,8 @@ export class Player {
         
         if (this.hasLifeSteal) owned.push("Life Steal");
         if (this.explosiveShots) owned.push("Explosive Shots");
+        if (this.hasAdaptiveTargeting) owned.push("Adaptive Targeting");
+        if (this.hasBarrierPhase) owned.push("Barrier Phase");
         
         // Add slow field if it's at maximum stacks
         if (this.isSlowFieldMaxed()) owned.push("Slow Field");
@@ -971,6 +1142,36 @@ export class Player {
             
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.immolationAura.range, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        // Draw Barrier Phase if active
+        if (this.barrierPhaseActive) {
+            ctx.save();
+            
+            // Create shimmering barrier effect
+            const shimmerIntensity = 0.7 + 0.3 * Math.sin(Date.now() / 100);
+            const barrierRadius = this.radius + 25;
+            
+            // Outer barrier ring
+            ctx.strokeStyle = `rgba(255, 255, 255, ${shimmerIntensity})`;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 20;
+            
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, barrierRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Inner barrier ring
+            ctx.strokeStyle = `rgba(200, 200, 255, ${shimmerIntensity * 0.6})`;
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 10;
+            
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, barrierRadius - 8, 0, Math.PI * 2);
             ctx.stroke();
             
             ctx.restore();

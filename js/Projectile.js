@@ -74,6 +74,28 @@ export class Projectile {
         /** @type {string} Glow color for visual effects */
         this.glowColor = '#fff';
         this.isEnemyProjectile = false;
+        
+        // Shield Boss Counter properties
+        /** @type {boolean} Whether this is an overcharge burst projectile */
+        this.isOverchargeBurst = false;
+        /** @type {boolean} Whether this projectile ignores shields */
+        this.ignoresShields = false;
+        /** @type {number} Visual size override for special projectiles */
+        this.size = this.radius;
+        
+        // Shield Breaker properties
+        /** @type {boolean} Whether this projectile has shield breaker ability */
+        this.hasShieldBreaker = false;
+        /** @type {number} Shield damage multiplier */
+        this.shieldBreakerDamage = 1.0;
+        /** @type {number} Shield regeneration delay in milliseconds */
+        this.shieldRegenDelay = 0;
+        
+        // Adaptive Targeting properties
+        /** @type {boolean} Whether this projectile has homing ability */
+        this.hasHoming = false;
+        /** @type {number} Homing strength (0-1, where 1 is perfect tracking) */
+        this.homingStrength = 0;
     }
     
     /**
@@ -105,6 +127,11 @@ export class Projectile {
         // Skip position updates if game is not playing
         if (game && game.gameState !== 'playing') return;
         
+        // Apply basic homing if enabled
+        if (this.hasHoming && this.homingStrength > 0 && game && game.enemies) {
+            this.applyHoming(game.enemies, delta);
+        }
+        
         // Update position using velocity and frame time
         // Convert from pixels per second to pixels per frame
         this.x += this.vx * (delta / 1000);
@@ -122,6 +149,57 @@ export class Projectile {
         // Limit trail length for performance
         if (this.trail.length > this.trailLength) {
             this.trail.shift(); // Remove oldest trail point
+        }
+    }
+    
+    /**
+     * Apply basic homing behavior to track nearby enemies
+     * 
+     * @param {Array.<import('./Enemy.js').Enemy>} enemies - Array of enemy objects
+     * @param {number} delta - Time elapsed since last frame
+     */
+    applyHoming(enemies, delta) {
+        // Find nearest enemy within reasonable range
+        /** @type {import('./Enemy.js').Enemy|null} */
+        let nearestEnemy = null;
+        let nearestDistance = 150; // Only home within 150 pixels
+        
+        enemies.forEach(enemy => {
+            if (enemy.dying) return; // Skip dying enemies
+            
+            const dx = enemy.x - this.x;
+            const dy = enemy.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestEnemy = enemy;
+            }
+        });
+        
+        if (nearestEnemy) {
+            // Calculate desired direction to target
+            const dx = nearestEnemy.x - this.x;
+            const dy = nearestEnemy.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > 0) {
+                // Normalize desired direction
+                const desiredVx = (dx / distance) * this.speed;
+                const desiredVy = (dy / distance) * this.speed;
+                
+                // Apply homing strength to blend current velocity with desired velocity
+                const strength = this.homingStrength * (delta / 1000);
+                this.vx = this.vx * (1 - strength) + desiredVx * strength;
+                this.vy = this.vy * (1 - strength) + desiredVy * strength;
+                
+                // Maintain original speed
+                const currentSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                if (currentSpeed > 0) {
+                    this.vx = (this.vx / currentSpeed) * this.speed;
+                    this.vy = (this.vy / currentSpeed) * this.speed;
+                }
+            }
         }
     }
     
@@ -202,15 +280,39 @@ export class Projectile {
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
         
-        // Different color for critical projectiles
-        ctx.fillStyle = this.isCriticalVisual ? this.glowColor : '#fff';
-        ctx.strokeStyle = this.isCriticalVisual ? '#ffaa00' : '#fff';
-        ctx.lineWidth = this.isCriticalVisual ? 3 : 2;
+        // Different colors and sizes for special projectiles
+        let fillColor = '#fff';
+        let strokeColor = '#fff';
+        let lineWidth = 2;
+        let drawSize = 4;
         
-        // Draw projectile body (slightly larger for crits)
-        const size = this.isCriticalVisual ? 6 : 4;
+        if (this.isOverchargeBurst) {
+            // Overcharge burst - bright yellow/gold
+            fillColor = this.glowColor || '#ffff00';
+            strokeColor = '#ffaa00';
+            lineWidth = 4;
+            drawSize = this.size || 8;
+        } else if (this.isCriticalVisual) {
+            // Critical hit - golden
+            fillColor = this.glowColor;
+            strokeColor = '#ffaa00';
+            lineWidth = 3;
+            drawSize = 6;
+        } else if (this.hasShieldBreaker) {
+            // Shield breaker - cyan/blue
+            fillColor = '#00ffff';
+            strokeColor = '#0088ff';
+            lineWidth = 3;
+            drawSize = 5;
+        }
+        
+        ctx.fillStyle = fillColor;
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth;
+        
+        // Draw projectile body
         ctx.beginPath();
-        ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, drawSize, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
         

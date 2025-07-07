@@ -69,8 +69,8 @@ export class CollisionSystem {
         // Calculate damage based on piercing mechanics
         const currentDamage = projectile.getCurrentDamage();
         
-        // Damage enemy
-        enemy.takeDamage(currentDamage);
+        // Damage enemy - pass projectile for special effects
+        enemy.takeDamage(currentDamage, projectile);
         projectile.hitEnemyIds.push(enemy.id); // Record hit
         
         // Increment enemies hit count for piercing damage reduction

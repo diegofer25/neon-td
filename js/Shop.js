@@ -140,6 +140,15 @@ export class Shop {
             case "Immolation Aura":
                 // Calculate stacks based on damage percent (1% per stack)
                 return player.immolationAura ? Math.round(player.immolationAura.damagePercent / 0.01) : 0;
+            case "Shield Breaker":
+                // Use the dedicated stack counter
+                return player.shieldBreakerStacks || 0;
+            case "Overcharge Burst":
+                // Calculate stacks based on burst interval (starts at 10, decreases by 2 per stack)
+                return player.overchargeBurst ? Math.round((10 - player.overchargeBurst.burstInterval) / 2) : 0;
+            case "Emergency Heal":
+                // Calculate stacks based on cooldown reduction (starts at 45s, -10s per stack)
+                return player.emergencyHeal ? Math.round((45000 - player.emergencyHeal.maxCooldown) / 10000) : 0;
             default:
                 return 0;
         }
@@ -300,24 +309,9 @@ export class Shop {
      * @returns {PowerUp[]} Array of available power-ups for the category
      */
     getPowerUpsByCategory(category, player) {
-        // Define power-up categories for shop organization
-        const categoryNames = {
-            'OFFENSE': [
-                "Damage Boost", "Fire Rate", "Piercing Shots", "Triple Shot", 
-                "Speed Boost", "Turn Speed", "Explosive Shots", "Bigger Explosions", 
-                "Double Damage", "Rapid Fire"
-            ],
-            'DEFENSE': [
-                "Max Health", "Shield", "Regeneration", "Shield Regen", 
-                "Full Heal"
-            ],
-            'UTILITY': [
-                "Life Steal", "Slow Field", "Coin Magnet", "Lucky Shots",
-                "Immolation Aura"
-            ]
-        };
-
-        const powerUpNames = categoryNames[category] || [];
+        // Use categories from PowerUp.js to ensure all power-ups are included
+        const powerUpNames = PowerUp.CATEGORIES[category] || [];
+        
         return PowerUp.ALL_POWERUPS.filter(powerUp => {
             if (!powerUpNames.includes(powerUp.name)) return false;
             
@@ -342,6 +336,13 @@ export class Shop {
             case "Bigger Explosions":
                 // Requires Explosive Shots to be useful
                 return player.explosiveShots;
+            // Shield Boss Counter power-ups have no special requirements
+            case "Shield Breaker":
+            case "Adaptive Targeting":
+            case "Barrier Phase":
+            case "Overcharge Burst":
+            case "Emergency Heal":
+                return true;
             default:
                 return true; // No requirements for other power-ups
         }

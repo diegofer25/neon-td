@@ -115,8 +115,9 @@ export class Enemy {
     /**
      * Applies damage to the enemy and triggers visual feedback.
      * @param {number} amount - Amount of damage to deal
+     * @param {import('./Projectile.js').Projectile} [projectile] - Optional projectile that caused the damage
      */
-    takeDamage(amount) {
+    takeDamage(amount, projectile = null) {
         this.health -= amount;
         
         // Trigger white flash effect when hit
@@ -371,8 +372,9 @@ export class SplitterEnemy extends Enemy {
     /**
      * Override takeDamage to handle splitting on death.
      * @param {number} amount - Amount of damage to deal
+     * @param {import('./Projectile.js').Projectile} [projectile] - Optional projectile that caused the damage
      */
-    takeDamage(amount) {
+    takeDamage(amount, projectile = null) {
         this.health -= amount;
         
         // Trigger white flash effect when hit
